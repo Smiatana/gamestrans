@@ -1,0 +1,31 @@
+services:
+
+  db:
+    image: postgres:16
+    container_name: gamestrans_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gamestrans
+      POSTGRES_USER: gamestrans_user
+      POSTGRES_PASSWORD: devpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: gamestrans_app
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://db:5432/gamestrans
+      DB_USER: gamestrans_user
+      DB_PASSWORD: devpassword
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
