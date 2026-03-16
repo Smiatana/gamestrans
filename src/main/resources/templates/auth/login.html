@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Уваход', ~{::main})}">
+
+<body>
+    <main>
+        <div class="auth-page">
+            <div class="auth-card">
+                <h1>Уваход</h1>
+
+                <div th:if="${param.error}" class="alert alert--danger">
+                    Няправільны email або пароль
+                </div>
+                <div th:if="${param.registered}" class="alert alert--success">
+                    Вы зарэгістраваныя
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" name="password" class="form-input">
+                    </div>
+                    <button type="submit" class="btn btn--primary">Увайсці</button>
+                </form>
+                <p>Няма акаўнта? <a th:href="@{/register}">Зарэгістравацца</a></p>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

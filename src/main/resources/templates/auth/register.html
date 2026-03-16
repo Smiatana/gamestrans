@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэгістрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="auth-page">
+            <div class="auth-card">
+                <h1>Рэгістрацыя</h1>
+
+                <div th:if="${error}" class="alert alert--danger" th:text="${error}"></div>
+
+                <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-input">
+                        <span class="form-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Імя карыстальніка</label>
+                        <input type="text" id="username" th:field="*{username}" class="form-input">
+                        <span class="form-error" th:if="${#fields.hasErrors('username')}"
+                            th:errors="*{username}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" th:field="*{password}" class="form-input">
+                        <span class="form-error" th:if="${#fields.hasErrors('password')}"
+                            th:errors="*{password}"></span>
+                    </div>
+                    <button type="submit" class="btn btn--primary">Зарэгістравацца</button>
+                </form>
+                <p>Ёсць акаўнт? <a th:href="@{/login}">Увайсці</a></p>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
