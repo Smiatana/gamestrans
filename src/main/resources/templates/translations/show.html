@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Пераклад', ~{::main})}">
+
+<body>
+    <main>
+        <div th:if="${tranlation}">
+            <div class="page-header">
+                <div>
+                    <p class="text-muted" th:text="${translation.game.title}"></p>
+                    <h1>Пераклад</h1>
+                </div>
+                <div class="page-header__actions" th:if="${isOwner}">
+                    <a th:href="@{/translations/{id}/edit(id=${translation.id})}"
+                        class="btn btn--outline">Рэдагаваць</a>
+                    <a th:href="@{/translations/{id}/releases/new(id=${translation.id})}" class="btn btn--primary">Новы
+                        рэліз</a>
+                </div>
+            </div>
+            <div class="content-grid">
+                <div class="content-main">
+                    <div class="card">
+                        <div class="card__header">
+                            <h2>Статус</h2>
+                            <span class="badge" th:classappend="'badge--' + ${translation.status}"
+                                th:text="${translation.status}"></span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Рэлізы</h2>
+                        <p class="text-muted">Рэлізаў пакуль няма</p>
+                    </div>
+                </div>
+
+                <div class="content-sidebar">
+                    <div class="card">
+                        <h2>Удзельнікі</h2>
+                        <ul class="member-list">
+                            <li th:each="member : ${members}" class="member-item">
+                                <span th:text="${member.user.username}"></span>
+                                <span class="badge" th:text="${member.role}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
