@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -60,14 +62,59 @@ public class TranslationController {
         Translation translation = translationRepository.findById(id).orElseThrow();
         List<TranslationMember> members = translationMemberRepository.findByTranslationId(id);
 
-        boolean isOwner = members.stream()
-                .anyMatch(m -> m.getUser().getEmail().equals(userDetails.getUsername())
-                        && m.getRole().equals("owner"));
+        boolean isOwner = translationMemberRepository
+                .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");
 
         model.addAttribute("translation", translation);
         model.addAttribute("members", members);
         model.addAttribute("isOwner", isOwner);
         return "translations/show";
+    }
+
+    @GetMapping("/translations/{id}/edit")
+    public String editPage(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Translation translation = translationRepository.findById(id).orElseThrow();
+        List<TranslationMember> members = translationMemberRepository.findByTranslationId(id);
+
+        boolean isOwner = translationMemberRepository
+                .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");
+        if (!isOwner) {
+            return "redirect:/translations/" + id;
+        }
+
+        CreateTranslationRequest req = new CreateTranslationRequest();
+        req.setGameTitle(translation.getGame().getTitle());
+        req.setGameDescription(translation.getGame().getDescription());
+        req.setDescription(translation.getDescription());
+
+        model.addAttribute("translation", translation);
+        model.addAttribute("createTranslationRequest", req);
+        return "translations/edit";
+    }
+
+    @PostMapping("/translations/{id}/edit")
+    public String update(@PathVariable UUID id,
+            @Valid @ModelAttribute CreateTranslationRequest createTranslationRequest,
+            BindingResult binding,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) throws java.io.IOException {
+        if (binding.hasErrors())
+            return "translations/edit";
+        translationService.update(id, createTranslationRequest);
+        return "redirect:/translations/" + id;
+    }
+
+    @PostMapping("/translations/{id}/delete")
+    public String delete(@PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        boolean isOwner = translationMemberRepository
+                .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");
+
+        if (!isOwner)
+            return "redirect:/translations/" + id;
+
+        translationService.delete(id);
+        return "redirect:/";
     }
 
 }

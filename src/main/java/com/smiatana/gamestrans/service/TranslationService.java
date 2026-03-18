@@ -1,5 +1,7 @@
 package com.smiatana.gamestrans.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
@@ -20,23 +22,15 @@ public class TranslationService {
     private final GameRepository gameRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
-        String coverUrl = null;
-
-        if (req.getGameCover() != null && !req.getGameCover().isEmpty()) {
-            String filename = java.util.UUID.randomUUID() + "_" + req.getGameCover().getOriginalFilename();
-            java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads/covers");
-            java.nio.file.Files.createDirectories(uploadDir);
-            req.getGameCover().transferTo(uploadDir.resolve(filename));
-            coverUrl = "/uploads/covers/" + filename;
-        }
 
         Game game = new Game();
         game.setTitle(req.getGameTitle());
         game.setDescription(req.getGameDescription());
-        game.setCoverUrl(coverUrl);
+        game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
         game.setCreatedBy(currentUser);
         gameRepository.save(game);
 
@@ -54,4 +48,23 @@ public class TranslationService {
         return translation;
     }
 
+    public Translation findById(UUID id) {
+        return translationRepository.findById(id).orElseThrow();
+    }
+
+    public Translation update(UUID id, CreateTranslationRequest req) throws java.io.IOException {
+        Translation translation = findById(id);
+        Game game = translation.getGame();
+
+        game.setTitle(req.getGameTitle());
+        game.setDescription(req.getGameDescription());
+
+        game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
+        gameRepository.save(game);
+        return translationRepository.save(translation);
+    }
+
+    public void delete(UUID id) {
+        translationRepository.deleteById(id);
+    }
 }

@@ -23,6 +23,8 @@ public class Translation {
     @Column(nullable = false)
     private String status = "draft";
 
+    private String description;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

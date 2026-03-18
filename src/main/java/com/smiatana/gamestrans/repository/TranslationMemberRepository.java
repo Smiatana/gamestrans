@@ -11,4 +11,6 @@ public interface TranslationMemberRepository extends JpaRepository<TranslationMe
     List<TranslationMember> findByTranslationId(UUID translationId);
 
     List<TranslationMember> findUserById(UUID userId);
+
+    boolean existsByTranslationIdAndUserEmailAndRole(UUID translationId, String email, String role);
 }
