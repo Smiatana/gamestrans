@@ -17,36 +17,37 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/login", "/css/**", "/js/**")
-                        .permitAll().anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
-                        .permitAll());
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/", "/games", "/games/**", "/register", "/login",
+                                                                "/css/**", "/js/**", "/uploads/**")
+                                                .permitAll().anyRequest().authenticated())
+                                .formLogin(form -> form
+                                                .loginPage("/login")
+                                                .defaultSuccessUrl("/", true)
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutSuccessUrl("/login")
+                                                .permitAll());
+                return http.build();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public UserDetailsService userDetailsServide() {
-        return email -> userRepository.findByEmail(email)
-                .map(user -> User.withUsername(user.getEmail())
-                        .password(user.getPasswordDigest())
-                        .roles("USER")
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException(email));
-    }
+        @Bean
+        public UserDetailsService userDetailsServide() {
+                return email -> userRepository.findByEmail(email)
+                                .map(user -> User.withUsername(user.getEmail())
+                                                .password(user.getPasswordDigest())
+                                                .roles("USER")
+                                                .build())
+                                .orElseThrow(() -> new UsernameNotFoundException(email));
+        }
 }

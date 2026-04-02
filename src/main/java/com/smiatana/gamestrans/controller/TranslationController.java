@@ -20,12 +20,7 @@ import com.smiatana.gamestrans.service.TranslationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -74,7 +69,8 @@ public class TranslationController {
     @GetMapping("/translations/{id}/edit")
     public String editPage(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Translation translation = translationRepository.findById(id).orElseThrow();
-        List<TranslationMember> members = translationMemberRepository.findByTranslationId(id);
+        // List<TranslationMember> members =
+        // translationMemberRepository.findByTranslationId(id);
 
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");

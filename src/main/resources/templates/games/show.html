@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('', ~{::main})}">
+
+<body>
+    <main>
+        <div class="game-header">
+            <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-header__cover">
+            <div class="game-header__info">
+                <h1 th:text="${game.title}"></h1>
+                <p class="text-muted" th:text="${game.description}"></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>Пераклады</h2>
+                <a th:href="@{/translations/new}" class="btn btn--primary btn--sm">Дадаць пераклад</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(translations)}" class="card">
+                <p class="text-muted">Перакладаў пакуль няма</p>
+            </div>
+
+            <div class="translation-list">
+                <a th:each="translation : ${translations}" th:href="@{/translations/{id}(id=${translation.id})}"
+                    class="translation-item">
+                    <div>
+                        <span class="badge" th:classappend="'badge--' + ${translation.status}"
+                            th:text="${translation.status}"></span>
+                    </div>
+                    <span class="text-muted text-sm" th:text="${translation.createdAt}"></span>
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

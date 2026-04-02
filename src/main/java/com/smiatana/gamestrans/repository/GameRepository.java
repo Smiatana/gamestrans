@@ -8,4 +8,6 @@ import com.smiatana.gamestrans.entity.Game;
 
 public interface GameRepository extends JpaRepository<Game, UUID> {
     boolean existsByTitle(String title);
+
+    Game findByTitle(String title);
 }

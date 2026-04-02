@@ -1,0 +1,40 @@
+.translation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.translation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: box-shadow 150ms;
+}
+
+.translation-item:hover {
+    box-shadow: var(--shadow);
+}
+
+.danger-zone {
+    max-width: 720px;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius);
+    background: #fef2f2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.danger-zone h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-danger);
+}

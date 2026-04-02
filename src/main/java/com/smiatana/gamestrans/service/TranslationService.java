@@ -1,5 +1,6 @@
 package com.smiatana.gamestrans.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -50,6 +51,10 @@ public class TranslationService {
 
     public Translation findById(UUID id) {
         return translationRepository.findById(id).orElseThrow();
+    }
+
+    public List<Translation> findTranslationsByGameTitle(String title) {
+        return translationRepository.findByGameTitle(title);
     }
 
     public Translation update(UUID id, CreateTranslationRequest req) throws java.io.IOException {

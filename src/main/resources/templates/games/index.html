@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Гульні', ~{::main})}">
+
+<head>
+    <link rel="stylesheet" href="resources/static/css/components/.css">
+</head>
+
+<body>
+    <main>
+        <div class="page-header">
+            <h1>Гульні</h1>
+        </div>
+
+        <div class="games-grid">
+            <a th:each="game : ${games}" th:href="@{/games/{id}(id=${game.title})}" class="game-card">
+                <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
+                <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
+                <div class="game-card__body">
+                    <h2 th:text="${game.title}"></h2>
+                    <p class="text-muted" th:text="${game.description}"></p>
+                </div>
+            </a>
+        </div>
+
+        <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
+    </main>
+</body>
+
+</html>

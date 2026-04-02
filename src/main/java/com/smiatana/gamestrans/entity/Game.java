@@ -20,8 +20,9 @@ public class Game {
     @JoinColumn(name = "created_by_user_id", nullable = false)
     private User createdBy;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
+
     private String description;
     private String coverUrl;
     private String backgroundUrl;

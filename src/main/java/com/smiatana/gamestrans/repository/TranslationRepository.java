@@ -9,4 +9,6 @@ import com.smiatana.gamestrans.entity.Translation;
 
 public interface TranslationRepository extends JpaRepository<Translation, UUID> {
     List<Translation> findByGameId(UUID gameId);
+
+    List<Translation> findByGameTitle(String title);
 }

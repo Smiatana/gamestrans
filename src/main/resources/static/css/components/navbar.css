@@ -1,0 +1,30 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.navbar__logo {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+}
+
+.navbar__logo:hover {
+    text-decoration: none;
+}
+
+.navbar__links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.navbar__links a {
+    color: var(--color-text);
+    font-size: 0.9rem;
+}

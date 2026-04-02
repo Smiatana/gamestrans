@@ -1,0 +1,72 @@
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-bg);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: box-shadow 150ms;
+}
+
+.game-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.game-card__cover {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+}
+
+.game-card__cover--empty {
+    background: var(--color-bg-secondary);
+}
+
+.game-card__body {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.game-card__body h2 {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.game-header {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.game-header__cover {
+    width: 180px;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    border-radius: var(--radius);
+    flex-shrink: 0;
+}
+
+.game-header__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cover-preview {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    margin-bottom: 0.5rem;
+}
