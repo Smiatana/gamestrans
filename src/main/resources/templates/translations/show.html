@@ -10,9 +10,10 @@
                     <h1>Пераклад</h1>
                 </div>
                 <div class="page-header__actions" th:if="${isOwner}">
-                    <a th:href="@{/translations/{id}/edit(id=${translation.id})}"
+                    <a th:href="@{/games/{title}/{id}/edit(title=${game.title}, id=${translation.id})}"
                         class="btn btn--outline">Рэдагаваць</a>
-                    <a th:href="@{/translations/{id}/releases/new(id=${translation.id})}" class="btn btn--primary">Новы
+                    <a th:href="@{/games/{title}/{id}/releases/new(title=${game.title}, id=${translation.id})}"
+                        class="btn btn--primary">Новы
                         рэліз</a>
                 </div>
             </div>

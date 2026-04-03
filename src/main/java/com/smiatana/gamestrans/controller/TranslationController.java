@@ -10,12 +10,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
+import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
+import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
+import com.smiatana.gamestrans.service.GameService;
 import com.smiatana.gamestrans.service.TranslationService;
 
 import jakarta.validation.Valid;
@@ -29,6 +32,7 @@ public class TranslationController {
     private final UserRepository userRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
+    private final GameRepository gameRepository;
 
     @GetMapping("/translations/new")
     public String newTranslationPage(Model model) {
@@ -47,27 +51,32 @@ public class TranslationController {
 
         User currentUser = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         var translation = translationService.create(createTranslationRequest, currentUser);
-        return "redirect:/translations/" + translation.getId();
+        return "redirect:/games/" + translation.getGame().getTitle() + "/" + translation.getId();
     }
 
-    @GetMapping("/translations/{id}")
-    public String translationPage(@PathVariable UUID id,
+    @GetMapping("/games/{gameTitle}/{transUuid}")
+    public String translationPage(@PathVariable String gameTitle, @PathVariable UUID transUuid,
             @AuthenticationPrincipal UserDetails userDetails,
             Model model) {
-        Translation translation = translationRepository.findById(id).orElseThrow();
-        List<TranslationMember> members = translationMemberRepository.findByTranslationId(id);
+
+        Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
+        Translation translation = translationRepository.findById(transUuid).orElseThrow();
+        List<TranslationMember> members = translationMemberRepository.findByTranslationId(transUuid);
 
         boolean isOwner = translationMemberRepository
-                .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");
+                .existsByTranslationIdAndUserEmailAndRole(transUuid, userDetails.getUsername(), "owner");
 
+        model.addAttribute("game", game);
         model.addAttribute("translation", translation);
         model.addAttribute("members", members);
         model.addAttribute("isOwner", isOwner);
+
         return "translations/show";
     }
 
-    @GetMapping("/translations/{id}/edit")
-    public String editPage(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+    @GetMapping("/games/{gameTitle}/{id}/edit")
+    public String editPage(@PathVariable String gameTitle, @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Translation translation = translationRepository.findById(id).orElseThrow();
         // List<TranslationMember> members =
         // translationMemberRepository.findByTranslationId(id);
@@ -83,13 +92,16 @@ public class TranslationController {
         req.setGameDescription(translation.getGame().getDescription());
         req.setDescription(translation.getDescription());
 
+        Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
+
+        model.addAttribute("game", game);
         model.addAttribute("translation", translation);
         model.addAttribute("createTranslationRequest", req);
         return "translations/edit";
     }
 
-    @PostMapping("/translations/{id}/edit")
-    public String update(@PathVariable UUID id,
+    @PostMapping("/games/{gameTitle}/{id}/edit")
+    public String update(@PathVariable String gameTitle, @PathVariable UUID id,
             @Valid @ModelAttribute CreateTranslationRequest createTranslationRequest,
             BindingResult binding,
             @AuthenticationPrincipal UserDetails userDetails,
@@ -97,17 +109,17 @@ public class TranslationController {
         if (binding.hasErrors())
             return "translations/edit";
         translationService.update(id, createTranslationRequest);
-        return "redirect:/translations/" + id;
+        return "redirect:/games/" + gameTitle + "/" + id;
     }
 
-    @PostMapping("/translations/{id}/delete")
-    public String delete(@PathVariable UUID id,
+    @PostMapping("/games/{gameTitle}/{id}/delete")
+    public String delete(@PathVariable String gameTitle, @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner");
 
         if (!isOwner)
-            return "redirect:/translations/" + id;
+            return "redirect:/games/" + gameTitle + "/" + id;
 
         translationService.delete(id);
         return "redirect:/";

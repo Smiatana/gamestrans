@@ -23,7 +23,7 @@ public class GameController {
     private final GameRepository gameRepository;
     private final TranslationRepository translationRepository;
 
-    @GetMapping("/games/")
+    @GetMapping("/games")
     public String getGames(Model model) {
         model.addAttribute("games", gameRepository.findAll());
         return "games/index";

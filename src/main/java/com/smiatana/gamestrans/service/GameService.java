@@ -19,6 +19,6 @@ public class GameService {
     }
 
     public Game findByTitle(String title) {
-        return gameRepository.findByTitle(title); // doesn't have orelsethrow but it really should
+        return gameRepository.findByTitle(title).orElseThrow();
     }
 }

@@ -7,8 +7,8 @@
             <h1>Рэдагаванне перакладу</h1>
         </div>
 
-        <form th:action="@{/translations/{id}/edit(id=${translation.id})}" th:object="${createTranslationRequest}"
-            method="post" enctype="multipart/form-data" class="form-card">
+        <form th:action="@{/games/{title}/{id}/edit(title=${game.title}, id=${translation.id})}"
+            th:object="${createTranslationRequest}" method="post" enctype="multipart/form-data" class="form-card">
 
             <section class="form-section">
                 <h2>Інфармацыя пра гульню</h2>
@@ -51,7 +51,7 @@
         <div class="danger-zone">
             <h2>Небяспечная зона</h2>
             <p class="text-muted">Выдаленне перакладу немагчыма адмяніць</p>
-            <form th:action="@{/translations/{id}/delete(id=${translation.id})}" method="post">
+            <form th:action="@{/games/{title}/{id}/delete(title=${game.title}, id=${translation.id})}" method="post">
                 <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
                     пераклад</button>
             </form>

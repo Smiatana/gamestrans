@@ -20,10 +20,10 @@
             <div th:if="${#lists.isEmpty(translations)}" class="card">
                 <p class="text-muted">Перакладаў пакуль няма</p>
             </div>
-
             <div class="translation-list">
-                <a th:each="translation : ${translations}" th:href="@{/translations/{id}(id=${translation.id})}"
-                    class="translation-item">
+                <a th:each="translation : ${translations}"
+                    th:href="@{/games/{title}/{id}(title=${game.title}, id=${translation.id})}"
+                    class=" translation-item">
                     <div>
                         <span class="badge" th:classappend="'badge--' + ${translation.status}"
                             th:text="${translation.status}"></span>
