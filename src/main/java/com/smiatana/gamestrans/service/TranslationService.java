@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.smiatana.gamestrans.dto.AddTranslationRequest;
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
 import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Translation;
@@ -48,6 +49,25 @@ public class TranslationService {
         member.setRole("owner");
         translationMemberRepository.save(member);
 
+        return translation;
+    }
+
+    @Transactional
+    public Translation add(AddTranslationRequest req, User currentUser, String gameTitle) throws java.io.IOException {
+        Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
+
+        Translation translation = new Translation();
+        translation.setTitle(req.getTitle());
+        translation.setCreatedBy(currentUser);
+        translation.setGame(game);
+        translation.setStatus("draft");
+        translationRepository.save(translation);
+
+        TranslationMember member = new TranslationMember();
+        member.setTranslation(translation);
+        member.setUser(currentUser);
+        member.setRole("owner");
+        translationMemberRepository.save(member);
         return translation;
     }
 

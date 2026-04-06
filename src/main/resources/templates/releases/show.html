@@ -6,10 +6,10 @@
         <div class="page-header">
             <div>
                 <p class="text-muted">
-                    <a th:href="@{/games/{g}(g=${release.translation.game.title})}"
+                    <a th:href="@{/g/{g}(g=${release.translation.game.title})}"
                         th:text="${release.translation.game.title}"></a>
                     /
-                    <a th:href="@{/games/{g}/{t}(g=${release.translation.game.title}, t=${release.translation.title})}"
+                    <a th:href="@{/g/{g}/t/{t}(g=${release.translation.game.title}, t=${release.translation.title})}"
                         th:text="${release.translation.title}"></a>
                 </p>
                 <h1 th:text="${release.title}"></h1>

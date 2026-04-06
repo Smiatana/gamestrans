@@ -10,7 +10,7 @@ import lombok.*;
 public class CreateTranslationRequest {
     @NotBlank
     private String gameTitle;
-
+    @NotBlank
     private String title;
     private String gameDescription;
     private MultipartFile gameCover;

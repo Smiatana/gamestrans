@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
+import com.smiatana.gamestrans.dto.AddTranslationRequest;
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
 import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Release;
@@ -57,11 +58,36 @@ public class TranslationController {
 
         String uriGameTitle = uriService.uri(translation.getGame().getTitle());
         String uriTransTitle = uriService.uri(translation.getTitle());
-        return "redirect:/games/" + uriGameTitle + "/"
+        return "redirect:/g/" + uriGameTitle + "/t/"
                 + uriTransTitle;
     }
 
-    @GetMapping("/games/{gameTitle}/{transTitle}")
+    @GetMapping("/g/{gameTitle}/t/add")
+    public String addTranslationPage(@PathVariable String gameTitle, Model model) {
+        model.addAttribute("addTranslationRequest", new AddTranslationRequest());
+        model.addAttribute("game", gameRepository.findByTitle(gameTitle).orElseThrow());
+        return "translations/add";
+    }
+
+    @PostMapping("/g/{gameTitle}/t/add")
+    public String addTranslation(@PathVariable String gameTitle,
+            @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
+            BindingResult binding,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) throws java.io.IOException {
+        if (binding.hasErrors())
+            return "translations/add";
+
+        User currentUser = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        var translation = translationService.add(addTranslationRequest, currentUser, gameTitle);
+
+        String uriGameTitle = uriService.uri(translation.getGame().getTitle());
+        String uriTransTitle = uriService.uri(translation.getTitle());
+        return "redirect:/g/" + uriGameTitle + "/t/"
+                + uriTransTitle;
+    }
+
+    @GetMapping("/g/{gameTitle}/t/{transTitle}")
     public String translationPage(@PathVariable String gameTitle, @PathVariable String transTitle,
             @AuthenticationPrincipal UserDetails userDetails, Model model) {
 
@@ -85,7 +111,7 @@ public class TranslationController {
         return "translations/show";
     }
 
-    @GetMapping("/games/{gameTitle}/{transTitle}/edit")
+    @GetMapping("/g/{gameTitle}/t/{transTitle}/edit")
     public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle,
             @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
@@ -95,7 +121,7 @@ public class TranslationController {
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), userDetails.getUsername(), "owner");
         if (!isOwner) {
-            return "redirect:/games/" + gameTitle + "/" + transTitle;
+            return "redirect:/g/" + gameTitle + "/t/" + transTitle;
         }
 
         CreateTranslationRequest req = new CreateTranslationRequest();
@@ -111,7 +137,7 @@ public class TranslationController {
         return "translations/edit";
     }
 
-    @PutMapping("/games/{gameTitle}/{transTitle}/edit")
+    @PutMapping("/g/{gameTitle}/t/{transTitle}/edit")
     public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
             @Valid @ModelAttribute CreateTranslationRequest createTranslationRequest,
             BindingResult binding,
@@ -124,10 +150,10 @@ public class TranslationController {
 
         String uriGameTitle = uriService.uri(gameTitle);
         String uriTransTitle = uriService.uri(transTitle);
-        return "redirect:/games/" + uriGameTitle + "/" + uriTransTitle;
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
-    @DeleteMapping("/games/{gameTitle}/{transTitle}/delete")
+    @DeleteMapping("/g/{gameTitle}/t/{transTitle}/delete")
     public String delete(@PathVariable String gameTitle, @PathVariable String transTitle,
             @AuthenticationPrincipal UserDetails userDetails) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();

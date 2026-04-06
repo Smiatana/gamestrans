@@ -14,7 +14,8 @@
         <div class="section">
             <div class="section-header">
                 <h2>Пераклады</h2>
-                <a th:href="@{/translations/new}" class="btn btn--primary btn--sm">Дадаць пераклад</a>
+                <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm">Дадаць
+                    пераклад</a>
             </div>
 
             <div th:if="${#lists.isEmpty(translations)}" class="card">
@@ -22,7 +23,7 @@
             </div>
             <div class="translation-list">
                 <a th:each="translation : ${translations}"
-                    th:href="@{/games/{title}/{id}(title=${game.title}, id=${translation.title})}"
+                    th:href="@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
                     class=" translation-item">
                     <div>
                         <span class="badge" th:classappend="'badge--' + ${translation.status}"

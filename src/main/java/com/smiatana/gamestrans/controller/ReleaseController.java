@@ -72,11 +72,11 @@ public class ReleaseController {
         String uriTransTitle = uriService.uri(translation.getTitle());
         String uriReleaseTitle = uriService.uri(release.getTitle());
 
-        return "redirect:/games/" + uriGameTitle + "/" + uriTransTitle + "/releases/"
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/r/"
                 + uriReleaseTitle;
     }
 
-    @GetMapping("/games/{gameTitle}/{transTitle}/releases/{releaseTitle}")
+    @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}")
     public String releasePage(@PathVariable String gameTitle, @PathVariable String transTitle,
             @PathVariable String releaseTitle, Model model) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
@@ -87,7 +87,7 @@ public class ReleaseController {
         return "releases/show";
     }
 
-    @GetMapping("/games/{gameTitle}/{transTitle}/releases")
+    @GetMapping("/g/{gameTitle}/t/{transTitle}/r")
     public String releasesPage(@PathVariable String gameTitle, @PathVariable String transTitle, Model model) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         List<Release> releases = releaseRepository.findByTranslationIdOrderByCreatedAtDesc(translation.getId());

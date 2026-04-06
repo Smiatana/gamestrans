@@ -18,13 +18,13 @@ public class GameController {
     private final GameRepository gameRepository;
     private final TranslationRepository translationRepository;
 
-    @GetMapping("/games")
+    @GetMapping("/g")
     public String getGames(Model model) {
         model.addAttribute("games", gameRepository.findAll());
         return "games/index";
     }
 
-    @GetMapping("/games/{title}")
+    @GetMapping("/g/{title}")
     public String getGame(@PathVariable String title, Model model) {
         model.addAttribute("game", gameService.findByTitle(title));
         model.addAttribute("translations", translationRepository.findByGameTitle(title));

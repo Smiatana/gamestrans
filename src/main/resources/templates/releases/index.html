@@ -6,9 +6,9 @@
         <div class="page-header">
             <div>
                 <p class="text-muted">
-                    <a th:href="@{/games/{g}(g=${translation.game.title})}" th:text="${translation.game.title}"></a>
+                    <a th:href="@{/g/{g}(g=${translation.game.title})}" th:text="${translation.game.title}"></a>
                     /
-                    <a th:href="@{/games/{g}/{t}(g=${translation.game.title}, t=${translation.title})}"
+                    <a th:href="@{/g/{g}/t/{t}(g=${translation.game.title}, t=${translation.title})}"
                         th:text="${translation.title}"></a>
                 </p>
                 <h1>Рэлізы</h1>
@@ -20,7 +20,7 @@
             </div>
             <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                 <a th:each="release : ${releases}"
-                    th:href="@{/games/{g}/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                    th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
                     class="release-item">
                     <div class="release-item__info">
                         <span class="release-item__title" th:text="${release.title}"></span>

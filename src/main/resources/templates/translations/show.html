@@ -6,13 +6,13 @@
         <div th:if="${translation}">
             <div class="page-header">
                 <div>
-                    <a th:href="@{/games/{g}(g=${translation.game.title})}">
+                    <a th:href="@{/g/{g}(g=${translation.game.title})}">
                         <p class="text-muted" th:text="${translation.game.title}"></p>
                     </a>
                     <h1 th:text="${translation.title}"></h1>
                 </div>
                 <div class="page-header__actions" th:if="${isOwner}">
-                    <a th:href="@{/games/{title}/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
+                    <a th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>
                     <a th:href="@{/releases/new(translationId=${translation.id})}" class="btn btn--primary">Новы
                         рэліз</a>
@@ -36,7 +36,7 @@
                         </div>
                         <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                             <a th:each="release : ${releases}"
-                                th:href="@{/games/{g}/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                                th:href="@{/g/{g}/t/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
                                 class="release-item">
                                 <div class="release-item__info">
                                     <span class="release-item__title" th:text="${release.title}"></span>
@@ -47,7 +47,7 @@
                             </a>
                         </div>
                         <div th:if="${hasMoreReleases}" class="card__footer">
-                            <a th:href="@{/games/{g}/{t}/releases(g=${translation.game.title}, t=${translation.title})}"
+                            <a th:href="@{/g/{g}/t/{t}/releases(g=${translation.game.title}, t=${translation.title})}"
                                 class="btn btn--outline btn--sm">Усе рэлізы</a>
                         </div>
                     </div>
