@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Новы рэліз', ~{::main})}">
+
+<body>
+    <main>
+        <div class="page-header">
+            <h1>Новы рэліз</h1>
+        </div>
+        <form id="releaseForm" th:action="@{/releases/new}" th:object="${createReleaseRequest}" method="post"
+            enctype="multipart/form-data" class="form-card">
+
+            <section class="form-section">
+                <h2>Пераклад</h2>
+                <div class="form-group">
+                    <label for="translationId">Пераклад</label>
+                    <select id="translationId" th:field="*{translationId}" class="form-input">
+                        <option value="">-- Выберыце пераклад --</option>
+                        <option th:each="t : ${translations}" th:value="${t.id}"
+                            th:text="${t.game.title} + ' — ' + ${t.title}">
+                        </option>
+                    </select>
+                    <span class="form-error" th:if="${#fields.hasErrors('translationId')}"
+                        th:errors="*{translationId}"></span>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Інфармацыя пра рэліз</h2>
+                <div class="form-group">
+                    <label for="title">Назва рэлізу</label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" placeholder="v1.0">
+                    <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+                <div class="form-group">
+                    <label for="description">Апісанне</label>
+                    <textarea id="description" th:field="*{description}" class="form-input form-textarea"></textarea>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Файл або спасылка</h2>
+                <div class="form-group">
+                    <label for="releaseLink">Знешняя спасылка</label>
+                    <input type="url" id="releaseLink" th:field="*{releaseLink}" class="form-input"
+                        placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="releaseFile">Або загрузіць файл</label>
+                    <input type="file" id="releaseFile" name="releaseFile" class="form-input">
+                </div>
+                <span class="form-error" th:if="${error}" th:text="${error}"></span>
+            </section>
+
+            <div class="form-actions">
+                <a href="javascript:history.back()" class="btn btn--outline">Адмяніць</a>
+                <button type="submit" class="btn btn--primary">Апублікаваць</button>
+            </div>
+        </form>
+    </main>
+</body>
+
+</html>

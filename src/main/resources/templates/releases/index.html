@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэлізы', ~{::main})}">
+
+<body>
+    <main>
+        <div class="page-header">
+            <div>
+                <p class="text-muted">
+                    <a th:href="@{/games/{g}(g=${translation.game.title})}" th:text="${translation.game.title}"></a>
+                    /
+                    <a th:href="@{/games/{g}/{t}(g=${translation.game.title}, t=${translation.title})}"
+                        th:text="${translation.title}"></a>
+                </p>
+                <h1>Рэлізы</h1>
+            </div>
+        </div>
+        <div class="card">
+            <div th:if="${#lists.isEmpty(releases)}">
+                <p class="text-muted">Рэлізаў пакуль няма</p>
+            </div>
+            <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
+                <a th:each="release : ${releases}"
+                    th:href="@{/games/{g}/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                    class="release-item">
+                    <div class="release-item__info">
+                        <span class="release-item__title" th:text="${release.title}"></span>
+                        <span class="text-muted text-sm"
+                            th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                    </div>
+                    <span class="release-item__arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -36,6 +36,8 @@ public class TranslationService {
         gameRepository.save(game);
 
         Translation translation = new Translation();
+        translation.setTitle(req.getTitle());
+        translation.setCreatedBy(currentUser);
         translation.setGame(game);
         translation.setStatus("draft");
         translationRepository.save(translation);

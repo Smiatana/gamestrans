@@ -1,6 +1,7 @@
 package com.smiatana.gamestrans.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,7 @@ public interface TranslationRepository extends JpaRepository<Translation, UUID> 
     List<Translation> findByGameId(UUID gameId);
 
     List<Translation> findByGameTitle(String title);
+
+    Optional<Translation> findByGameTitleAndTitle(String gameTitle, String translationTitle);
+
 }

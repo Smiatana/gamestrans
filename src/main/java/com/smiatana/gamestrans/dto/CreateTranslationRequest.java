@@ -11,6 +11,7 @@ public class CreateTranslationRequest {
     @NotBlank
     private String gameTitle;
 
+    private String title;
     private String gameDescription;
     private MultipartFile gameCover;
 

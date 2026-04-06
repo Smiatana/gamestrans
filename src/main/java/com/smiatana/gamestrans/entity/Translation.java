@@ -7,7 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "translations")
+@Table(name = "translations", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "game_id", "title" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,9 +22,17 @@ public class Translation {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private User createdBy;
+
     @Column(nullable = false)
     private String status = "draft";
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(columnDefinition = "text")
     private String description;
 
     @Column(updatable = false)

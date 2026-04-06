@@ -49,11 +49,13 @@
 }
 
 .game-header__cover {
-    width: 180px;
+    height: 400px;
+    width: auto;
     aspect-ratio: 3/4;
     object-fit: cover;
     border-radius: var(--radius);
     flex-shrink: 0;
+    margin: 10px 0px 0px 10px;
 }
 
 .game-header__info {

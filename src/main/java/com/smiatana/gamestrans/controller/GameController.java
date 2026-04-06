@@ -1,11 +1,6 @@
 package com.smiatana.gamestrans.controller;
 
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
-
-import com.smiatana.gamestrans.entity.Game;
-import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.GameService;

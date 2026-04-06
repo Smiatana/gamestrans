@@ -22,7 +22,7 @@
             </div>
             <div class="translation-list">
                 <a th:each="translation : ${translations}"
-                    th:href="@{/games/{title}/{id}(title=${game.title}, id=${translation.id})}"
+                    th:href="@{/games/{title}/{id}(title=${game.title}, id=${translation.title})}"
                     class=" translation-item">
                     <div>
                         <span class="badge" th:classappend="'badge--' + ${translation.status}"

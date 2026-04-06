@@ -6,14 +6,15 @@
         <div th:if="${translation}">
             <div class="page-header">
                 <div>
-                    <p class="text-muted" th:text="${translation.game.title}"></p>
-                    <h1>Пераклад</h1>
+                    <a th:href="@{/games/{g}(g=${translation.game.title})}">
+                        <p class="text-muted" th:text="${translation.game.title}"></p>
+                    </a>
+                    <h1 th:text="${translation.title}"></h1>
                 </div>
                 <div class="page-header__actions" th:if="${isOwner}">
-                    <a th:href="@{/games/{title}/{id}/edit(title=${game.title}, id=${translation.id})}"
+                    <a th:href="@{/games/{title}/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>
-                    <a th:href="@{/games/{title}/{id}/releases/new(title=${game.title}, id=${translation.id})}"
-                        class="btn btn--primary">Новы
+                    <a th:href="@{/releases/new(translationId=${translation.id})}" class="btn btn--primary">Новы
                         рэліз</a>
                 </div>
             </div>
@@ -26,13 +27,31 @@
                                 th:text="${translation.status}"></span>
                         </div>
                     </div>
-
                     <div class="card">
-                        <h2>Рэлізы</h2>
-                        <p class="text-muted">Рэлізаў пакуль няма</p>
+                        <div class="card__header">
+                            <h2>Рэлізы</h2>
+                        </div>
+                        <div th:if="${#lists.isEmpty(releases)}" class="text-muted">
+                            <p>Рэлізаў пакуль няма</p>
+                        </div>
+                        <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
+                            <a th:each="release : ${releases}"
+                                th:href="@{/games/{g}/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                                class="release-item">
+                                <div class="release-item__info">
+                                    <span class="release-item__title" th:text="${release.title}"></span>
+                                    <span class="text-muted text-sm"
+                                        th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                                </div>
+                                <span class="release-item__arrow">→</span>
+                            </a>
+                        </div>
+                        <div th:if="${hasMoreReleases}" class="card__footer">
+                            <a th:href="@{/games/{g}/{t}/releases(g=${translation.game.title}, t=${translation.title})}"
+                                class="btn btn--outline btn--sm">Усе рэлізы</a>
+                        </div>
                     </div>
                 </div>
-
                 <div class="content-sidebar">
                     <div class="card">
                         <h2>Удзельнікі</h2>

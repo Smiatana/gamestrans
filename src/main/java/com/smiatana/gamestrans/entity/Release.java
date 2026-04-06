@@ -7,28 +7,31 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "games")
+@Table(name = "releases", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "translation_id", "title" })
+})
 @Getter
 @Setter
-@NoArgsConstructor
-public class Game {
+public class Release {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "translation_id", nullable = false)
+    private Translation translation;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false)
     private User createdBy;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String title;
 
     @Column(columnDefinition = "text")
     private String description;
     @Column(columnDefinition = "text")
-    private String coverUrl;
-    @Column(columnDefinition = "text")
-    private String backgroundUrl;
+    private String fileUrl;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
