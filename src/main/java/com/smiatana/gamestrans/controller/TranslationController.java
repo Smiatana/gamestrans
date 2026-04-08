@@ -98,8 +98,12 @@ public class TranslationController {
         List<Release> releases = releaseRepository.findTop5ByTranslationIdOrderByCreatedAtDesc(translation.getId());
         long totalReleases = releaseRepository.countByTranslationId(translation.getId());
 
-        boolean isOwner = translationMemberRepository
-                .existsByTranslationIdAndUserEmailAndRole(translation.getId(), userDetails.getUsername(), "owner");
+        boolean isOwner = false;
+
+        if (userDetails != null) {
+            isOwner = translationMemberRepository
+                    .existsByTranslationIdAndUserEmailAndRole(translation.getId(), userDetails.getUsername(), "owner");
+        }
 
         model.addAttribute("game", game);
         model.addAttribute("translation", translation);
@@ -124,36 +128,32 @@ public class TranslationController {
             return "redirect:/g/" + gameTitle + "/t/" + transTitle;
         }
 
-        CreateTranslationRequest req = new CreateTranslationRequest();
-        req.setGameTitle(translation.getGame().getTitle());
-        req.setGameDescription(translation.getGame().getDescription());
+        AddTranslationRequest req = new AddTranslationRequest();
+        req.setTitle(transTitle);
         req.setDescription(translation.getDescription());
 
-        Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
-
-        model.addAttribute("game", game);
         model.addAttribute("translation", translation);
-        model.addAttribute("createTranslationRequest", req);
+        model.addAttribute("addTranslationRequest", req);
         return "translations/edit";
     }
 
-    @PutMapping("/g/{gameTitle}/t/{transTitle}/edit")
+    @PostMapping("/g/{gameTitle}/t/{transTitle}/edit")
     public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @Valid @ModelAttribute CreateTranslationRequest createTranslationRequest,
+            @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
             BindingResult binding,
             @AuthenticationPrincipal UserDetails userDetails,
             Model model) throws java.io.IOException {
         if (binding.hasErrors())
             return "translations/edit";
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
-        translationService.update(translation.getId(), createTranslationRequest);
+        translationService.update(translation.getId(), addTranslationRequest);
 
         String uriGameTitle = uriService.uri(gameTitle);
         String uriTransTitle = uriService.uri(transTitle);
         return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
-    @DeleteMapping("/g/{gameTitle}/t/{transTitle}/delete")
+    @PostMapping("/g/{gameTitle}/t/{transTitle}/delete")
     public String delete(@PathVariable String gameTitle, @PathVariable String transTitle,
             @AuthenticationPrincipal UserDetails userDetails) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();

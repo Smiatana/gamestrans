@@ -40,6 +40,7 @@ public class TranslationService {
         translation.setTitle(req.getTitle());
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
+        translation.setDescription(req.getDescription());
         translation.setStatus("draft");
         translationRepository.save(translation);
 
@@ -79,15 +80,10 @@ public class TranslationService {
         return translationRepository.findByGameTitle(title);
     }
 
-    public Translation update(UUID id, CreateTranslationRequest req) throws java.io.IOException {
+    public Translation update(UUID id, AddTranslationRequest req) throws java.io.IOException {
         Translation translation = findById(id);
-        Game game = translation.getGame();
-
-        game.setTitle(req.getGameTitle());
-        game.setDescription(req.getGameDescription());
-
-        game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
-        gameRepository.save(game);
+        translation.setTitle(req.getTitle());
+        translation.setDescription(req.getDescription());
         return translationRepository.save(translation);
     }
 

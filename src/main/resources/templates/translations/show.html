@@ -22,7 +22,7 @@
                 <div class="content-main">
                     <div class="card">
                         <div class="card__header">
-                            <h2>Статус</h2>
+                            <p class="text-muted" th:text="${translation.description}"></p>
                             <span class="badge" th:classappend="'badge--' + ${translation.status}"
                                 th:text="${translation.status}"></span>
                         </div>
@@ -36,7 +36,7 @@
                         </div>
                         <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                             <a th:each="release : ${releases}"
-                                th:href="@{/g/{g}/t/{t}/releases/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                                th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
                                 class="release-item">
                                 <div class="release-item__info">
                                     <span class="release-item__title" th:text="${release.title}"></span>
