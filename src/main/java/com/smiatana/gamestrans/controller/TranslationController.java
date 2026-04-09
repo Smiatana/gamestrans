@@ -149,7 +149,7 @@ public class TranslationController {
         translationService.update(translation.getId(), addTranslationRequest);
 
         String uriGameTitle = uriService.uri(gameTitle);
-        String uriTransTitle = uriService.uri(transTitle);
+        String uriTransTitle = uriService.uri(addTranslationRequest.getTitle());
         return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 

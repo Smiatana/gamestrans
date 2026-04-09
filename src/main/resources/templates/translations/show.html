@@ -22,7 +22,7 @@
                 <div class="content-main">
                     <div class="card">
                         <div class="card__header">
-                            <p class="text-muted" th:text="${translation.description}"></p>
+                            <div class="text" th:utext="${translation.description}"></div>
                             <span class="badge" th:classappend="'badge--' + ${translation.status}"
                                 th:text="${translation.status}"></span>
                         </div>

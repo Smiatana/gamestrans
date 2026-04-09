@@ -7,8 +7,13 @@
             <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-header__cover">
             <div class="game-header__info">
                 <h1 th:text="${game.title}"></h1>
-                <p class="text-muted" th:text="${game.description}"></p>
+                <p class="text" th:utext="${game.description}"></p>
             </div>
+
+
+        </div>
+        <div class="page-header__actions" th:if="${isOwnerOfAny}">
+            <a th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--outline">Рэдагаваць</a>
         </div>
 
         <div class="section">

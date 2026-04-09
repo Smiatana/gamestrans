@@ -32,8 +32,10 @@
                     <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                 </div>
                 <div class="form-group">
-                    <label for="description">Апісанне</label>
-                    <textarea id="description" th:field="*{description}" class="form-input form-textarea"></textarea>
+                    <label>Апісанне</label>
+                    <div
+                        th:replace="~{fragments/editor :: richEditor('description', ${createReleaseRequest.description})}">
+                    </div>
                 </div>
             </section>
 

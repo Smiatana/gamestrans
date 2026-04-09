@@ -20,7 +20,7 @@
             <div class="content-main">
                 <div class="card" th:if="${release.description}">
                     <h2>Апісанне</h2>
-                    <p th:text="${release.description}"></p>
+                    <p th:utext="${release.description}"></p>
                 </div>
                 <div class="card">
                     <h2>Спампаваць</h2>

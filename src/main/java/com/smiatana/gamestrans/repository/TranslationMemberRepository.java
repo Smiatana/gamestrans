@@ -17,4 +17,6 @@ public interface TranslationMemberRepository extends JpaRepository<TranslationMe
     List<TranslationMember> findByUserEmail(String email);
 
     boolean existsByTranslationIdAndUserEmailAndRole(UUID translationId, String email, String role);
+
+    void deleteByTranslationId(UUID translationId);
 }

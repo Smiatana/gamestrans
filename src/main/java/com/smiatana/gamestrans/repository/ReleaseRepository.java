@@ -18,4 +18,6 @@ public interface ReleaseRepository extends JpaRepository<Release, UUID> {
     long countByTranslationId(UUID translationId);
 
     List<Release> findByTranslationIdOrderByCreatedAtDesc(UUID translationId);
+
+    void deleteByTranslationId(UUID translationId);
 }

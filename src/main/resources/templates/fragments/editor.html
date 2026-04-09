@@ -1,0 +1,56 @@
+<th:block th:fragment="richEditor(fieldId, fieldValue)">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <div th:id="${fieldId + '-editor'}" style="min-height: 200px;"></div>
+    <input type="hidden" th:id="${fieldId}" th:name="${fieldId}" th:value="${fieldValue}">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script th:attr="data-field=${fieldId}">
+        (function () {
+            const scripts = document.querySelectorAll('script[data-field]');
+            const script = scripts[scripts.length - 1];
+            const fieldId = script.dataset.field;
+
+            const quill = new Quill('#' + fieldId + '-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: [
+                            ['bold', 'italic', 'underline'],
+                            ['blockquote', 'code-block'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            ['link', 'image']
+                        ],
+                        handlers: {
+                            image: function () {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.click();
+                                input.onchange = async () => {
+                                    const file = input.files[0];
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    const res = await fetch('/api/upload/image', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+                                    const data = await res.json();
+                                    const range = quill.getSelection();
+                                    quill.insertEmbed(range.index, 'image', data.url);
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+
+            const input = document.getElementById(fieldId);
+            if (input && input.value) quill.root.innerHTML = input.value;
+
+            const form = input.closest('form');
+            form.addEventListener('submit', () => {
+                input.value = quill.root.innerHTML;
+            });
+        })();
+    </script>
+</th:block>

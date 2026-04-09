@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэдагаванне гульні', ~{::main})}">
+
+<body>
+    <main>
+        <div class="page-header">
+            <h1>Рэдагаванне гульні <a th:href="@{/g/{g}(g=${game.title})}"></a></h1>
+        </div>
+
+        <form th:action="@{/g/{title}/edit(title=${game.title})}" th:object="${addGameRequest}" method="post"
+            enctype="multipart/form-data" class="form-card">
+            <section class="form-section">
+                <h2>Інфармацыя пра гульню</h2>
+                <div class="form-group">
+                    <label>Назва гульні</label>
+                    <input type="text" th:field="*{gameTitle}" class="form-input">
+                    <span class="form-error" th:if="${#fields.hasErrors('gameTitle')}" th:errors="*{gameTitle}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Вокладка</label>
+                    <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="cover-preview">
+                    <input type="file" name="gameCover" accept="image/*" class="form-input">
+                    <small class="text-muted">Пакіньце пустым, каб не мяняць вокладку</small>
+                </div>
+                <div class="form-group">
+                    <label>Апісанне гульні</label>
+                    <div th:replace="~{fragments/editor :: richEditor('gameDescription', ${game.description})}"></div>
+                </div>
+            </section>
+            <div class="form-actions">
+                <a th:href="@{/g/{title}(title=${game.title})}" class="btn btn--outline">Адмяніць</a>
+                <button type="submit" class="btn btn--primary">Захаваць</button>
+            </div>
+        </form>
+
+        <div class="danger-zone">
+            <h2>Небяспечная зона</h2>
+            <p class="text-muted">Выдаленне гульні немагчыма адмяніць</p>
+            <form th:action="@{/g/{title}/delete(title=${game.title})}" method="post">
+                <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
+                    гульню</button>
+            </form>
+        </div>
+
+    </main>
+</body>
+
+</html>

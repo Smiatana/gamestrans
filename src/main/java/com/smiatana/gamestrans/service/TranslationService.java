@@ -12,6 +12,7 @@ import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 
@@ -25,6 +26,7 @@ public class TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final FileStorageService fileStorageService;
+    private final ReleaseRepository releaseRepository;
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
@@ -59,6 +61,7 @@ public class TranslationService {
 
         Translation translation = new Translation();
         translation.setTitle(req.getTitle());
+        translation.setDescription(req.getDescription());
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
         translation.setStatus("draft");
@@ -80,6 +83,7 @@ public class TranslationService {
         return translationRepository.findByGameTitle(title);
     }
 
+    @Transactional
     public Translation update(UUID id, AddTranslationRequest req) throws java.io.IOException {
         Translation translation = findById(id);
         translation.setTitle(req.getTitle());
@@ -87,7 +91,10 @@ public class TranslationService {
         return translationRepository.save(translation);
     }
 
+    @Transactional
     public void delete(UUID id) {
+        translationMemberRepository.deleteByTranslationId(id);
+        releaseRepository.deleteByTranslationId(id);
         translationRepository.deleteById(id);
     }
 }

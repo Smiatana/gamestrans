@@ -20,9 +20,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="description">Апісанне перакладу</label>
-                        <textarea id="description" th:field="*{description}"
-                            class="form-input form-textarea"></textarea>
+                        <label>Апісанне перакладу</label>
+                        <div
+                            th:replace="~{fragments/editor :: richEditor('description', ${addTranslationRequest.description})}">
+                        </div>
                     </div>
                 </section>
 

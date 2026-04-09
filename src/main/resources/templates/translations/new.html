@@ -19,9 +19,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="gameDescription">Апісанне</label>
-                    <textarea id="gameDescription" th:field="*{gameDescription}"
-                        class="form-input form-textarea"></textarea>
+                    <label>Апісанне</label>
+                    <div
+                        th:replace="~{fragments/editor :: richEditor('gameDescription', ${createTranslationRequest.gameDescription})}">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -40,8 +41,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Апісанне перакладу</label>
-                    <textarea id="description" th:field="*{description}" class="form-input form-textarea"></textarea>
+                    <label>Апісанне перакладу</label>
+                    <div
+                        th:replace="~{fragments/editor :: richEditor('description', ${createTranslationRequest.description})}">
+                    </div>
+                </div>
                 </div>
             </section>
 
