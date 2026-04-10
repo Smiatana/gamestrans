@@ -9,6 +9,7 @@
 @import 'pages/auth.css';
 @import 'pages/games.css';
 @import 'pages/translations.css';
+@import 'pages/user.css';
 
 .main-content {
     max-width: 1200px;

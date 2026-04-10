@@ -5,11 +5,13 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.smiatana.gamestrans.entity.TranslationMember;
 
 public interface TranslationMemberRepository extends JpaRepository<TranslationMember, UUID> {
-    List<TranslationMember> findByTranslationId(UUID translationId);
+    @Query("SELECT tm FROM TranslationMember tm JOIN FETCH tm.user WHERE tm.translation.id = :translationId")
+    List<TranslationMember> findByTranslationId(@Param("translationId") UUID translationId);
 
     List<TranslationMember> findUserById(UUID userId);
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html(${user.username}, ~{::main})}">
+
+<body>
+    <main>
+        <div class="profile-header">
+            <img th:if="${user.avatarUrl}" th:src="${user.avatarUrl}" class="profile-header__pfp">
+            <div class="profile-header__info">
+                <h1 th:text="${user.username}"></h1>
+                <p class="text" th:utext="${user.bio}"></p>
+            </div>
+        </div>
+        <div class="page-header__actions" th:if="${isOwner}">
+            <a th:href="@{/u/{u}/edit(u=${user.username})}" class="btn btn--outline">Рэдагаваць</a>
+        </div>
+
+        <div class="games-grid">
+            <a th:each="game : ${games}" th:href="@{/g/{id}(id=${game.title})}" class="game-card">
+                <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
+                <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
+                <div class="game-card__body">
+                    <h2 th:text="${game.title}"></h2>
+                </div>
+            </a>
+        </div>
+
+        <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
+    </main>
+</body>
+
+</html>

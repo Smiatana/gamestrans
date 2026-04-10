@@ -1,6 +1,8 @@
 package com.smiatana.gamestrans.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,9 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import com.smiatana.gamestrans.dto.AddGameRequest;
-import com.smiatana.gamestrans.dto.AddTranslationRequest;
 import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Translation;
+import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
@@ -54,11 +56,20 @@ public class GameController {
         List<UUID> translationIds = translations.stream()
                 .map(Translation::getId)
                 .toList();
-        boolean isOwnerOfAny = translationIds.stream()
-                .anyMatch(id -> translationMemberRepository
-                        .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
 
+        boolean isOwnerOfAny = false;
+        if (userDetails != null) {
+            isOwnerOfAny = translationIds.stream()
+                    .anyMatch(id -> translationMemberRepository
+                            .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
+        }
         model.addAttribute("isOwnerOfAny", isOwnerOfAny);
+
+        Map<UUID, List<TranslationMember>> membersMap = new HashMap<>();
+        for (UUID id : translationIds) {
+            membersMap.put(id, translationMemberRepository.findByTranslationId(id));
+        }
+        model.addAttribute("membersMap", membersMap);
         return "games/show";
     }
 

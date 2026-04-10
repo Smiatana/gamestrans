@@ -30,7 +30,7 @@ public class User {
 
     private String passwordDigest;
 
-    @Column(nullable = false, unique = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     private String bio;

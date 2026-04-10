@@ -39,4 +39,14 @@ public class FileStorageService {
 
         return url;
     }
+
+    public String storeBase64(String base64, String subdirectory) throws IOException {
+        String data = base64.substring(base64.indexOf(',') + 1);
+        byte[] bytes = java.util.Base64.getDecoder().decode(data);
+        Path dir = uploadDir.resolve(subdirectory);
+        Files.createDirectories(dir);
+        String filename = UUID.randomUUID() + ".jpg";
+        Files.write(dir.resolve(filename), bytes);
+        return "/uploads/" + subdirectory + "/" + filename;
+    }
 }

@@ -57,7 +57,7 @@
                         <h2>Удзельнікі</h2>
                         <ul class="member-list">
                             <li th:each="member : ${members}" class="member-item">
-                                <span th:text="${member.user.username}"></span>
+                                <a th:text="${member.user.username}" th:href="@{/u/{u}(u=${member.user.username})}"></a>
                                 <span class="badge" th:text="${member.role}"></span>
                             </li>
                         </ul>

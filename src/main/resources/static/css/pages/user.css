@@ -1,0 +1,15 @@
+.profile-header {
+    display: flex;
+    flex-direction: row;
+}
+
+.profile-header__pfp {
+    margin: 10px;
+    border-radius: 50%;
+    height: 200pt;
+    width: auto;
+}
+
+.profile-header__info {
+    margin-top: 10px;
+}

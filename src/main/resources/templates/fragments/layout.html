@@ -16,7 +16,7 @@
             <th:block th:if="${#authorization.expression('isAuthenticated()')}">
                 <a th:href="@{/translations/new}">Дадаць пераклад</a>
                 <a th:href="@{/notifications}">Апавяшчэнні</a>
-                <a th:href="@{/u/{u}(u=${#authentication.name})}">Профіль</a>
+                <a th:if="${currentUser}" th:href="@{/u/{u}(u=${currentUser.username})}">Профіль</a>
             </th:block>
             <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
                 <a th:href="@{/login}">Увайсці</a>
