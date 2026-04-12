@@ -31,7 +31,7 @@
                     <span class="text-muted">
                         <span th:each="member, iter : ${membersMap.get(translation.id)}">
                             <a class="member-link" th:text="${member.user.username}"
-                                th:href="@{/u/{n}(n=${member.user.username})}" onclick="event.stopPropagation()">
+                                th:href="@{/u/{n}(n=${member.user.username})}">
                             </a>
                             <th:block th:if="!${iter.last}">, </th:block>
                         </span>
@@ -47,10 +47,10 @@
         <script>
             document.querySelectorAll('.member-link').forEach(el => {
                 el.addEventListener('click', function (e) {
+                    e.stopPropagation();
                     e.stopImmediatePropagation();
-                    e.preventDefault();
-                    window.location.href = this.dataset.href;
-                }, true);
+                    window.location.href = this.getAttribute('href');
+                });
             });
         </script>
     </main>

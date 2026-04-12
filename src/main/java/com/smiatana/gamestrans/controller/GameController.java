@@ -113,4 +113,19 @@ public class GameController {
         return "redirect:/g/" + uriGameTitle;
     }
 
+    @PostMapping("/g/{gameTitle}/delete")
+    public String deleteGame(@PathVariable String gameTitle,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Game game = gameService.findByTitle(gameTitle);
+        List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
+        List<UUID> translationIds = translations.stream().map(Translation::getId).toList();
+        boolean isOwnerOfAny = translationIds.stream()
+                .anyMatch(id -> translationMemberRepository
+                        .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
+        if (!isOwnerOfAny)
+            return "redirect:/g/" + gameTitle;
+        gameService.delete(game.getId());
+        return "redirect:/g";
+    }
+
 }

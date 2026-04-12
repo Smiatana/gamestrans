@@ -15,4 +15,6 @@ public interface TranslationRepository extends JpaRepository<Translation, UUID> 
 
     Optional<Translation> findByGameTitleAndTitle(String gameTitle, String translationTitle);
 
+    void deleteByGameId(UUID gameId);
+
 }
