@@ -93,6 +93,14 @@ public class TranslationController {
 
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+
+        if ("draft".equals(translation.getStatus())) {
+            boolean isMember = userDetails != null && translationMemberRepository
+                    .existsByTranslationIdAndUserEmail(translation.getId(), userDetails.getUsername());
+            if (!isMember)
+                return "redirect:/g/" + gameTitle;
+        }
+
         List<TranslationMember> members = translationMemberRepository.findByTranslationId(translation.getId());
 
         List<Release> releases = releaseRepository.findTop5ByTranslationIdOrderByCreatedAtDesc(translation.getId());

@@ -43,7 +43,7 @@ public class TranslationService {
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
         translation.setDescription(req.getDescription());
-        translation.setStatus("draft");
+        translation.setStatus(req.getStatus());
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
@@ -64,7 +64,7 @@ public class TranslationService {
         translation.setDescription(req.getDescription());
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
-        translation.setStatus("draft");
+        translation.setStatus(req.getStatus());
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
@@ -88,6 +88,7 @@ public class TranslationService {
         Translation translation = findById(id);
         translation.setTitle(req.getTitle());
         translation.setDescription(req.getDescription());
+        translation.setStatus(req.getStatus());
         return translationRepository.save(translation);
     }
 
@@ -96,5 +97,13 @@ public class TranslationService {
         translationMemberRepository.deleteByTranslationId(id);
         releaseRepository.deleteByTranslationId(id);
         translationRepository.deleteById(id);
+    }
+
+    public boolean canEdit(UUID translationId, String email) {
+        return translationMemberRepository.existsByTranslationIdAndUserEmail(translationId, email);
+    }
+
+    public boolean isOwner(UUID translationId, String email) {
+        return translationMemberRepository.existsByTranslationIdAndUserEmailAndRole(translationId, email, "owner");
     }
 }

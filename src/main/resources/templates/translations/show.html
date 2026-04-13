@@ -21,10 +21,16 @@
             <div class="content-grid">
                 <div class="content-main">
                     <div class="card">
-                        <div class="card__header">
+                        <div class="card__header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
                             <div class="text" th:utext="${translation.description}"></div>
-                            <span class="badge" th:classappend="'badge--' + ${translation.status}"
-                                th:text="${translation.status}"></span>
+                            <span class="badge" th:classappend="'badge--' + ${translation.status}">
+                                <th:block th:switch="${translation.status}">
+                                    <th:block th:case="'draft'">Чарнавік</th:block>
+                                    <th:block th:case="'in_progress'">У распрацоўцы</th:block>
+                                    <th:block th:case="'completed'">Завершаны</th:block>
+                                    <th:block th:case="*" th:text="${translation.status}"></th:block>
+                                </th:block>
+                            </span>
                         </div>
                     </div>
                     <div class="card">

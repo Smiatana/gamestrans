@@ -46,6 +46,18 @@
                         th:replace="~{fragments/editor :: richEditor('description', ${createTranslationRequest.description})}">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Статус перакладу</label>
+                    <div class="form-group">
+                        <label>Статус перакладу</label>
+                        <select th:field="*{status}" class="form-input">
+                            <option value="draft">Чарнавік</option>
+                            <option value="in_progress">У распрацоўцы</option>
+                            <option value="completed">Завершаны</option>
+                        </select>
+                        <span class="form-error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
+                    </div>
+                </div>
                 </div>
             </section>
 

@@ -23,4 +23,10 @@ public interface TranslationMemberRepository extends JpaRepository<TranslationMe
     void deleteByTranslationId(UUID translationId);
 
     void deleteByUserId(UUID userId);
+
+    boolean existsByTranslationGameIdAndUserEmail(UUID gameId, String email);
+
+    boolean existsByTranslationIdAndUserEmail(UUID translationId, String email);
+
+    void deleteByTranslationIdAndUserEmail(UUID translationId, String email);
 }

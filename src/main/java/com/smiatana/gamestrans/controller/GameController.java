@@ -41,18 +41,39 @@ public class GameController {
     private final UriService uriService;
 
     @GetMapping("/g")
-    public String getGames(Model model) {
-        model.addAttribute("games", gameRepository.findAll());
+    public String getGames(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        List<Game> games;
+        if (userDetails != null) {
+            games = gameRepository.findVisibleGames(userDetails.getUsername());
+        } else {
+            games = gameRepository.findPublicGames();
+        }
+        model.addAttribute("games", games);
         return "games/index";
     }
 
     @GetMapping("/g/{title}")
     public String getGame(@PathVariable String title,
             @AuthenticationPrincipal UserDetails userDetails, Model model) {
+
+        Game game = gameService.findByTitle(title);
+
+        List<Translation> translations;
+        if (userDetails != null) {
+            translations = translationRepository.findVisibleByGameId(game.getId(), userDetails.getUsername());
+        } else {
+            translations = translationRepository.findPublicByGameId(game.getId());
+        }
+
+        if (translations.isEmpty() && (userDetails == null ||
+                !translationMemberRepository.existsByTranslationGameIdAndUserEmail(game.getId(),
+                        userDetails.getUsername()))) {
+            return "redirect:/g";
+        }
+
         model.addAttribute("game", gameService.findByTitle(title));
         model.addAttribute("translations", translationRepository.findByGameTitle(title));
 
-        List<Translation> translations = translationRepository.findByGameTitle(title);
         List<UUID> translationIds = translations.stream()
                 .map(Translation::getId)
                 .toList();

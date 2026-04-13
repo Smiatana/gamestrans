@@ -3,6 +3,7 @@ package com.smiatana.gamestrans.controller;
 import com.smiatana.gamestrans.service.UserService;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -124,6 +125,17 @@ public class UserController {
             return "redirect:/u/" + username;
         userService.delete(user.getId());
         return "redirect:/";
+    }
+
+    @GetMapping("/users/search")
+    @ResponseBody
+    public List<Map<String, String>> search(@RequestParam String q) {
+        return userRepository.findByUsernameContainingIgnoreCase(q)
+                .stream()
+                .map(u -> Map.of(
+                        "username", u.getUsername(),
+                        "avatarUrl", u.getAvatarUrl() != null ? u.getAvatarUrl() : ""))
+                .toList();
     }
 
 }

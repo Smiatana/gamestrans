@@ -10,4 +10,6 @@ public class AddTranslationRequest {
     @NotBlank
     private String title;
     private String description;
+    @NotBlank
+    private String status;
 }
