@@ -9,4 +9,6 @@ import com.smiatana.gamestrans.entity.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
     List<Notification> findByUserEmailOrderByCreatedAtDesc(String email);
+
+    void deleteByTypeAndPayloadContaining(String type, String requestId);
 }

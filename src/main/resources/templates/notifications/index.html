@@ -6,74 +6,82 @@
         <div class="page-header">
             <h1>Апавяшчэнні</h1>
         </div>
+
         <div class="card" th:if="${#lists.isEmpty(notifications)}">
             <p class="text-muted">Апавяшчэнняў пакуль няма</p>
         </div>
+
         <div class="notification-list">
-            <div th:each="notification : ${notifications}"
-                th:classappend="${!notification.read} ? 'notification-item--unread' : ''"
-                class="notification-item card">
+            <div th:each="notification : ${notifications}" class="notification-item card"
+                th:classappend="${!notification.read} ? 'notification-item--unread' : ''">
+
                 <div class="notification-item__body">
 
-                    <th:block th:if="${notification.type == 'member_request'}">
-                        <p>
-                            <a th:href="@{/u/{u}(u=${payloads.get(notification.id).get('fromUsername')})}"
-                                th:text="${payloads.get(notification.id).get('fromUsername')}" class="text-bold"></a>
-                            запрашае вас далучыцца да перакладу
-                            <strong th:text="${payloads.get(notification.id).get('translationTitle')}"></strong>
-                            гульні
-                            <strong th:text="${payloads.get(notification.id).get('gameTitle')}"></strong>
-                        </p>
-                        <div class="notification-item__actions">
-                            <form
-                                th:action="@{/member-requests/{id}/accept(id=${payloads.get(notification.id).get('requestId')})}"
-                                method="post">
-                                <button class="btn btn--primary btn--sm">Прыняць</button>
-                            </form>
-                            <form
-                                th:action="@{/member-requests/{id}/reject(id=${payloads.get(notification.id).get('requestId')})}"
-                                method="post">
-                                <button class="btn btn--outline btn--sm">Адхіліць</button>
-                            </form>
+                    <th:block th:if="${notification.type == 'member_request'}" th:with="p=${notification.payloadMap}">
+                        <div th:if="${p.get('status') != 'accepted'}">
+                            <p>
+                                <a class="text-bold"
+                                    th:href="@{/u/{u}(u=${notification.payloadMap.get('fromUsername')})}"
+                                    th:text="${notification.payloadMap.get('fromUsername')}"></a>
+                                запрашае вас далучыцца да перакладу
+                                <strong th:text="${notification.payloadMap.get('translationTitle')}"></strong>
+                                гульні
+                                <strong th:text="${notification.payloadMap.get('gameTitle')}"></strong>
+                            </p>
+
+                            <div class="notification-item__actions">
+                                <form method="post"
+                                    th:action="@{/member-requests/{id}/accept(id=${notification.payloadMap.get('requestId')})}">
+                                    <button class="btn btn--primary btn--sm">Прыняць</button>
+                                </form>
+
+                                <form method="post"
+                                    th:action="@{/member-requests/{id}/reject(id=${notification.payloadMap.get('requestId')})}">
+                                    <button class="btn btn--outline btn--sm">Адхіліць</button>
+                                </form>
+                            </div>
                         </div>
                     </th:block>
 
                     <th:block th:if="${notification.type == 'request_accepted'}">
                         <p>
-                            <a th:href="@{/u/{u}(u=${payloads.get(notification.id).get('username')})}"
-                                th:text="${payloads.get(notification.id).get('username')}" class="text-bold"></a>
+                            <a class="text-bold" th:href="@{/u/{u}(u=${notification.payloadMap.get('username')})}"
+                                th:text="${notification.payloadMap.get('username')}"></a>
                             прыняў(ла) запрашэнне далучыцца да перакладу
-                            <strong th:text="${payloads.get(notification.id).get('translationTitle')}"></strong>
+                            <strong th:text="${notification.payloadMap.get('translationTitle')}"></strong>
                         </p>
                     </th:block>
 
                     <th:block th:if="${notification.type == 'request_rejected'}">
                         <p>
-                            <a th:href="@{/u/{u}(u=${payloads.get(notification.id).get('username')})}"
-                                th:text="${payloads.get(notification.id).get('username')}" class="text-bold"></a>
+                            <a class="text-bold" th:href="@{/u/{u}(u=${notification.payloadMap.get('username')})}"
+                                th:text="${notification.payloadMap.get('username')}"></a>
                             адхіліў(ла) запрашэнне далучыцца да перакладу
-                            <strong th:text="${payloads.get(notification.id).get('translationTitle')}"></strong>
+                            <strong th:text="${notification.payloadMap.get('translationTitle')}"></strong>
                         </p>
                     </th:block>
 
                     <th:block th:if="${notification.type == 'kicked'}">
                         <p>
                             Вас выключылі з перакладу
-                            <strong th:text="${payloads.get(notification.id).get('translationTitle')}"></strong>
+                            <strong th:text="${notification.payloadMap.get('translationTitle')}"></strong>
                             гульні
-                            <strong th:text="${payloads.get(notification.id).get('gameTitle')}"></strong>
+                            <strong th:text="${notification.payloadMap.get('gameTitle')}"></strong>
                         </p>
                     </th:block>
 
                 </div>
+
                 <div class="notification-item__meta">
                     <span class="text-muted text-sm"
                         th:text="${#temporals.format(notification.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
-                    <form th:if="${!notification.read}" th:action="@{/notifications/{id}/read(id=${notification.id})}"
-                        method="post">
+
+                    <form th:if="${!notification.read}" method="post"
+                        th:action="@{/notifications/{id}/read(id=${notification.id})}">
                         <button class="btn btn--outline btn--sm">Прачытана</button>
                     </form>
                 </div>
+
             </div>
         </div>
     </main>

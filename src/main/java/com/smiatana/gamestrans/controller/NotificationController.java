@@ -31,7 +31,9 @@ public class NotificationController {
     public String notificationsPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         List<Notification> notifications = notificationRepository
                 .findByUserEmailOrderByCreatedAtDesc(userDetails.getUsername());
+
         model.addAttribute("notifications", notifications);
+
         return "notifications/index";
     }
 

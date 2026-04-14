@@ -1,5 +1,6 @@
 package com.smiatana.gamestrans.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,12 +19,19 @@ public class MemberRequestController {
     private final TranslationRepository translationRepository;
 
     @PostMapping("/g/{gameTitle}/{transTitle}/members/invite/{username}")
-    public String invite(@PathVariable String gameTitle, @PathVariable String transTitle,
+    @ResponseBody
+    public ResponseEntity<String> invite(@PathVariable String gameTitle,
+            @PathVariable String transTitle,
             @PathVariable String username,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
-        memberRequestService.sendInvite(translation.getId(), userDetails.getUsername(), username);
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/edit";
+        try {
+            Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle)
+                    .orElseThrow();
+            memberRequestService.sendInvite(translation.getId(), userDetails.getUsername(), username);
+            return ResponseEntity.ok("ok");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/g/{gameTitle}/{transTitle}/members/kick/{username}")

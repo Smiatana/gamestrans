@@ -127,8 +127,7 @@ public class TranslationController {
     public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle,
             @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
-        // List<TranslationMember> members =
-        // translationMemberRepository.findByTranslationId(id);
+        List<TranslationMember> members = translationMemberRepository.findByTranslationId(translation.getId());
 
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), userDetails.getUsername(), "owner");
@@ -139,9 +138,12 @@ public class TranslationController {
         AddTranslationRequest req = new AddTranslationRequest();
         req.setTitle(transTitle);
         req.setDescription(translation.getDescription());
+        req.setStatus(translation.getStatus());
 
         model.addAttribute("translation", translation);
         model.addAttribute("addTranslationRequest", req);
+        model.addAttribute("isOwner", isOwner);
+        model.addAttribute("members", members);
         return "translations/edit";
     }
 

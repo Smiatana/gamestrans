@@ -11,6 +11,7 @@ import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.MemberRequestRepository;
+import com.smiatana.gamestrans.repository.NotificationRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
@@ -26,6 +27,7 @@ public class MemberRequestService {
     private final TranslationMemberRepository translationMemberRepository;
     private final MemberRequestRepository memberRequestRepository;
     private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public void sendInvite(UUID translationId, String fromEmail, String toUsername) {
@@ -67,6 +69,10 @@ public class MemberRequestService {
         request.setStatus("accepted");
         memberRequestRepository.save(request);
 
+        notificationRepository.deleteByTypeAndPayloadContaining(
+                "member_request",
+                request.getId().toString());
+
         TranslationMember member = new TranslationMember();
         member.setTranslation(request.getTranslation());
         member.setUser(request.getToUser());
@@ -77,6 +83,7 @@ public class MemberRequestService {
                 "translationTitle", request.getTranslation().getTitle(),
                 "gameTitle", request.getTranslation().getGame().getTitle(),
                 "username", request.getToUser().getUsername()));
+
     }
 
     @Transactional
@@ -89,6 +96,10 @@ public class MemberRequestService {
 
         request.setStatus("rejected");
         memberRequestRepository.save(request);
+
+        notificationRepository.deleteByTypeAndPayloadContaining(
+                "member_request",
+                request.getId().toString());
 
         notificationService.send(request.getFromUser(), "request_rejected", Map.of(
                 "translationTitle", request.getTranslation().getTitle(),
