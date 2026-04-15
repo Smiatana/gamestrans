@@ -9,6 +9,9 @@
             const script = scripts[scripts.length - 1];
             const fieldId = script.dataset.field;
 
+            const csrf = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
             const quill = new Quill('#' + fieldId + '-editor', {
                 theme: 'snow',
                 modules: {
@@ -32,6 +35,7 @@
                                     formData.append('file', file);
                                     const res = await fetch('/api/upload/image', {
                                         method: 'POST',
+                                        headers: { [csrfHeader]: csrf },
                                         body: formData
                                     });
                                     const data = await res.json();

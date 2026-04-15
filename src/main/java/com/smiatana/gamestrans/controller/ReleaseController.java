@@ -78,10 +78,17 @@ public class ReleaseController {
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}")
     public String releasePage(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @PathVariable String releaseTitle, Model model) {
+            @PathVariable String releaseTitle, @AuthenticationPrincipal UserDetails userDetails, Model model) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        boolean isMember = false;
+        if (userDetails != null) {
+            isMember = translationMemberRepository.existsByTranslationIdAndUserEmail(translation.getId(),
+                    userDetails.getUsername());
+        }
+
         Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)
                 .orElseThrow();
+        model.addAttribute("isMember", isMember);
         model.addAttribute("release", release);
         model.addAttribute("translation", translation);
         return "releases/show";
@@ -94,6 +101,39 @@ public class ReleaseController {
         model.addAttribute("translation", translation);
         model.addAttribute("releases", releases);
         return "releases/index";
+    }
+
+    @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/edit")
+    public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle,
+            @PathVariable String releaseTitle,
+            @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        boolean isMember = translationMemberRepository.existsByTranslationIdAndUserEmail(translation.getId(),
+                userDetails.getUsername());
+        if (!isMember) {
+            return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + releaseTitle;
+        }
+        Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)
+                .orElseThrow();
+        CreateReleaseRequest req = new CreateReleaseRequest();
+        req.setTitle(release.getTitle());
+        req.setDescription(release.getDescription());
+        req.setReleaseLink(release.getFileUrl());
+        model.addAttribute("release", release);
+        model.addAttribute("createReleaseRequest", req);
+        return "releases/edit";
+    }
+
+    @PatchMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/edit")
+    public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
+            @PathVariable String releaseTitle, @Valid @ModelAttribute CreateReleaseRequest createReleaseRequest,
+            @AuthenticationPrincipal UserDetails userDetails, Model model) throws IOException {
+        Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)
+                .orElseThrow();
+
+        releaseService.update(release.getId(), createReleaseRequest);
+        return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + createReleaseRequest.getTitle();
     }
 
 }

@@ -14,6 +14,10 @@
                 </p>
                 <h1 th:text="${release.title}"></h1>
                 <p class="text-muted text-sm" th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></p>
+                <div th:if="${isMember}">
+                    <a th:href="@{/g/{title}/t/{tid}/r/{r}/edit(title=${release.translation.game.title}, tid=${release.translation.title}, r=${release.title})}"
+                        class="btn btn--outline">Рэдагаваць</a>
+                </div>
             </div>
         </div>
         <div class="content-grid">

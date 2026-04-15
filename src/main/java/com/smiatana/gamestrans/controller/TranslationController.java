@@ -113,12 +113,19 @@ public class TranslationController {
                     .existsByTranslationIdAndUserEmailAndRole(translation.getId(), userDetails.getUsername(), "owner");
         }
 
+        boolean isMember = false;
+        if (userDetails != null) {
+            isMember = translationMemberRepository.existsByTranslationIdAndUserEmailAndRole(translation.getId(),
+                    userDetails.getUsername(), "member");
+        }
+
         model.addAttribute("game", game);
         model.addAttribute("translation", translation);
         model.addAttribute("members", members);
         model.addAttribute("releases", releases);
         model.addAttribute("hasMoreReleases", totalReleases > 5);
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("isMember", isMember);
 
         return "translations/show";
     }

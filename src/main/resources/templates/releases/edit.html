@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэдагаваць рэліз', ~{::main})}">
+
+<body>
+    <main>
+        <div class="page-header">
+            <h1>Рэдагаваць рэліз</h1>
+        </div>
+        <form id="releaseForm"
+            th:action="@{/g/{g}/t/{t}/r/{r}/edit(g=${release.translation.game.title}, t=${release.translation.title}, r=${release.title})}"
+            th:object="${createReleaseRequest}" th:method="post" enctype="multipart/form-data" class="form-card">
+            <input type="hidden" name="_method" value="patch" />
+            <section class="form-section">
+                <h2>Інфармацыя пра рэліз</h2>
+                <div class="form-group">
+                    <label for="title">Назва рэлізу</label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" placeholder="v1.0">
+                    <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Апісанне</label>
+                    <div
+                        th:replace="~{fragments/editor :: richEditor('description', ${createReleaseRequest.description})}">
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Файл або спасылка</h2>
+                <div class="form-group">
+                    <label for="releaseLink">Знешняя спасылка</label>
+                    <input id="releaseLink" th:field="*{releaseLink}" class="form-input" placeholder="https://..."
+                        th:value="${release.fileUrl}">
+                </div>
+                <div class="form-group">
+                    <label for="releaseFile">Або загрузіць файл</label>
+                    <input type="file" id="releaseFile" name="releaseFile" class="form-input">
+                </div>
+                <span class="form-error" th:if="${error}" th:text="${error}"></span>
+            </section>
+
+            <div class="form-actions">
+                <a href="javascript:history.back()" class="btn btn--outline">Адмяніць</a>
+                <button type="submit" class="btn btn--primary">Абнавіць</button>
+            </div>
+        </form>
+    </main>
+</body>
+
+</html>

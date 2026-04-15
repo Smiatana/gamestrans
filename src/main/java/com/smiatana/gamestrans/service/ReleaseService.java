@@ -1,6 +1,7 @@
 package com.smiatana.gamestrans.service;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,27 @@ public class ReleaseService {
         release.setTranslation(translation);
         release.setCreatedBy(currentUser);
 
+        return releaseRepository.save(release);
+    }
+
+    @Transactional
+    public Release update(UUID releaseId, CreateReleaseRequest req)
+            throws IOException {
+        if ((req.getReleaseFile() == null || req.getReleaseFile().isEmpty())
+                && (req.getReleaseLink() == null || req.getReleaseLink().isBlank())) {
+            throw new IllegalArgumentException("Рэліз не можа быць пустым");
+        }
+        String fileUrl;
+        if (req.getReleaseFile() != null && !req.getReleaseFile().isEmpty()) {
+            fileUrl = fileStorageService.store(req.getReleaseFile(), "releases");
+        } else {
+            fileUrl = req.getReleaseLink();
+        }
+
+        Release release = releaseRepository.findById(releaseId).orElseThrow();
+        release.setTitle(req.getTitle());
+        release.setFileUrl(fileUrl);
+        release.setDescription(req.getDescription());
         return releaseRepository.save(release);
     }
 

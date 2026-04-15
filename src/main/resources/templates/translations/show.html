@@ -14,8 +14,6 @@
                 <div class="page-header__actions" th:if="${isOwner}">
                     <a th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>
-                    <a th:href="@{/releases/new(translationId=${translation.id})}" class="btn btn--primary">Новы
-                        рэліз</a>
                 </div>
             </div>
             <div class="content-grid">
@@ -36,6 +34,11 @@
                     <div class="card">
                         <div class="card__header">
                             <h2>Рэлізы</h2>
+                            <div th:if="${isOwner || isMember}">
+                                <a th:href="@{/releases/new(translationId=${translation.id})}"
+                                    class="btn btn--primary">Новы
+                                    рэліз</a>
+                            </div>
                         </div>
                         <div th:if="${#lists.isEmpty(releases)}" class="text-muted">
                             <p>Рэлізаў пакуль няма</p>
