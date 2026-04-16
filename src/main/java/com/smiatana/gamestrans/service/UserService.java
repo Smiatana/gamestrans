@@ -66,4 +66,10 @@ public class UserService {
         translationMemberRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
+
+    public void freeze(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setStatus("frozen");
+        userRepository.save(user);
+    }
 }

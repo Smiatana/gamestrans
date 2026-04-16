@@ -77,6 +77,11 @@
                     уліковага запісу</button>
             </form>
 
+            <label class="text-bold">Замарозіць уліковы запіс</label>
+            <form th:action="@{/u/{u}/freeze(u=${user.username})}" method="post">
+                <button type="submit" class="btn btn--danger">Замарозіць акаўнт</button>
+            </form>
+
             <label class="text-bold">Выдаліць уліковы запіс</label>
             <form th:action="@{/u/{u}/delete(u=${user.username})}" method="post">
                 <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць

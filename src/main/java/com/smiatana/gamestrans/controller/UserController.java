@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,21 +39,24 @@ public class UserController {
             Model model) {
         User user = userRepository.findByUsername(username).orElseThrow();
         if (user == null) {
-            return "redirect:/";
+            return "/users/notfound";
         }
+        boolean isOwner = false;
+        if (userDetails != null) {
+            isOwner = user.getEmail().equals(userDetails.getUsername());
+        }
+        model.addAttribute("isOwner", isOwner);
+        if (user.getStatus().equals("frozen")) {
+
+            return "/users/notfound";
+        }
+
         model.addAttribute(user);
 
         List<Game> games = translationMemberRepository.findByUserEmail(user.getEmail()).stream()
                 .map(tm -> tm.getTranslation().getGame()).distinct().toList();
 
         model.addAttribute("games", games);
-
-        boolean isOwner = false;
-
-        if (userDetails != null) {
-            isOwner = user.getEmail().equals(userDetails.getUsername());
-        }
-        model.addAttribute("isOwner", isOwner);
         return "users/show";
     }
 

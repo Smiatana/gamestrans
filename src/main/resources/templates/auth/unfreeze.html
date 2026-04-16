@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Размарозка', ~{::main})}">
+
+<body>
+    <main>
+        <section class="form-card">
+            <form th:action="@{/unfreeze}" method="post" class="form-section">
+                <input type="hidden" name="_method" value="PATCH">
+                <label>Вы хочаце размарозіць акаўнт?</label>
+                <button type="submit" class="btn btn--primary">Размарозіць акаўнт</button>
+            </form>
+            <form th:action="@{/logout}" method="post" class="form-section">
+                <button type="submit" class="btn">Скасаваць</button>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>

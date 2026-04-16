@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: html('Карыстальнік не знойдзены', ~{::main})}">
+
+<body>
+    <main>
+        <h1>Карыстальнік не знойдзены</h1>
+        <p>Уліковы запіс, які вы шукаеце, не існуе або замарожаны</p>
+
+        <div class="form-card" th:if="${isOwner}">
+            <form th:action="@{/unfreeze}">
+                <label>магчыма, ваш акаўнт замарожаны</label>
+                <button type="submit" class="btn">Размарозіць</button>
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>
