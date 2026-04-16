@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import com.smiatana.gamestrans.dto.AddGameRequest;
 import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
+import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
@@ -41,10 +40,10 @@ public class GameController {
     private final UriService uriService;
 
     @GetMapping("/g")
-    public String getGames(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String getGames(@ModelAttribute("currentUser") User currentUser, Model model) {
         List<Game> games;
-        if (userDetails != null) {
-            games = gameRepository.findVisibleGames(userDetails.getUsername());
+        if (currentUser != null) {
+            games = gameRepository.findVisibleGames(currentUser.getEmail());
         } else {
             games = gameRepository.findPublicGames();
         }
@@ -54,20 +53,20 @@ public class GameController {
 
     @GetMapping("/g/{title}")
     public String getGame(@PathVariable String title,
-            @AuthenticationPrincipal UserDetails userDetails, Model model) {
+            @ModelAttribute("currentUser") User currentUser, Model model) {
 
         Game game = gameService.findByTitle(title);
 
         List<Translation> translations;
-        if (userDetails != null) {
-            translations = translationRepository.findVisibleByGameId(game.getId(), userDetails.getUsername());
+        if (currentUser != null) {
+            translations = translationRepository.findVisibleByGameId(game.getId(), currentUser.getEmail());
         } else {
             translations = translationRepository.findPublicByGameId(game.getId());
         }
 
-        if (translations.isEmpty() && (userDetails == null ||
+        if (translations.isEmpty() && (currentUser == null ||
                 !translationMemberRepository.existsByTranslationGameIdAndUserEmail(game.getId(),
-                        userDetails.getUsername()))) {
+                        currentUser.getEmail()))) {
             return "redirect:/g";
         }
 
@@ -79,10 +78,10 @@ public class GameController {
                 .toList();
 
         boolean isOwnerOfAny = false;
-        if (userDetails != null) {
+        if (currentUser != null) {
             isOwnerOfAny = translationIds.stream()
                     .anyMatch(id -> translationMemberRepository
-                            .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
+                            .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
         }
         model.addAttribute("isOwnerOfAny", isOwnerOfAny);
 
@@ -96,7 +95,7 @@ public class GameController {
 
     @GetMapping("/g/{gameTitle}/edit")
     public String editPage(@PathVariable String gameTitle,
-            @AuthenticationPrincipal UserDetails userDetails, Model model) {
+            @ModelAttribute("currentUser") User currentUser, Model model) {
         Game game = gameService.findByTitle(gameTitle);
         List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
         List<UUID> translationIds = translations.stream()
@@ -105,7 +104,7 @@ public class GameController {
 
         boolean isOwnerOfAny = translationIds.stream()
                 .anyMatch(id -> translationMemberRepository
-                        .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
+                        .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
         if (!isOwnerOfAny) {
             return "redirect:/g/" + gameTitle;
         }
@@ -123,11 +122,21 @@ public class GameController {
     public String update(@PathVariable String gameTitle,
             @Valid @ModelAttribute AddGameRequest addGameRequest,
             BindingResult binding,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @ModelAttribute("currentUser") User currentUser,
             Model model) throws java.io.IOException {
         if (binding.hasErrors())
             return "games/edit";
         Game game = gameService.findByTitle(gameTitle);
+        List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
+        List<UUID> translationIds = translations.stream()
+                .map(Translation::getId)
+                .toList();
+        boolean isOwnerOfAny = translationIds.stream()
+                .anyMatch(id -> translationMemberRepository
+                        .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
+        if (!isOwnerOfAny) {
+            return "redirect:/g/" + gameTitle;
+        }
         gameService.update(game.getId(), addGameRequest);
 
         String uriGameTitle = uriService.uri(addGameRequest.getGameTitle());
@@ -136,13 +145,13 @@ public class GameController {
 
     @PostMapping("/g/{gameTitle}/delete")
     public String deleteGame(@PathVariable String gameTitle,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @ModelAttribute("currentUser") User currentUser) {
         Game game = gameService.findByTitle(gameTitle);
         List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
         List<UUID> translationIds = translations.stream().map(Translation::getId).toList();
         boolean isOwnerOfAny = translationIds.stream()
                 .anyMatch(id -> translationMemberRepository
-                        .existsByTranslationIdAndUserEmailAndRole(id, userDetails.getUsername(), "owner"));
+                        .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
         if (!isOwnerOfAny)
             return "redirect:/g/" + gameTitle;
         gameService.delete(game.getId());

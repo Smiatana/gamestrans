@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
         private final UserRepository userRepository;
+        private final OAuthSuccessHandler oauthSuccessHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,6 +29,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/g", "/g/**", "/register",
                                                                 "/confirm", "/confirm/**",
+                                                                "/oauth2/**", "/login/oauth2/**",
                                                                 "/login", "/u", "/u/**",
                                                                 "/css/**", "/js/**", "/uploads/**")
                                                 .permitAll().anyRequest().authenticated())
@@ -35,9 +37,14 @@ public class SecurityConfig {
                                                 .loginPage("/login")
                                                 .successHandler(authSuccessHandler())
                                                 .permitAll())
+
+                                .oauth2Login(oauth -> oauth
+                                                .loginPage("/login")
+                                                .successHandler(oauthSuccessHandler))
                                 .logout(logout -> logout
                                                 .logoutSuccessUrl("/login")
                                                 .permitAll());
+
                 return http.build();
         }
 

@@ -1,10 +1,9 @@
 package com.smiatana.gamestrans.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,10 +23,10 @@ public class FreezeController {
 
     @PostMapping("/u/{username}/freeze")
     public String freeze(@PathVariable String username,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @ModelAttribute("currentUser") User currentUser,
             HttpServletRequest request) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        boolean isOwner = userDetails != null && user.getEmail().equals(userDetails.getUsername());
+        boolean isOwner = currentUser != null && user.getEmail().equals(currentUser.getEmail());
         if (!isOwner)
             return "redirect:/u/" + username;
 
@@ -44,8 +43,8 @@ public class FreezeController {
     }
 
     @PatchMapping("/unfreeze")
-    public String unfreeze(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+    public String unfreeze(@ModelAttribute("currentUser") User currentUser) {
+        User user = userRepository.findByEmail(currentUser.getEmail()).orElseThrow();
         user.setStatus("active");
         userRepository.save(user);
         return "redirect:/";

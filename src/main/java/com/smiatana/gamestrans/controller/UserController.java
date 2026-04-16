@@ -35,16 +35,14 @@ public class UserController {
     private final UriService uriService;
 
     @GetMapping("/u/{username}")
-    public String show(@PathVariable String username, @AuthenticationPrincipal UserDetails userDetails,
+    public String show(@PathVariable String username, @ModelAttribute("currentUser") User currentUser,
             Model model) {
         User user = userRepository.findByUsername(username).orElseThrow();
         if (user == null) {
             return "/users/notfound";
         }
-        boolean isOwner = false;
-        if (userDetails != null) {
-            isOwner = user.getEmail().equals(userDetails.getUsername());
-        }
+        boolean isOwner = currentUser != null &&
+                user.getEmail().equals(currentUser.getEmail());
         model.addAttribute("isOwner", isOwner);
         if (user.getStatus().equals("frozen")) {
 
@@ -61,10 +59,10 @@ public class UserController {
     }
 
     @GetMapping("/u/{username}/edit")
-    public String edit(@PathVariable String username, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String edit(@PathVariable String username, @ModelAttribute("currentUser") User currentUser, Model model) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        boolean isOwner = userDetails != null &&
-                user.getEmail().equals(userDetails.getUsername());
+        boolean isOwner = currentUser != null &&
+                user.getEmail().equals(currentUser.getEmail());
         if (!isOwner) {
             return "redirect:/u/" + username;
         }
@@ -83,12 +81,16 @@ public class UserController {
 
     @PostMapping("/u/{username}/edit")
     public String edit(@PathVariable String username, @Valid @ModelAttribute EditProfileRequest editProfileRequest,
-            BindingResult binding, @AuthenticationPrincipal UserDetails userDetails, Model model) throws IOException {
+            BindingResult binding, @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
 
         if (binding.hasErrors())
             return "/u/" + username + "/edit";
 
         User user = userRepository.findByUsername(username).orElseThrow();
+
+        if (currentUser == null || !user.getEmail().equals(currentUser.getEmail())) {
+            return "redirect:/u/" + username;
+        }
         userService.update(user.getId(), editProfileRequest);
 
         String uriUsername = uriService.uri(editProfileRequest.getUsername());
@@ -98,8 +100,11 @@ public class UserController {
     @PostMapping("/u/{username}/changepassword")
     public String changepassword(@PathVariable String username,
             @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest,
-            BindingResult binding, @AuthenticationPrincipal UserDetails userDetails, Model model) throws IOException {
+            BindingResult binding, @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
         User user = userRepository.findByUsername(username).orElseThrow();
+        if (currentUser == null || !user.getEmail().equals(currentUser.getEmail())) {
+            return "redirect:/u/" + username;
+        }
         if (binding.hasErrors()) {
             model.addAttribute("user", user);
             model.addAttribute("editProfileRequest", new EditProfileRequest());
@@ -122,9 +127,10 @@ public class UserController {
 
     @PostMapping("/u/{username}/delete")
     public String deleteUser(@PathVariable String username,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @ModelAttribute("currentUser") User currentUser) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        boolean isOwner = userDetails != null && user.getEmail().equals(userDetails.getUsername());
+        boolean isOwner = currentUser != null &&
+                user.getEmail().equals(currentUser.getEmail());
         if (!isOwner)
             return "redirect:/u/" + username;
         userService.delete(user.getId());

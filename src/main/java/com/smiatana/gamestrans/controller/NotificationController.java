@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.smiatana.gamestrans.entity.Notification;
+import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.NotificationRepository;
 import com.smiatana.gamestrans.service.MemberRequestService;
 import com.smiatana.gamestrans.service.SseService;
@@ -28,9 +28,9 @@ public class NotificationController {
     private final NotificationRepository notificationRepository;
 
     @GetMapping("/notifications")
-    public String notificationsPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String notificationsPage(@ModelAttribute("currentUser") User currentUser, Model model) {
         List<Notification> notifications = notificationRepository
-                .findByUserEmailOrderByCreatedAtDesc(userDetails.getUsername());
+                .findByUserEmailOrderByCreatedAtDesc(currentUser.getEmail());
 
         model.addAttribute("notifications", notifications);
 
@@ -38,17 +38,17 @@ public class NotificationController {
     }
 
     @GetMapping(value = "/notifications/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter stream(@AuthenticationPrincipal UserDetails userDetails) {
+    public SseEmitter stream(@ModelAttribute("currentUser") User currentUser) {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        sseService.register(userDetails.getUsername(), emitter);
+        sseService.register(currentUser.getEmail(), emitter);
         return emitter;
     }
 
     @PostMapping("/notifications/{id}/read")
     public String markRead(@PathVariable UUID id,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @ModelAttribute("currentUser") User currentUser) {
         Notification notification = notificationRepository.findById(id).orElseThrow();
-        if (notification.getUser().getEmail().equals(userDetails.getUsername())) {
+        if (notification.getUser().getEmail().equals(currentUser.getEmail())) {
             notification.setRead(true);
             notificationRepository.save(notification);
         }
@@ -57,15 +57,15 @@ public class NotificationController {
 
     @PostMapping("/member-requests/{id}/accept")
     public String accept(@PathVariable UUID id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        memberRequestService.accept(id, userDetails.getUsername());
+            @ModelAttribute("currentUser") User currentUser) {
+        memberRequestService.accept(id, currentUser.getEmail());
         return "redirect:/notifications";
     }
 
     @PostMapping("/member-requests/{id}/reject")
     public String reject(@PathVariable UUID id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        memberRequestService.reject(id, userDetails.getUsername());
+            @ModelAttribute("currentUser") User currentUser) {
+        memberRequestService.reject(id, currentUser.getEmail());
         return "redirect:/notifications";
     }
 }
