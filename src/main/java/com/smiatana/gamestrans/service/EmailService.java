@@ -15,12 +15,11 @@ public class EmailService {
     @Value("${app.base-url}")
     private String baseUrl;
 
-    public void sendConfirmation(String to, String token) {
-        String link = baseUrl + "/confirm?token=" + token;
+    public void sendConfirmation(String to, String code) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(to);
-        msg.setSubject("Пацвердзіце ваш email");
-        msg.setText("Перайдзіце па спасылцы для пацвярджэння акаўнта: " + link);
+        msg.setSubject("Пацверджанне email");
+        msg.setText("Ваш код пацверджання: " + code);
         mailSender.send(msg);
     }
 }

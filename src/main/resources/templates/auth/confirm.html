@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Пацвярджэнне пошты', ~{::main})}">
+
+<body>
+    <main>
+        <form th:action="@{/confirm}" method="post">
+            <input type="hidden" name="email" th:value="${param.email}">
+
+            <div class="form-group">
+                <label>Код пацверджання</label>
+                <input type="text" name="code" class="form-input">
+            </div>
+
+            <div th:if="${error}" class="alert alert--danger" th:text="${error}"></div>
+
+            <button type="submit" class="btn btn--primary">Пацвердзіць</button>
+        </form>
+        <form th:action="@{/confirm/resend}" method="post" id="resendForm">
+            <input type="hidden" name="email" th:value="${param.email}">
+            <button type="submit" id="resendBtn">Адправіць код яшчэ раз</button>
+        </form>
+
+        <p id="timerText"></p>
+
+        <script>
+            const btn = document.getElementById("resendBtn");
+            const timerText = document.getElementById("timerText");
+
+            let seconds = 60;
+
+            function startCooldown() {
+                btn.disabled = true;
+
+                const interval = setInterval(() => {
+                    seconds--;
+                    timerText.innerText = "Можна паўтарыць праз " + seconds + " с";
+
+                    if (seconds <= 0) {
+                        clearInterval(interval);
+                        btn.disabled = false;
+                        timerText.innerText = "";
+                    }
+                }, 1000);
+            }
+
+            startCooldown();
+        </script>
+    </main>
+</body>
+
+</html>

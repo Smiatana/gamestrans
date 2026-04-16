@@ -37,7 +37,7 @@ public class User {
     private String avatarUrl;
 
     @Column(nullable = false)
-    private String status = "active";
+    private String status = "pending";
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

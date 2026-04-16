@@ -27,6 +27,7 @@ public class SecurityConfig {
                 http
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/g", "/g/**", "/register",
+                                                                "/confirm", "/confirm/**",
                                                                 "/login", "/u", "/u/**",
                                                                 "/css/**", "/js/**", "/uploads/**")
                                                 .permitAll().anyRequest().authenticated())
@@ -43,16 +44,6 @@ public class SecurityConfig {
         @Bean
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
-        }
-
-        @Bean
-        public UserDetailsService userDetailsServide() {
-                return email -> userRepository.findByEmail(email)
-                                .map(user -> User.withUsername(user.getEmail())
-                                                .password(user.getPasswordDigest())
-                                                .roles("USER")
-                                                .build())
-                                .orElseThrow(() -> new UsernameNotFoundException(email));
         }
 
         @Bean
@@ -73,5 +64,21 @@ public class SecurityConfig {
         @Bean
         public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
                 return new HiddenHttpMethodFilter();
+        }
+
+        @Bean
+        public UserDetailsService userDetailsService() {
+                return email -> userRepository.findByEmail(email)
+                                .map(user -> {
+                                        boolean enabled = user.getStatus().equals("active")
+                                                        || user.getStatus().equals("frozen");
+
+                                        return User.withUsername(user.getEmail())
+                                                        .password(user.getPasswordDigest())
+                                                        .roles("USER")
+                                                        .disabled(!enabled) // THIS blocks pending users
+                                                        .build();
+                                })
+                                .orElseThrow(() -> new UsernameNotFoundException(email));
         }
 }

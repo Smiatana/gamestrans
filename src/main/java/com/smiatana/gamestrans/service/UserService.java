@@ -1,6 +1,7 @@
 package com.smiatana.gamestrans.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.smiatana.gamestrans.dto.ChangePasswordRequest;
 import com.smiatana.gamestrans.dto.EditProfileRequest;
 import com.smiatana.gamestrans.dto.RegisterRequest;
+import com.smiatana.gamestrans.entity.ConfirmationToken;
 import com.smiatana.gamestrans.entity.User;
+import com.smiatana.gamestrans.repository.ConfirmationTokenRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 
@@ -20,9 +23,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
     private final FileStorageService fileStorageService;
-    public final UserRepository userRepository;
-    public final PasswordEncoder passwordEncoder;
-    public final TranslationMemberRepository translationMemberRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TranslationMemberRepository translationMemberRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final EmailService emailService;
 
     public User register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail()))
@@ -33,7 +38,17 @@ public class UserService {
         user.setEmail(req.getEmail());
         user.setUsername(req.getUsername());
         user.setPasswordDigest(passwordEncoder.encode(req.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        String code = String.valueOf((int) (Math.random() * 900000) + 100000);
+        ConfirmationToken token = new ConfirmationToken();
+        token.setToken(code);
+        token.setUser(user);
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        confirmationTokenRepository.save(token);
+
+        emailService.sendConfirmation(user.getEmail(), code);
+        return user;
     }
 
     public User update(UUID id, EditProfileRequest req) throws IOException {
