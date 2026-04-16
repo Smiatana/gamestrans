@@ -9,6 +9,7 @@
         </div>
         <form th:action="@{/u/{name}/edit(name=${user.username})}" th:object="${editProfileRequest}" method="post"
             enctype="multipart/form-data" class="form-card">
+            <input type="hidden" name="_method" value="patch" />
 
             <section class="form-section">
                 <div class="form-group">
@@ -53,6 +54,7 @@
                 <label class="text-bold">Змяніць пароль</label>
                 <form th:action="@{/u/{u}/changepassword(u=${user.username})}" th:object="${changePasswordRequest}"
                     method="post">
+                    <input type="hidden" name="_method" value="patch" />
                     <div class="form-group">
                         <label>Стары пароль</label>
                         <input type="password" th:field="*{oldPassword}" class="form-input">
@@ -84,6 +86,7 @@
 
             <label class="text-bold">Выдаліць уліковы запіс</label>
             <form th:action="@{/u/{u}/delete(u=${user.username})}" method="post">
+                <input type="hidden" name="_method" value="delete" />
                 <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
                     уліковы запіс</button>
             </form>

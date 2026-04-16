@@ -25,10 +25,11 @@ import org.springframework.validation.BindingResult;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 @RequiredArgsConstructor
@@ -118,7 +119,7 @@ public class GameController {
         return "games/edit";
     }
 
-    @PostMapping("/g/{gameTitle}/edit")
+    @PatchMapping("/g/{gameTitle}/edit")
     public String update(@PathVariable String gameTitle,
             @Valid @ModelAttribute AddGameRequest addGameRequest,
             BindingResult binding,
@@ -143,7 +144,7 @@ public class GameController {
         return "redirect:/g/" + uriGameTitle;
     }
 
-    @PostMapping("/g/{gameTitle}/delete")
+    @DeleteMapping("/g/{gameTitle}/delete")
     public String deleteGame(@PathVariable String gameTitle,
             @ModelAttribute("currentUser") User currentUser) {
         Game game = gameService.findByTitle(gameTitle);

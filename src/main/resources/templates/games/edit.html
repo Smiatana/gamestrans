@@ -9,6 +9,7 @@
 
         <form th:action="@{/g/{title}/edit(title=${game.title})}" th:object="${addGameRequest}" method="post"
             enctype="multipart/form-data" class="form-card">
+            <input type="hidden" name="_method" value="patch" />
             <section class="form-section">
                 <h2>Інфармацыя пра гульню</h2>
                 <div class="form-group">
@@ -37,6 +38,7 @@
             <h2>Небяспечная зона</h2>
             <p class="text-muted">Выдаленне гульні немагчыма адмяніць</p>
             <form th:action="@{/g/{title}/delete(title=${game.title})}" method="post">
+                <input type="hidden" name="_method" value="delete" />
                 <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
                     гульню</button>
             </form>

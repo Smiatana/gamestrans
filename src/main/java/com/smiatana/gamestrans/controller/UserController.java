@@ -4,10 +4,6 @@ import com.smiatana.gamestrans.service.UserService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -79,7 +75,7 @@ public class UserController {
         return "users/edit";
     }
 
-    @PostMapping("/u/{username}/edit")
+    @PatchMapping("/u/{username}/edit")
     public String edit(@PathVariable String username, @Valid @ModelAttribute EditProfileRequest editProfileRequest,
             BindingResult binding, @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
 
@@ -97,7 +93,7 @@ public class UserController {
         return "redirect:/u/" + uriUsername;
     }
 
-    @PostMapping("/u/{username}/changepassword")
+    @PatchMapping("/u/{username}/changepassword")
     public String changepassword(@PathVariable String username,
             @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest,
             BindingResult binding, @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
@@ -125,7 +121,7 @@ public class UserController {
         return "redirect:/u/" + username;
     }
 
-    @PostMapping("/u/{username}/delete")
+    @DeleteMapping("/u/{username}/delete")
     public String deleteUser(@PathVariable String username,
             @ModelAttribute("currentUser") User currentUser) {
         User user = userRepository.findByUsername(username).orElseThrow();

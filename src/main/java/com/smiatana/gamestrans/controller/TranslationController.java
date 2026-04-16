@@ -147,7 +147,7 @@ public class TranslationController {
         return "translations/edit";
     }
 
-    @PostMapping("/g/{gameTitle}/t/{transTitle}/edit")
+    @PatchMapping("/g/{gameTitle}/t/{transTitle}/edit")
     public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
             @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
             BindingResult binding,
@@ -163,7 +163,7 @@ public class TranslationController {
         return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
-    @PostMapping("/g/{gameTitle}/t/{transTitle}/delete")
+    @DeleteMapping("/g/{gameTitle}/t/{transTitle}/delete")
     public String delete(@PathVariable String gameTitle, @PathVariable String transTitle,
             @ModelAttribute("currentUser") User currentUser) {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
