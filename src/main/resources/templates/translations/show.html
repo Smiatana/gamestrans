@@ -72,6 +72,9 @@
                         </ul>
                     </div>
                 </div>
+                <div
+                    th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}">
+                </div>
             </div>
         </div>
     </main>

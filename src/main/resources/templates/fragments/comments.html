@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <th:block th:fragment="section(translation, currentUser, rootComments, replies, commentRequest, isMember)">
+        <div class="card">
+            <h2>Каментарыі</h2>
+
+            <div th:if="${currentUser != null}">
+                <form th:action="@{/g/{g}/t/{t}/comments(g=${translation.game.title},t=${translation.title})}"
+                    th:object="${commentRequest}" method="post">
+                    <div class="form-group">
+                        <textarea th:field="*{body}" class="form-input" rows="3"
+                            placeholder="Напісаць каментарый..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--sm">Адправіць</button>
+                </form>
+            </div>
+
+            <div class="comment-list">
+                <div th:each="comment : ${rootComments}">
+                    <div class="comment" th:id="'comment-' + ${comment.id}">
+                        <div class="comment__meta">
+                            <a th:href="@{/u/{u}(u=${comment.author.username})}"
+                                th:text="${comment.author.username}"></a>
+                            <span class="text-muted text-sm"
+                                th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                        </div>
+
+                        <div class="comment__body" th:id="'body-' + ${comment.id}" th:text="${comment.body}"></div>
+
+                        <form th:if="${currentUser != null and currentUser.id == comment.author.id}"
+                            th:id="'edit-form-' + ${comment.id}"
+                            th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${comment.id})}"
+                            method="post" style="display:none;">
+                            <input type="hidden" name="_method" value="PATCH">
+                            <textarea name="body" class="form-input" rows="2" th:text="${comment.body}"></textarea>
+                            <button type="submit" class="btn btn--primary btn--sm">Захаваць</button>
+                            <button type="button" class="btn btn--outline btn--sm" th:data-id="${comment.id}"
+                                data-action="edit">Адмяніць</button>
+                        </form>
+
+                        <div class="comment__actions" th:if="${currentUser != null}">
+                            <button class="btn btn--outline btn--sm" th:data-id="${comment.id}"
+                                data-action="reply">Адказаць</button>
+                            <button th:if="${currentUser.id == comment.author.id}" class="btn btn--outline btn--sm"
+                                th:data-id="${comment.id}" data-action="edit">Рэдагаваць</button>
+                            <form th:if="${currentUser.id == comment.author.id or isMember}"
+                                th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${comment.id})}"
+                                method="post" style="display:inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                            </form>
+                        </div>
+
+                        <form th:if="${currentUser != null}" th:id="'reply-form-' + ${comment.id}"
+                            th:action="@{/g/{g}/t/{t}/comments(g=${translation.game.title},t=${translation.title})}"
+                            method="post" style="display:none;" class="comment__reply-form">
+                            <input type="hidden" name="parentId" th:value="${comment.id}">
+                            <textarea name="body" class="form-input" rows="2" placeholder="Адказаць..."></textarea>
+                            <button type="submit" class="btn btn--primary btn--sm">Адправіць</button>
+                        </form>
+
+                        <!-- Replies -->
+                        <div th:each="reply : ${replies.get(comment.id)}">
+                            <div class="comment comment--reply" th:id="'comment-' + ${reply.id}">
+                                <div class="comment__meta">
+                                    <a th:href="@{/u/{u}(u=${reply.author.username})}"
+                                        th:text="${reply.author.username}"></a>
+                                    <span class="text-muted text-sm"
+                                        th:text="${#temporals.format(reply.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                                </div>
+
+                                <div class="comment__body" th:id="'body-' + ${reply.id}" th:text="${reply.body}"></div>
+
+                                <form th:if="${currentUser != null and currentUser.id == reply.author.id}"
+                                    th:id="'edit-form-' + ${reply.id}"
+                                    th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${reply.id})}"
+                                    method="post" style="display:none;">
+                                    <input type="hidden" name="_method" value="PATCH">
+                                    <textarea name="body" class="form-input" rows="2"
+                                        th:text="${reply.body}"></textarea>
+                                    <button type="submit" class="btn btn--primary btn--sm">Захаваць</button>
+                                    <button type="button" class="btn btn--outline btn--sm" th:data-id="${reply.id}"
+                                        data-action="edit">Адмяніць</button>
+                                </form>
+
+                                <div class="comment__actions" th:if="${currentUser != null}">
+                                    <button th:if="${currentUser.id == reply.author.id}"
+                                        class="btn btn--outline btn--sm" th:data-id="${reply.id}"
+                                        data-action="edit">Рэдагаваць</button>
+                                    <form th:if="${currentUser.id == reply.author.id or isMember}"
+                                        th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${reply.id})}"
+                                        method="post" style="display:inline;">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const action = this.dataset.action;
+                    if (action === 'reply') toggleReply(id);
+                    if (action === 'edit') toggleEdit(id);
+                });
+            });
+
+            function toggleReply(id) {
+                const form = document.getElementById('reply-form-' + id);
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+
+            function toggleEdit(id) {
+                const body = document.getElementById('body-' + id);
+                const form = document.getElementById('edit-form-' + id);
+                if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+                if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

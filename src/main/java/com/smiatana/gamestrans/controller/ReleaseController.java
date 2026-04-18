@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +18,6 @@ import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
-import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.service.ReleaseService;
 import com.smiatana.gamestrans.service.UriService;
 
@@ -31,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ReleaseController {
     private final ReleaseService releaseService;
-    private final UserRepository userRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final UriService uriService;
