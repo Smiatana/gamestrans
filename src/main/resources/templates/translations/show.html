@@ -75,6 +75,34 @@
                 <div
                     th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}">
                 </div>
+                <div class="card">
+                    <h2>Ацэнка</h2>
+                    <div th:if="${avgRating != null}">
+                        <span class="rating-stars" th:text="${avgRating} + ' ★'"></span>
+                        <span class="text-muted text-sm" th:text="'(' + ${ratingCount} + ' ацэн.)'"></span>
+                    </div>
+                    <p th:unless="${avgRating != null}" class="text-muted">Ацэнак пакуль няма</p>
+                    <div th:if="${currentUser != null and !isMember}">
+                        <form th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
+                            method="post" class="rating-form">
+                            <div class="star-picker">
+                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <button type="submit" name="stars" th:value="${i}" class="star-btn"
+                                        th:classappend="${userRating != null and userRating.stars >= i} ? ' star-btn--active' : ''">
+                                        ★
+                                    </button>
+                                </th:block>
+                            </div>
+                        </form>
+                        <form th:if="${userRating != null}"
+                            th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
+                            method="post">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn--outline btn--sm">Выдаліць ацэнку</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>

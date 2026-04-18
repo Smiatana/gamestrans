@@ -3,6 +3,7 @@ package com.smiatana.gamestrans.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
@@ -14,12 +15,14 @@ import com.smiatana.gamestrans.dto.CommentRequest;
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
 import com.smiatana.gamestrans.entity.Comment;
 import com.smiatana.gamestrans.entity.Game;
+import com.smiatana.gamestrans.entity.Rating;
 import com.smiatana.gamestrans.entity.Release;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.CommentRepository;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
@@ -40,6 +43,7 @@ public class TranslationController {
     private final UriService uriService;
     private final ReleaseRepository releaseRepository;
     private final CommentRepository commentRepository;
+    private final RatingRepository ratingRepository;
 
     @GetMapping("/translations/new")
     public String newTranslationPage(Model model) {
@@ -121,15 +125,20 @@ public class TranslationController {
 
         List<Comment> rootComments = commentRepository
                 .findByTranslationIdAndParentIsNullOrderByCreatedAtAsc(translation.getId());
-
         Map<UUID, List<Comment>> replies = new HashMap<>();
         for (Comment c : rootComments) {
             replies.put(c.getId(), commentRepository.findByParentIdOrderByCreatedAtAsc(c.getId()));
         }
 
-        model.addAttribute("rootComments", rootComments);
-        model.addAttribute("replies", replies);
-        model.addAttribute("commentRequest", new CommentRequest());
+        Optional<Double> avgRating = ratingRepository.findAverageByTranslationId(translation.getId());
+        long ratingCount = ratingRepository.countByTranslationId(translation.getId());
+
+        Rating userRating = null;
+        if (currentUser != null) {
+            userRating = ratingRepository
+                    .findByTranslationIdAndUserId(translation.getId(), currentUser.getId())
+                    .orElse(null);
+        }
 
         model.addAttribute("game", game);
         model.addAttribute("translation", translation);
@@ -138,6 +147,14 @@ public class TranslationController {
         model.addAttribute("hasMoreReleases", totalReleases > 5);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isMember", isMember);
+
+        model.addAttribute("rootComments", rootComments);
+        model.addAttribute("replies", replies);
+        model.addAttribute("commentRequest", new CommentRequest());
+
+        model.addAttribute("avgRating", avgRating.map(d -> Math.round(d * 10.0) / 10.0).orElse(null));
+        model.addAttribute("ratingCount", ratingCount);
+        model.addAttribute("userRating", userRating);
 
         return "translations/show";
     }

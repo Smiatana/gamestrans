@@ -13,6 +13,7 @@ import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.GameService;
@@ -39,6 +40,7 @@ public class GameController {
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final UriService uriService;
+    private final RatingRepository ratingRepository;
 
     @GetMapping("/g")
     public String getGames(@ModelAttribute("currentUser") User currentUser, Model model) {
@@ -91,6 +93,13 @@ public class GameController {
             membersMap.put(id, translationMemberRepository.findByTranslationId(id));
         }
         model.addAttribute("membersMap", membersMap);
+
+        Map<UUID, Double> ratingsMap = new HashMap<>();
+        for (UUID id : translationIds) {
+            ratingRepository.findAverageByTranslationId(id)
+                    .ifPresent(avg -> ratingsMap.put(id, Math.round(avg * 10.0) / 10.0));
+        }
+        model.addAttribute("ratingsMap", ratingsMap);
         return "games/show";
     }
 
