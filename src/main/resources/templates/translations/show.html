@@ -11,6 +11,8 @@
                     </a>
                     <h1 th:text="${translation.title}"></h1>
                 </div>
+                <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
+                    class="btn btn--outline">Праблемы</a>
                 <div class="page-header__actions" th:if="${isOwner}">
                     <a th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>

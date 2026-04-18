@@ -11,7 +11,10 @@ import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
+import com.smiatana.gamestrans.repository.CommentRepository;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.IssueRepository;
+import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
@@ -27,6 +30,9 @@ public class TranslationService {
     private final TranslationMemberRepository translationMemberRepository;
     private final FileStorageService fileStorageService;
     private final ReleaseRepository releaseRepository;
+    private final CommentRepository commentRepository;
+    private final RatingRepository ratingRepository;
+    private final IssueRepository issueRepository;
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
@@ -94,6 +100,9 @@ public class TranslationService {
 
     @Transactional
     public void delete(UUID id) {
+        commentRepository.deleteByTranslationId(id);
+        ratingRepository.deleteByTranslationId(id);
+        issueRepository.deleteByTranslationId(id);
         translationMemberRepository.deleteByTranslationId(id);
         releaseRepository.deleteByTranslationId(id);
         translationRepository.deleteById(id);

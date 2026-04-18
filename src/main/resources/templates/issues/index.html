@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Праблемы', ~{::main})}">
+
+<body>
+    <main>
+        <div class="page-header">
+            <div>
+                <a th:href="@{/g/{g}/t/{t}(g=${translation.game.title},t=${translation.title})}">
+                    <p class="text-muted" th:text="${translation.title}"></p>
+                </a>
+                <h1>Праблемы</h1>
+            </div>
+        </div>
+
+        <div class="card" th:if="${currentUser != null}">
+            <h2>Паведаміць аб праблеме</h2>
+            <form th:action="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
+                th:object="${issueRequest}" method="post">
+                <div class="form-group">
+                    <label>Назва</label>
+                    <input type="text" th:field="*{title}" class="form-input">
+                    <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Апісанне</label>
+                    <textarea th:field="*{description}" class="form-input" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Назва рэліза (неабавязкова)</label>
+                    <input type="text" th:field="*{releaseTitle}" class="form-input">
+                </div>
+                <button type="submit" class="btn btn--primary">Адправіць</button>
+            </form>
+        </div>
+
+        <div class="issue-list">
+            <div th:each="issue : ${issues}" class="card issue-item">
+                <div class="issue-item__header">
+                    <div>
+                        <span class="badge"
+                            th:classappend="${issue.status == 'solved'} ? 'badge--completed' : 'badge--draft'"
+                            th:text="${issue.status == 'solved'} ? 'Вырашана' : 'Не вырашана'"></span>
+                        <strong th:text="${issue.title}"></strong>
+                    </div>
+                    <div class="issue-item__actions">
+                        <form th:if="${isMember}"
+                            th:action="@{/g/{g}/t/{t}/issues/{i}/status(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                            method="post" style="display:inline;">
+                            <input type="hidden" name="_method" value="PATCH">
+                            <input type="hidden" name="status"
+                                th:value="${issue.status == 'solved'} ? 'unsolved' : 'solved'">
+                            <button type="submit" class="btn btn--outline btn--sm"
+                                th:text="${issue.status == 'solved'} ? 'Адкрыць' : 'Вырашыць'"></button>
+                        </form>
+                        <a th:if="${currentUser != null and currentUser.id == issue.author.id}"
+                            th:href="@{/g/{g}/t/{t}/issues/{i}/edit(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                            class="btn btn--outline btn--sm">Рэдагаваць</a>
+                        <form th:if="${currentUser != null and (currentUser.id == issue.author.id or isMember)}"
+                            th:action="@{/g/{g}/t/{t}/issues/{i}(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                            method="post" style="display:inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                        </form>
+                    </div>
+                </div>
+                <p class="text" th:text="${issue.description}"></p>
+                <p class="text-muted text-sm" th:if="${issue.releaseTitle != null}">
+                    Рэліз: <span th:text="${issue.releaseTitle}"></span>
+                </p>
+                <p class="text-muted text-sm">
+                    <a th:href="@{/u/{u}(u=${issue.author.username})}" th:text="${issue.author.username}"></a>
+                    · <span th:text="${#temporals.format(issue.createdAt, 'dd.MM.yyyy')}"></span>
+                </p>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
