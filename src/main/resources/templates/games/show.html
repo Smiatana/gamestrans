@@ -17,7 +17,8 @@
         <div class="section">
             <div class="section-header">
                 <h2>Пераклады</h2>
-                <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm">Дадаць
+                <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm"
+                    th:if="${currentUser}">Дадаць
                     пераклад</a>
             </div>
 

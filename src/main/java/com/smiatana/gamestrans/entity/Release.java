@@ -33,6 +33,9 @@ public class Release {
     @Column(columnDefinition = "text")
     private String fileUrl;
 
+    @Column
+    private String status;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

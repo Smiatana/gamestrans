@@ -41,6 +41,7 @@ public class ReleaseService {
         release.setDescription(req.getDescription());
         release.setTranslation(translation);
         release.setCreatedBy(currentUser);
+        release.setStatus(req.getStatus());
 
         return releaseRepository.save(release);
     }
@@ -63,6 +64,7 @@ public class ReleaseService {
         release.setTitle(req.getTitle());
         release.setFileUrl(fileUrl);
         release.setDescription(req.getDescription());
+        release.setStatus(req.getStatus());
         return releaseRepository.save(release);
     }
 

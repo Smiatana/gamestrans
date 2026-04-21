@@ -12,5 +12,6 @@ public class CreateReleaseRequest {
     private String description;
     private String releaseLink;
     private MultipartFile releaseFile;
+    private String status;
     private String title;
 }

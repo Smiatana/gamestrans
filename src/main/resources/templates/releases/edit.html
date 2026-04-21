@@ -39,6 +39,17 @@
                 <span class="form-error" th:if="${error}" th:text="${error}"></span>
             </section>
 
+            <div class="form-group">
+                <div class="form-group">
+                    <label>Статус рэліза</label>
+                    <select th:field="*{status}" class="form-input">
+                        <option value="draft">Чарнавік</option>
+                        <option value="completed">Апублікаваны</option>
+                    </select>
+                    <span class="form-error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
+                </div>
+            </div>
+
             <div class="form-actions">
                 <a href="javascript:history.back()" class="btn btn--outline">Адмяніць</a>
                 <button type="submit" class="btn btn--primary">Абнавіць</button>
