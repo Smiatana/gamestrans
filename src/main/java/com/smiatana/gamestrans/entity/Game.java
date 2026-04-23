@@ -1,6 +1,8 @@
 package com.smiatana.gamestrans.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -25,10 +27,19 @@ public class Game {
 
     @Column(columnDefinition = "text")
     private String description;
+
     @Column(columnDefinition = "text")
     private String coverUrl;
+
     @Column(columnDefinition = "text")
     private String backgroundUrl;
+
+    @Column
+    private String developer;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "game_genres", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private Set<Genre> genres = new HashSet<>();
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

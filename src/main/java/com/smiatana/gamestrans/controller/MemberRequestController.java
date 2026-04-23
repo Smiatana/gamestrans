@@ -26,6 +26,7 @@ public class MemberRequestController {
         try {
             Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle)
                     .orElseThrow();
+
             memberRequestService.sendInvite(translation.getId(), currentUser.getEmail(), username);
             return ResponseEntity.ok("ok");
         } catch (IllegalArgumentException e) {

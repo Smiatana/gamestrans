@@ -1,6 +1,8 @@
 package com.smiatana.gamestrans.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -8,11 +10,13 @@ import org.springframework.stereotype.Service;
 import com.smiatana.gamestrans.dto.AddTranslationRequest;
 import com.smiatana.gamestrans.dto.CreateTranslationRequest;
 import com.smiatana.gamestrans.entity.Game;
+import com.smiatana.gamestrans.entity.Genre;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.CommentRepository;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.GenreRepository;
 import com.smiatana.gamestrans.repository.IssueRepository;
 import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
@@ -26,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TranslationService {
     private final GameRepository gameRepository;
+    private final GenreRepository genreRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final FileStorageService fileStorageService;
@@ -36,12 +41,32 @@ public class TranslationService {
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
-
         Game game = new Game();
         game.setTitle(req.getGameTitle());
         game.setDescription(req.getGameDescription());
         game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
         game.setCreatedBy(currentUser);
+        game.setDeveloper(req.getDeveloper());
+        if (req.getGenres() != null && !req.getGenres().isEmpty()) {
+            Set<Genre> genres = new HashSet<>();
+
+            if (req.getGenres() != null) {
+                for (String name : req.getGenres()) {
+                    String normalized = name.trim().toLowerCase();
+
+                    Genre genre = genreRepository.findByNameIgnoreCase(normalized)
+                            .orElseGet(() -> {
+                                Genre g = new Genre();
+                                g.setName(normalized);
+                                return genreRepository.save(g);
+                            });
+
+                    genres.add(genre);
+                }
+            }
+
+            game.setGenres(genres);
+        }
         gameRepository.save(game);
 
         Translation translation = new Translation();
@@ -49,7 +74,7 @@ public class TranslationService {
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
         translation.setDescription(req.getDescription());
-        translation.setStatus(req.getStatus());
+        translation.setStatus("draft");
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
@@ -70,7 +95,7 @@ public class TranslationService {
         translation.setDescription(req.getDescription());
         translation.setCreatedBy(currentUser);
         translation.setGame(game);
-        translation.setStatus(req.getStatus());
+        translation.setStatus("draft");
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
@@ -94,7 +119,13 @@ public class TranslationService {
         Translation translation = findById(id);
         translation.setTitle(req.getTitle());
         translation.setDescription(req.getDescription());
-        translation.setStatus(req.getStatus());
+
+        boolean hasPublishedRelease = releaseRepository.existsByTranslationIdAndStatus(id, "published");
+        if (!"draft".equals(req.getStatus()) && !hasPublishedRelease) {
+            translation.setStatus("draft");
+        } else {
+            translation.setStatus(req.getStatus());
+        }
         return translationRepository.save(translation);
     }
 

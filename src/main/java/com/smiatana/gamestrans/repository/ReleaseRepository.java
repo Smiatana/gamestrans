@@ -20,4 +20,8 @@ public interface ReleaseRepository extends JpaRepository<Release, UUID> {
     List<Release> findByTranslationIdOrderByCreatedAtDesc(UUID translationId);
 
     void deleteByTranslationId(UUID translationId);
+
+    boolean existsByTranslationIdAndStatus(UUID translationId, String status);
+
+    List<Release> findByTranslationIdAndStatusOrderByCreatedAtDesc(UUID translationId, String status);
 }

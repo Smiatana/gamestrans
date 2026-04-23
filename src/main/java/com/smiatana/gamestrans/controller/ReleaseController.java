@@ -71,27 +71,44 @@ public class ReleaseController {
     }
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}")
-    public String releasePage(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @PathVariable String releaseTitle, @ModelAttribute("currentUser") User currentUser, Model model) {
-        Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
-        boolean isMember = false;
-        if (currentUser != null) {
-            isMember = translationMemberRepository.existsByTranslationIdAndUserEmail(translation.getId(),
-                    currentUser.getEmail());
+    public String show(@PathVariable String gameTitle, @PathVariable String transTitle,
+            @PathVariable String releaseTitle,
+            @ModelAttribute("currentUser") User currentUser, Model model) {
+        Translation translation = translationRepository
+                .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        Release release = releaseRepository
+                .findByTranslationIdAndTitle(translation.getId(), releaseTitle).orElseThrow();
+
+        boolean isMember = currentUser != null &&
+                translationMemberRepository.existsByTranslationIdAndUserEmail(
+                        translation.getId(), currentUser.getEmail());
+        if ("draft".equals(release.getStatus()) && !isMember) {
+            return "redirect:/g/" + gameTitle + "/t/" + transTitle;
         }
 
-        Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)
-                .orElseThrow();
-        model.addAttribute("isMember", isMember);
         model.addAttribute("release", release);
-        model.addAttribute("translation", translation);
+        model.addAttribute("isMember", isMember);
         return "releases/show";
     }
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}/r")
-    public String releasesPage(@PathVariable String gameTitle, @PathVariable String transTitle, Model model) {
-        Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
-        List<Release> releases = releaseRepository.findByTranslationIdOrderByCreatedAtDesc(translation.getId());
+    public String index(@PathVariable String gameTitle, @PathVariable String transTitle,
+            @ModelAttribute("currentUser") User currentUser, Model model) {
+        Translation translation = translationRepository
+                .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+
+        boolean isMember = currentUser != null &&
+                translationMemberRepository.existsByTranslationIdAndUserEmail(
+                        translation.getId(), currentUser.getEmail());
+
+        List<Release> releases;
+        if (isMember) {
+            releases = releaseRepository.findByTranslationIdOrderByCreatedAtDesc(translation.getId());
+        } else {
+            releases = releaseRepository.findByTranslationIdAndStatusOrderByCreatedAtDesc(
+                    translation.getId(), "published");
+        }
+
         model.addAttribute("translation", translation);
         model.addAttribute("releases", releases);
         return "releases/index";

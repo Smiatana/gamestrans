@@ -31,6 +31,15 @@ public class MemberRequestService {
 
     @Transactional
     public void sendInvite(UUID translationId, String fromEmail, String toUsername) {
+        List<User> users = userRepository.findAllByUsername(toUsername);
+
+        System.out.println(users.size());
+        System.out.println(users.get(0).getUsername());
+        System.out.println(users.get(1).getUsername());
+        System.out.println(users.get(0).getEmail());
+        System.out.println(users.get(1).getEmail());
+        System.out.println(users.get(0).getId());
+        System.out.println(users.get(1).getId());
         Translation translation = translationRepository.findById(translationId).orElseThrow();
         User fromUser = userRepository.findByEmail(fromEmail).orElseThrow();
         User toUser = userRepository.findByUsername(toUsername).orElseThrow();

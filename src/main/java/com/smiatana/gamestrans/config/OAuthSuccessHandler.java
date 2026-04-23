@@ -31,24 +31,23 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String avatar = oauthUser.getAttribute("picture");
 
         User user = userRepository.findByEmail(email).orElse(null);
-
         if (user == null) {
-            user = new User();
-            user.setEmail(email);
-
-            String baseUsername = email.split("@")[0];
-            String username = baseUsername;
-            int i = 1;
-
-            while (userRepository.existsByUsername(username)) {
-                username = baseUsername + i++;
+            if (userRepository.existsByEmail(email)) {
+                user = userRepository.findByEmail(email).orElseThrow();
+            } else {
+                user = new User();
+                user.setEmail(email);
+                String baseUsername = email.split("@")[0];
+                String username = baseUsername;
+                int i = 1;
+                while (userRepository.existsByUsername(username)) {
+                    username = baseUsername + i++;
+                }
+                user.setUsername(username);
+                user.setAvatarUrl(avatar);
+                user.setStatus("active");
+                userRepository.save(user);
             }
-
-            user.setUsername(username);
-            user.setAvatarUrl(avatar);
-            user.setStatus("active");
-
-            userRepository.save(user);
         }
 
         if (user.getStatus().equals("frozen")) {

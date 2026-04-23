@@ -26,6 +26,8 @@
                     <h2>Апісанне</h2>
                     <p th:utext="${release.description}"></p>
                 </div>
+                <div class="badge" th:if="${release.status}" th:text="${release.status}">
+                </div>
                 <div class="card">
                     <h2>Спампаваць</h2>
                     <a th:href="${release.fileUrl}" class="btn btn--primary" target="_blank">Спампаваць / Адкрыць</a>

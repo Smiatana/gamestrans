@@ -36,4 +36,12 @@ public interface TranslationRepository extends JpaRepository<Translation, UUID> 
             """)
     List<Translation> findPublicByGameId(@Param("gameId") UUID gameId);
 
+    @Query("""
+                SELECT COUNT(t) > 0
+                FROM Translation t
+                WHERE t.game.id = :gameId
+                  AND t.status <> 'draft'
+            """)
+    boolean hasNonDraftTranslation(UUID gameId);
+
 }

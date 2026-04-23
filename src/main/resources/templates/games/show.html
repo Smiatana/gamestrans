@@ -7,6 +7,10 @@
             <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-header__cover">
             <div class="game-header__info">
                 <h1 th:text="${game.title}"></h1>
+                <p th:if="${game.developer}" class="text-muted" th:text="${game.developer}"></p>
+                <div th:if="${!#sets.isEmpty(game.genres)}">
+                    <span th:each="g : ${game.genres}" class="tag" th:text="${g.name}"></span>
+                </div>
                 <p class="text" th:utext="${game.description}"></p>
             </div>
         </div>
@@ -18,8 +22,7 @@
             <div class="section-header">
                 <h2>Пераклады</h2>
                 <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm"
-                    th:if="${currentUser}">Дадаць
-                    пераклад</a>
+                    th:if="${currentUser}">Дадаць пераклад</a>
             </div>
 
             <div th:if="${#lists.isEmpty(translations)}" class="card">
@@ -27,18 +30,21 @@
             </div>
             <div class="translation-list">
                 <div th:each="translation : ${translations}" class="translation-item"
+                    th:classappend="${translation.status == 'draft'} ? ' translation-item--draft' : ''"
                     th:attr="data-href=@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
                     onclick="window.location.href=this.dataset.href" style="cursor:pointer;">
                     <span class="text-muted">
                         <span th:each="member, iter : ${membersMap.get(translation.id)}">
                             <a class="member-link" th:text="${member.user.username}"
-                                th:href="@{/u/{n}(n=${member.user.username})}">
-                            </a>
+                                th:href="@{/u/{n}(n=${member.user.username})}"></a>
                             <th:block th:if="!${iter.last}">, </th:block>
                         </span>
                     </span>
                     <div>
                         <span class="text" th:text="${translation.title}"></span>
+                        <span
+                            th:if="${translation.status == 'draft' and isMemberMap != null and isMemberMap[translation.id] == true}"
+                            class="badge badge--draft">Чарнавік</span>
                     </div>
                     <span th:if="${ratingsMap.containsKey(translation.id)}" class="text-muted text-sm"
                         th:text="${ratingsMap.get(translation.id)} + ' ★'"></span>

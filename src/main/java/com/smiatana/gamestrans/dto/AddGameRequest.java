@@ -5,6 +5,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class AddGameRequest {
@@ -12,4 +14,6 @@ public class AddGameRequest {
     private String gameTitle;
     private String gameDescription;
     private MultipartFile gameCover;
+    private String developer;
+    private List<String> genres;
 }

@@ -54,11 +54,6 @@ public class AuthController {
         return "auth/login";
     }
 
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
-
     @GetMapping("/confirm")
     public String confirmPage() {
         return "auth/confirm";

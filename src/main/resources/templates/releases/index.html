@@ -21,9 +21,10 @@
             <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                 <a th:each="release : ${releases}"
                     th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
-                    class="release-item">
+                    class="release-item" th:classappend="${release.status == 'draft'} ? ' release-item--draft' : ''">
                     <div class="release-item__info">
                         <span class="release-item__title" th:text="${release.title}"></span>
+                        <span th:if="${release.status == 'draft'}" class="badge badge--draft">Чарнавік</span>
                         <span class="text-muted text-sm"
                             th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                     </div>

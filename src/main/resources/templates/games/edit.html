@@ -4,9 +4,8 @@
 <body>
     <main>
         <div class="page-header">
-            <h1>Рэдагаванне гульні <a th:href="@{/g/{g}(g=${game.title})}"></a></h1>
+            <h1>Рэдагаванне гульні <a th:href="@{/g/{g}(g=${game.title})}" th:text="${game.title}"></a></h1>
         </div>
-
         <form th:action="@{/g/{title}/edit(title=${game.title})}" th:object="${addGameRequest}" method="post"
             enctype="multipart/form-data" class="form-card">
             <input type="hidden" name="_method" value="patch" />
@@ -16,6 +15,14 @@
                     <label>Назва гульні</label>
                     <input type="text" th:field="*{gameTitle}" class="form-input">
                     <span class="form-error" th:if="${#fields.hasErrors('gameTitle')}" th:errors="*{gameTitle}"></span>
+                </div>
+                <div class="form-group">
+                    <label>Распрацоўшчык</label>
+                    <input type="text" th:field="*{developer}" class="form-input" placeholder="напр. CD Projekt Red">
+                </div>
+                <div class="form-group">
+                    <label>Жанры</label>
+                    <input id="genres" name="genres">
                 </div>
                 <div class="form-group">
                     <label>Вокладка</label>
@@ -33,7 +40,6 @@
                 <button type="submit" class="btn btn--primary">Захаваць</button>
             </div>
         </form>
-
         <div class="danger-zone">
             <h2>Небяспечная зона</h2>
             <p class="text-muted">Выдаленне гульні немагчыма адмяніць</p>
@@ -43,7 +49,34 @@
                     гульню</button>
             </form>
         </div>
+        <script th:inline="javascript">
+            const existingGenres = /*[[${game.genres}]]*/[];
+        </script>
+        <script>
+            const select = new TomSelect("#genres", {
+                valueField: "name",
+                labelField: "name",
+                searchField: "name",
+                create: true,
+                createOnBlur: true,
+                persist: false,
 
+                load: function (query, callback) {
+                    if (!query.length) return callback();
+                    fetch("/api/genres/search?q=" + encodeURIComponent(query))
+                        .then(res => res.json())
+                        .then(callback)
+                        .catch(() => callback());
+                }
+            });
+
+            if (existingGenres) {
+                existingGenres.forEach(g => {
+                    select.addOption({ name: g.name });
+                    select.addItem(g.name);
+                });
+            }
+        </script>
     </main>
 </body>
 

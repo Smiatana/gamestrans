@@ -22,6 +22,7 @@ import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.CommentRepository;
 import com.smiatana.gamestrans.repository.GameRepository;
+import com.smiatana.gamestrans.repository.GenreRepository;
 import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
@@ -44,10 +45,14 @@ public class TranslationController {
     private final ReleaseRepository releaseRepository;
     private final CommentRepository commentRepository;
     private final RatingRepository ratingRepository;
+    private final GenreRepository genreRepository;
 
     @GetMapping("/translations/new")
-    public String newTranslationPage(Model model) {
+    public String newPage(@ModelAttribute("currentUser") User currentUser, Model model) {
+        if (currentUser == null)
+            return "redirect:/login";
         model.addAttribute("createTranslationRequest", new CreateTranslationRequest());
+        model.addAttribute("allGenres", genreRepository.findAllByOrderByNameAsc());
         return "translations/new";
     }
 
