@@ -1,6 +1,7 @@
 package com.smiatana.gamestrans.entity;
 
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -34,6 +35,8 @@ public class Game {
     @Column(columnDefinition = "text")
     private String backgroundUrl;
 
+    private Year releaseYear;
+
     @Column
     private String developer;
 
@@ -44,6 +47,8 @@ public class Game {
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {

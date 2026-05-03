@@ -37,12 +37,19 @@ public class User {
     private String avatarUrl;
 
     @Column(nullable = false)
+    private String role = "user";
+
+    @Column(nullable = false)
     private String status = "pending";
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private LocalDateTime frozenAt;
+
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
