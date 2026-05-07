@@ -11,4 +11,6 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     List<Notification> findByUserEmailOrderByCreatedAtDesc(String email);
 
     void deleteByTypeAndPayloadContaining(String type, String requestId);
+
+    long countByUserEmailAndReadFalse(String email);
 }

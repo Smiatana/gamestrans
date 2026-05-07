@@ -16,8 +16,10 @@ public class CreateTranslationRequest {
     private String title;
     private String gameDescription;
     private MultipartFile gameCover;
+    private MultipartFile gameBackground;
     private String developer;
     private List<String> genres;
+    private Integer releaseYear;
 
     @NotBlank
     private String status;

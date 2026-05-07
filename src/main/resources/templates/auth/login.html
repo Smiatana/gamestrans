@@ -13,24 +13,39 @@
                 <div th:if="${param.registered}" class="alert alert--success">
                     Вы зарэгістраваныя
                 </div>
+                <div th:if="${param.confirmed}" class="alert alert--success">
+                    Email пацверджаны. Цяпер можаце ўвайсці.
+                </div>
+                <div th:if="${param.passwordReset}" class="alert alert--success">
+                    Пароль паспяхова зменены. Увайдзіце з новым паролем.
+                </div>
+                <div th:if="${param.frozen}" class="alert alert--danger">
+                    Ваш акаўнт замарожаны.
+                </div>
+
                 <form th:action="@{/login}" method="post">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="username" class="form-input">
+                        <input type="email" id="email" name="username" class="form-input" autofocus>
                     </div>
                     <div class="form-group">
-                        <label for="password">Пароль</label>
+                        <label for="password">
+                            Пароль
+                            <a th:href="@{/forgot-password}" class="text-muted text-sm"
+                                style="float:right; font-weight:normal;">Забылі пароль?</a>
+                        </label>
                         <input type="password" id="password" name="password" class="form-input">
                     </div>
-                    <button type="submit" class="btn btn--primary">Увайсці</button>
+                    <button type="submit" class="btn btn--primary" style="width:100%;">Увайсці</button>
                 </form>
-                <p>Няма акаўнта? <a th:href="@{/register}">Зарэгістравацца</a></p>
-                <a href="/oauth2/authorization/google" class="btn">
+
+                <p style="margin-top:1rem;">Няма акаўнта? <a th:href="@{/register}">Зарэгістравацца</a></p>
+
+                <a href="/oauth2/authorization/google" class="btn" style="width:100%; margin-top:0.5rem;">
                     Увайсці праз Google
                 </a>
             </div>
         </div>
-
     </main>
 </body>
 

@@ -56,4 +56,5 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect("/");
         }
     }
+
 }

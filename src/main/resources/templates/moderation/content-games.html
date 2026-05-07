@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Гульні — мадэрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('games')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Усе гульні</h1>
+                </div>
+
+                <div class="mod-list">
+                    <div th:each="game : ${games}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div class="text-bold" th:text="${game.title}"></div>
+                            <div class="text-sm text-muted" th:if="${game.developer}" th:text="${game.developer}"></div>
+                            <div class="text-sm text-muted">
+                                Аўтар: <a th:href="@{/u/{u}(u=${game.createdBy.username})}"
+                                    th:text="${game.createdBy.username}"></a>
+                                · <span th:text="${#temporals.format(game.createdAt, 'dd.MM.yyyy')}"></span>
+                                <span th:if="${game.deletedAt != null}" class="badge badge--danger">Схавана</span>
+                            </div>
+                        </div>
+                        <div class="mod-item__actions">
+                            <a th:href="@{/g/{t}(t=${game.title})}" class="btn btn--outline btn--sm"
+                                target="_blank">Глядзець →</a>
+                            <a th:href="@{/g/{t}/edit(t=${game.title})}" class="btn btn--outline btn--sm">Рэдагаваць</a>
+                            <form th:action="@{/mod/content/games/{id}/hide(id=${game.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--sm">Схаваць</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/content/games(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}" th:href="@{/mod/content/games(page=${currentPage + 1})}"
+                        class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

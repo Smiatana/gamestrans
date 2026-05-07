@@ -14,6 +14,8 @@ public class AddGameRequest {
     private String gameTitle;
     private String gameDescription;
     private MultipartFile gameCover;
+    private MultipartFile gameBackground;
     private String developer;
     private List<String> genres;
+    private Integer releaseYear;
 }

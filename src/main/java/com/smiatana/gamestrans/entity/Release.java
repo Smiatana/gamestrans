@@ -33,13 +33,21 @@ public class Release {
     @Column(columnDefinition = "text")
     private String fileUrl;
 
+    /**
+     * Statuses:
+     * - draft: only visible to translation members
+     * - on_review: submitted, pending moderator approval
+     * - published: approved and public
+     * - hidden: approved once but hidden by moderator
+     * - deleted: soft-deleted by moderator
+     */
+
     @Column
-    private String status;
+    private String status = "on_review";
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private LocalDateTime deletedAt;
 
     @PrePersist

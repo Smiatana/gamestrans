@@ -1,5 +1,6 @@
 package com.smiatana.gamestrans.service;
 
+import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,30 +45,16 @@ public class GameService {
     public Game update(UUID id, AddGameRequest req) throws java.io.IOException {
         Game game = findById(id);
         game.setTitle(req.getGameTitle());
-        if (req.getGameCover() != null && !req.getGameCover().isEmpty()) {
+        if (req.getGameCover() != null && !req.getGameCover().isEmpty())
             game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
-        }
+        if (req.getGameBackground() != null && !req.getGameBackground().isEmpty())
+            game.setBackgroundUrl(fileStorageService.store(req.getGameBackground(), "backgrounds"));
         game.setDescription(req.getGameDescription());
         game.setDeveloper(req.getDeveloper());
+        game.setReleaseYear(req.getReleaseYear() != null ? Year.of(req.getReleaseYear()) : null);
+
         if (req.getGenres() != null) {
-            Set<Genre> genres = new HashSet<>();
-
-            if (req.getGenres() != null) {
-                for (String name : req.getGenres()) {
-                    String normalized = name.trim().toLowerCase();
-
-                    Genre genre = genreRepository.findByNameIgnoreCase(normalized)
-                            .orElseGet(() -> {
-                                Genre g = new Genre();
-                                g.setName(normalized);
-                                return genreRepository.save(g);
-                            });
-
-                    genres.add(genre);
-                }
-            }
-
-            game.setGenres(genres);
+            game.setGenres(resolveGenres(req.getGenres()));
         } else {
             game.setGenres(new HashSet<>());
         }
@@ -108,5 +95,20 @@ public class GameService {
                 return gameRepository.findPublicByGenres(genreIds, (long) genreIds.size(), pageable);
             return gameRepository.findPublicGames(pageable);
         }
+    }
+
+    private Set<Genre> resolveGenres(List<String> names) {
+        Set<Genre> genres = new HashSet<>();
+        for (String name : names) {
+            String normalized = name.trim().toLowerCase();
+            Genre genre = genreRepository.findByNameIgnoreCase(normalized)
+                    .orElseGet(() -> {
+                        Genre g = new Genre();
+                        g.setName(normalized);
+                        return genreRepository.save(g);
+                    });
+            genres.add(genre);
+        }
+        return genres;
     }
 }

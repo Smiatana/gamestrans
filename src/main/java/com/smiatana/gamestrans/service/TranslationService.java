@@ -1,5 +1,6 @@
 package com.smiatana.gamestrans.service;
 
+import java.time.Year;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,28 +46,13 @@ public class TranslationService {
         game.setTitle(req.getGameTitle());
         game.setDescription(req.getGameDescription());
         game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
+        game.setBackgroundUrl(fileStorageService.store(req.getGameBackground(), "backgrounds"));
         game.setCreatedBy(currentUser);
         game.setDeveloper(req.getDeveloper());
-        if (req.getGenres() != null && !req.getGenres().isEmpty()) {
-            Set<Genre> genres = new HashSet<>();
-
-            if (req.getGenres() != null) {
-                for (String name : req.getGenres()) {
-                    String normalized = name.trim().toLowerCase();
-
-                    Genre genre = genreRepository.findByNameIgnoreCase(normalized)
-                            .orElseGet(() -> {
-                                Genre g = new Genre();
-                                g.setName(normalized);
-                                return genreRepository.save(g);
-                            });
-
-                    genres.add(genre);
-                }
-            }
-
-            game.setGenres(genres);
-        }
+        if (req.getReleaseYear() != null)
+            game.setReleaseYear(Year.of(req.getReleaseYear()));
+        if (req.getGenres() != null && !req.getGenres().isEmpty())
+            game.setGenres(resolveGenres(req.getGenres()));
         gameRepository.save(game);
 
         Translation translation = new Translation();
@@ -145,5 +131,20 @@ public class TranslationService {
 
     public boolean isOwner(UUID translationId, String email) {
         return translationMemberRepository.existsByTranslationIdAndUserEmailAndRole(translationId, email, "owner");
+    }
+
+    private Set<Genre> resolveGenres(List<String> names) {
+        Set<Genre> genres = new HashSet<>();
+        for (String name : names) {
+            String normalized = name.trim().toLowerCase();
+            Genre genre = genreRepository.findByNameIgnoreCase(normalized)
+                    .orElseGet(() -> {
+                        Genre g = new Genre();
+                        g.setName(normalized);
+                        return genreRepository.save(g);
+                    });
+            genres.add(genre);
+        }
+        return genres;
     }
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Каментарыі — мадэрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('comments')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Усе каментарыі</h1>
+                </div>
+                <div class="mod-list">
+                    <div th:each="c : ${comments}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div class="text-sm text-muted"
+                                th:text="${c.translation.game.title} + ' / ' + ${c.translation.title}"></div>
+                            <div class="text" th:text="${c.body}"></div>
+                            <div class="text-sm text-muted">
+                                Аўтар: <a th:href="@{/u/{u}(u=${c.author.username})}"
+                                    th:text="${c.author.username}"></a>
+                                · <span th:text="${#temporals.format(c.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+                        <div class="mod-item__actions">
+                            <a th:href="@{/g/{g}/t/{t}(g=${c.translation.game.title},t=${c.translation.title})}"
+                                class="btn btn--outline btn--sm" target="_blank">Кантэкст →</a>
+                            <form th:action="@{/mod/content/comments/{id}/delete(id=${c.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/content/comments(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}"
+                        th:href="@{/mod/content/comments(page=${currentPage + 1})}" class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

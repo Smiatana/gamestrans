@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Карыстальнікі', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('users')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Карыстальнікі</h1>
+                </div>
+
+                <div class="mod-list">
+                    <div th:each="user : ${users}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div>
+                                <a th:href="@{/u/{u}(u=${user.username})}" class="text-bold"
+                                    th:text="${user.username}"></a>
+                                <span class="badge" th:text="${user.role}"></span>
+                                <span class="badge"
+                                    th:classappend="${user.status == 'banned'} ? ' badge--danger' : (${user.status == 'active'} ? ' badge--success' : '')"
+                                    th:text="${user.status}"></span>
+                            </div>
+                            <div class="text-sm text-muted" th:text="${user.email}"></div>
+                            <div th:if="${user.status == 'banned' and user.banReason != null}"
+                                class="text-sm text-muted">
+                                Заблакаваны: <span th:text="${user.banReason}"></span>
+                                <span th:if="${user.bannedUntil != null}">
+                                    да <span th:text="${#temporals.format(user.bannedUntil, 'dd.MM.yyyy')}"></span>
+                                </span>
+                                <span th:unless="${user.bannedUntil != null}">(назаўжды)</span>
+                            </div>
+                            <div class="text-sm text-muted"
+                                th:text="'Зарэгістраваны: ' + ${#temporals.format(user.createdAt, 'dd.MM.yyyy')}"></div>
+                        </div>
+
+                        <div class="mod-item__actions" th:if="${user.id != currentUser.id}">
+                            <!-- Warn -->
+                            <div class="mod-inline-form">
+                                <input type="text" class="form-input form-input--sm" placeholder="Прычына папярэджання"
+                                    th:id="'warn-' + ${user.id}">
+                                <form th:action="@{/mod/users/{id}/warn(id=${user.id})}" method="post"
+                                    th:id="'warn-form-' + ${user.id}">
+                                    <input type="hidden" name="reason" th:id="'warn-val-' + ${user.id}">
+                                    <button type="button" class="btn btn--outline btn--sm"
+                                        th:attr="onclick='submitWarn(\'' + ${user.id} + '\')'">⚠ Папярэджанне</button>
+                                </form>
+                            </div>
+
+                            <!-- Ban -->
+                            <button type="button" class="btn btn--danger btn--sm"
+                                th:attr="onclick='openBanModal(\'' + ${user.id} + '\', \'' + ${user.username} + '\')'">
+                                🚫 Заблакаваць
+                            </button>
+
+                            <!-- Unban -->
+                            <form th:if="${user.status == 'banned'}" th:action="@{/mod/users/{id}/unban(id=${user.id})}"
+                                method="post">
+                                <button type="submit" class="btn btn--outline btn--sm">✓ Разблакаваць</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/users(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}" th:href="@{/mod/users(page=${currentPage + 1})}"
+                        class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="banModal" class="modal" style="display:none;">
+            <div class="modal__backdrop" onclick="closeBanModal()"></div>
+            <div class="modal__box">
+                <h3>Заблакаваць карыстальніка: <span id="banUsername"></span></h3>
+                <form id="banForm" method="post">
+                    <div class="form-group">
+                        <label>Тэрмін блакіроўкі (дні, пакіньце пустым для пастаяннай)</label>
+                        <input type="number" name="durationDays" class="form-input" min="1" placeholder="напр. 7">
+                    </div>
+                    <div class="form-group">
+                        <label>Прычына</label>
+                        <input type="text" name="reason" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Нататка мадэратара (неабавязкова)</label>
+                        <textarea name="note" class="form-input" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline" onclick="closeBanModal()">Адмяніць</button>
+                        <button type="submit" class="btn btn--danger">Заблакаваць</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function submitWarn(id) {
+                const reason = document.getElementById('warn-' + id).value.trim();
+                if (!reason) return alert('Укажыце прычыну');
+                document.getElementById('warn-val-' + id).value = reason;
+                document.getElementById('warn-form-' + id).submit();
+            }
+
+            function openBanModal(id, username) {
+                document.getElementById('banUsername').textContent = username;
+                document.getElementById('banForm').action = '/mod/users/' + id + '/ban';
+                document.getElementById('banModal').style.display = 'flex';
+            }
+
+            function closeBanModal() {
+                document.getElementById('banModal').style.display = 'none';
+            }
+        </script>
+    </main>
+</body>
+
+</html>

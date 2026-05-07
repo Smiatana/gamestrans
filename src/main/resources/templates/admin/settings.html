@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Налады сайта', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('settings')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Налады сайта</h1>
+                </div>
+
+                <div th:if="${param.saved}" class="alert alert--success">Захавана ✓</div>
+
+                <form th:action="@{/admin/settings}" method="post" enctype="multipart/form-data" class="form-card">
+                    <section class="form-section">
+                        <h2>Лагатып</h2>
+                        <div class="form-group">
+                            <img th:if="${settings != null and settings.logoUrl != null}" th:src="${settings.logoUrl}"
+                                alt="Logo" class="cover-preview">
+                            <input type="file" name="logoFile" accept="image/*" class="form-input">
+                            <small class="text-muted">Пакіньце пустым, каб не мяняць</small>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <h2>Футэр</h2>
+                        <div class="form-group">
+                            <label>HTML-змест футэра</label>
+                            <textarea name="footerContent" class="form-input" rows="4"
+                                placeholder="&lt;p&gt;© 2025 GamesTrans&lt;/p&gt;"
+                                th:text="${settings != null ? settings.footerContent : ''}"></textarea>
+                            <small class="text-muted">Падтрымліваецца HTML</small>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <h2>Мета-тэгі</h2>
+                        <div class="form-group">
+                            <label>HTML мета-тэгі (для &lt;head&gt;)</label>
+                            <textarea name="metaTags" class="form-input" rows="4"
+                                placeholder="&lt;meta name=&quot;description&quot; content=&quot;...&quot;&gt;"
+                                th:text="${settings != null ? settings.metaTags : ''}"></textarea>
+                            <small class="text-muted">
+                                Увядзіце поўныя meta-тэгі, напр.
+                                <code>&lt;meta name="description" content="..."&gt;</code>
+                            </small>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary">Захаваць</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

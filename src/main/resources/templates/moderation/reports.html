@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Скаргі', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('reports')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Скаргі</h1>
+                    <div class="page-header__actions">
+                        <a th:href="@{/mod/reports(status='pending')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedStatus == 'pending'} ? ' btn--primary' : ''">Чакаюць</a>
+                        <a th:href="@{/mod/reports(status='approved')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedStatus == 'approved'} ? ' btn--primary' : ''">Ухвалены</a>
+                        <a th:href="@{/mod/reports(status='declined')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedStatus == 'declined'} ? ' btn--primary' : ''">Адхілены</a>
+                        <a th:href="@{/mod/reports(status='all')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedStatus == 'all'} ? ' btn--primary' : ''">Усе</a>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(reports)}" class="card">
+                    <p class="text-muted">Скарг пакуль няма</p>
+                </div>
+
+                <div class="mod-list" th:unless="${#lists.isEmpty(reports)}">
+                    <div th:each="report : ${reports}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div>
+                                <span class="badge"
+                                    th:classappend="${report.status == 'pending'} ? ' badge--review' : (${report.status == 'approved'} ? ' badge--success' : ' badge--draft')"
+                                    th:text="${report.status}"></span>
+                                <span class="text-bold" th:text="${report.targetType}"></span>
+                                <span class="text-sm text-muted" th:text="' ID: ' + ${report.targetId}"></span>
+                            </div>
+                            <div class="text-sm" th:text="${report.reason}"></div>
+                            <div class="text-sm text-muted">
+                                Аўтар скаргі:
+                                <a th:href="@{/u/{u}(u=${report.author.username})}"
+                                    th:text="${report.author.username}"></a>
+                                · <span th:text="${#temporals.format(report.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </div>
+                            <div th:if="${report.moderatorNote}" class="text-sm text-muted">
+                                Нататка: <span th:text="${report.moderatorNote}"></span>
+                            </div>
+                        </div>
+
+                        <div class="mod-item__actions" th:if="${report.status == 'pending'}">
+                            <div class="mod-inline-form">
+                                <input type="text" class="form-input form-input--sm"
+                                    placeholder="Нататка (неабавязкова)" th:id="'rnote-' + ${report.id}">
+                                <form th:action="@{/mod/reports/{id}/approve(id=${report.id})}" method="post"
+                                    th:id="'rapprove-' + ${report.id}">
+                                    <input type="hidden" name="note" th:id="'rnote-val-a-' + ${report.id}">
+                                    <button type="button" class="btn btn--success btn--sm"
+                                        th:attr="onclick='submitReport(\'' + ${report.id} + '\', \'approve\')'">✓
+                                        Прыняць</button>
+                                </form>
+                                <form th:action="@{/mod/reports/{id}/decline(id=${report.id})}" method="post"
+                                    th:id="'rdecline-' + ${report.id}">
+                                    <input type="hidden" name="note" th:id="'rnote-val-d-' + ${report.id}">
+                                    <button type="button" class="btn btn--outline btn--sm"
+                                        th:attr="onclick='submitReport(\'' + ${report.id} + '\', \'decline\')'">✗
+                                        Адхіліць</button>
+                                </form>
+                            </div>
+                            <form th:action="@{/mod/reports/{id}/delete(id=${report.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}"
+                        th:href="@{/mod/reports(page=${currentPage - 1}, status=${selectedStatus})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}"
+                        th:href="@{/mod/reports(page=${currentPage + 1}, status=${selectedStatus})}"
+                        class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function submitReport(id, action) {
+                const note = document.getElementById('rnote-' + id).value;
+                const suffix = action === 'approve' ? 'a' : 'd';
+                document.getElementById('rnote-val-' + suffix + '-' + id).value = note;
+                document.getElementById('r' + action + '-' + id).submit();
+            }
+        </script>
+    </main>
+</body>
+
+</html>

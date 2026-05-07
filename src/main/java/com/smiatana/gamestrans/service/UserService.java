@@ -34,6 +34,7 @@ public class UserService {
             throw new IllegalArgumentException("Email заняты");
         if (userRepository.existsByUsername(req.getUsername()))
             throw new IllegalArgumentException("Імя занятае");
+
         User user = new User();
         user.setEmail(req.getEmail());
         user.setUsername(req.getUsername());
@@ -56,7 +57,6 @@ public class UserService {
         user.setUsername(req.getUsername());
         if (req.getAvatarCropped() != null && !req.getAvatarCropped().isEmpty()) {
             String url = fileStorageService.storeBase64(req.getAvatarCropped(), "avatars");
-            System.out.println(url);
             user.setAvatarUrl(url);
         }
         user.setBio(req.getBio());
@@ -65,19 +65,24 @@ public class UserService {
 
     public User changePassword(UUID id, ChangePasswordRequest req) throws IOException {
         User user = userRepository.findById(id).orElseThrow();
-        if (req.getOldPassword().equals(req.getNewPassword())) {
+        if (req.getOldPassword().equals(req.getNewPassword()))
             throw new IllegalArgumentException("Паролі не могуць паўтарацца");
-        }
-        String oldPasswordDigest = passwordEncoder.encode(req.getOldPassword());
-        if (!passwordEncoder.matches(oldPasswordDigest, user.getPasswordDigest())) {
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getPasswordDigest()))
             throw new IllegalArgumentException("Стары пароль не супадае");
-        }
         user.setPasswordDigest(passwordEncoder.encode(req.getNewPassword()));
         return userRepository.save(user);
     }
 
     @Transactional
-    public void delete(UUID id) {
+    public void softDelete(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setStatus("deleted");
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void hardDelete(UUID id) {
         translationMemberRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
@@ -85,6 +90,34 @@ public class UserService {
     public void freeze(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
         user.setStatus("frozen");
+        user.setFrozenAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    public void ban(UUID id, LocalDateTime until, String reason, String note) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setStatus("banned");
+        user.setBannedUntil(until);
+        user.setBanReason(reason);
+        user.setBanNote(note);
+        userRepository.save(user);
+        emailService.sendBanNotification(user);
+    }
+
+    public void unban(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setStatus("active");
+        user.setBannedUntil(null);
+        user.setBanReason(null);
+        user.setBanNote(null);
+        userRepository.save(user);
+    }
+
+    public void setRole(UUID id, String role) {
+        if (!role.equals("user") && !role.equals("moderator") && !role.equals("admin"))
+            throw new IllegalArgumentException("Невядомая роля");
+        User user = userRepository.findById(id).orElseThrow();
+        user.setRole(role);
         userRepository.save(user);
     }
 }

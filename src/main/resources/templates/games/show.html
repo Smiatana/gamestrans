@@ -3,56 +3,156 @@
 
 <body>
     <main>
-        <div class="game-header">
-            <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-header__cover">
-            <div class="game-header__info">
-                <h1 th:text="${game.title}"></h1>
-                <p th:if="${game.developer}" class="text-muted" th:text="${game.developer}"></p>
-                <div th:if="${!#sets.isEmpty(game.genres)}">
-                    <span th:each="g : ${game.genres}" class="tag" th:text="${g.name}"></span>
-                </div>
-                <p class="text" th:utext="${game.description}"></p>
-            </div>
-        </div>
-        <div class="page-header__actions" th:if="${isOwnerOfAny}">
-            <a th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--outline">Рэдагаваць</a>
-        </div>
 
-        <div class="section">
-            <div class="section-header">
-                <h2>Пераклады</h2>
-                <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm"
-                    th:if="${currentUser}">Дадаць пераклад</a>
+        <section class="game-hero">
+
+            <div class="game-hero__background">
+                <img th:if="${game.backgroundUrl}" th:src="${game.backgroundUrl}" alt="" class="game-hero__bg-image">
+
+                <div class="game-hero__overlay"></div>
             </div>
 
-            <div th:if="${#lists.isEmpty(translations)}" class="card">
-                <p class="text-muted">Перакладаў пакуль няма</p>
-            </div>
-            <div class="translation-list">
-                <div th:each="translation : ${translations}" class="translation-item"
-                    th:classappend="${translation.status == 'draft'} ? ' translation-item--draft' : ''"
-                    th:attr="data-href=@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
-                    onclick="window.location.href=this.dataset.href" style="cursor:pointer;">
-                    <span class="text-muted">
-                        <span th:each="member, iter : ${membersMap.get(translation.id)}">
-                            <a class="member-link" th:text="${member.user.username}"
-                                th:href="@{/u/{n}(n=${member.user.username})}"></a>
-                            <th:block th:if="!${iter.last}">, </th:block>
-                        </span>
-                    </span>
-                    <div>
-                        <span class="text" th:text="${translation.title}"></span>
-                        <span
-                            th:if="${translation.status == 'draft' and isMemberMap != null and isMemberMap[translation.id] == true}"
-                            class="badge badge--draft">Чарнавік</span>
+            <div class="main-content">
+                <div class="game-hero__content">
+
+                    <div class="game-hero__cover-wrapper">
+                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-hero__cover">
                     </div>
-                    <span th:if="${ratingsMap.containsKey(translation.id)}" class="text-muted text-sm"
-                        th:text="${ratingsMap.get(translation.id)} + ' ★'"></span>
-                    <span class="text-muted text-sm"
-                        th:text="${#temporals.format(translation.updatedAt, 'dd.MM.yyyy HH:mm')}"></span>
+
+                    <div class="game-hero__info">
+
+                        <div class="game-hero__top">
+                            <h1 th:text="${game.title}"></h1>
+
+                            <div class="game-hero__meta">
+
+                                <span th:if="${game.developer}" class="badge" th:text="${game.developer}">
+                                </span>
+
+                                <span th:if="${game.releaseYear}" class="badge badge--dark"
+                                    th:text="${game.releaseYear}">
+                                </span>
+
+                            </div>
+
+                            <div th:if="${!#sets.isEmpty(game.genres)}" class="game-hero__genres">
+
+                                <span th:each="g : ${game.genres}" class="tag" th:text="${g.name}">
+                                </span>
+
+                            </div>
+                        </div>
+
+                        <div class="game-hero__actions" th:if="${isOwnerOfAny}">
+
+                            <th:block th:replace="~{fragments/report :: button('game', ${game.id})}">
+                            </th:block>
+
+                            <a th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--outline">
+                                Рэдагаваць
+                            </a>
+
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
+
+        </section>
+
+        <div class="main-content">
+
+            <section class="game-description card">
+
+                <h2>Апісанне</h2>
+
+                <p class="text" th:utext="${game.description}">
+                </p>
+
+            </section>
+
+            <section class="section">
+
+                <div class="section-header">
+
+                    <h2>Пераклады</h2>
+
+                    <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm"
+                        th:if="${currentUser}">
+                        Дадаць пераклад
+                    </a>
+
+                </div>
+
+                <div th:if="${#lists.isEmpty(translations)}" class="card">
+
+                    <p class="text-muted">
+                        Перакладаў пакуль няма
+                    </p>
+
+                </div>
+
+                <div class="translation-list">
+
+                    <div th:each="translation : ${translations}" class="translation-item"
+                        th:classappend="${translation.status == 'draft'} ? ' translation-item--draft' : ''"
+                        th:attr="data-href=@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
+                        onclick="window.location.href=this.dataset.href">
+
+                        <div class="translation-item__main">
+
+                            <div class="translation-item__title-row">
+
+                                <span class="text" th:text="${translation.title}">
+                                </span>
+
+                                <span
+                                    th:if="${translation.status == 'draft' and isMemberMap != null and isMemberMap[translation.id] == true}"
+                                    class="badge badge--draft">
+                                    Чарнавік
+                                </span>
+
+                            </div>
+
+                            <div class="translation-item__members">
+
+                                <span th:each="member, iter : ${membersMap.get(translation.id)}">
+
+                                    <a class="member-link" th:text="${member.user.username}"
+                                        th:href="@{/u/{n}(n=${member.user.username})}">
+                                    </a>
+
+                                    <th:block th:if="!${iter.last}">
+                                        ,
+                                    </th:block>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="translation-item__meta">
+
+                            <span th:if="${ratingsMap.containsKey(translation.id)}" class="text-muted text-sm"
+                                th:text="${ratingsMap.get(translation.id)} + ' ★'">
+                            </span>
+
+                            <span class="text-muted text-sm"
+                                th:text="${#temporals.format(translation.updatedAt, 'dd.MM.yyyy HH:mm')}">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
         </div>
+
         <script>
             document.querySelectorAll('.member-link').forEach(el => {
                 el.addEventListener('click', function (e) {
@@ -62,6 +162,7 @@
                 });
             });
         </script>
+
     </main>
 </body>
 

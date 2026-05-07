@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Пераклады — мадэрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('translations')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Усе пераклады</h1>
+                </div>
+                <div class="mod-list">
+                    <div th:each="t : ${translations}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div class="text-sm text-muted" th:text="${t.game.title}"></div>
+                            <div class="text-bold" th:text="${t.title}"></div>
+                            <div class="text-sm text-muted">
+                                <span class="badge" th:text="${t.status}"></span>
+                                Аўтар: <a th:href="@{/u/{u}(u=${t.createdBy.username})}"
+                                    th:text="${t.createdBy.username}"></a>
+                                · <span th:text="${#temporals.format(t.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                        </div>
+                        <div class="mod-item__actions">
+                            <a th:href="@{/g/{g}/t/{t}(g=${t.game.title},t=${t.title})}"
+                                class="btn btn--outline btn--sm" target="_blank">Глядзець →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/content/translations(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}"
+                        th:href="@{/mod/content/translations(page=${currentPage + 1})}" class="btn btn--outline">Далей
+                        →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

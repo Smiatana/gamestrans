@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэлізы — мадэрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('rel-all')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Усе рэлізы</h1>
+                </div>
+                <div class="mod-list">
+                    <div th:each="r : ${releases}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div class="text-sm text-muted"
+                                th:text="${r.translation.game.title} + ' / ' + ${r.translation.title}"></div>
+                            <div class="text-bold" th:text="${r.title}"></div>
+                            <div class="text-sm text-muted">
+                                <span class="badge"
+                                    th:classappend="${r.status == 'published'} ? ' badge--success' : (${r.status == 'on_review'} ? ' badge--review' : ' badge--draft')"
+                                    th:text="${r.status}"></span>
+                                Аўтар: <a th:href="@{/u/{u}(u=${r.createdBy.username})}"
+                                    th:text="${r.createdBy.username}"></a>
+                                · <span th:text="${#temporals.format(r.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                        </div>
+                        <div class="mod-item__actions">
+                            <a th:href="@{/g/{g}/t/{t}/r/{r}(g=${r.translation.game.title},t=${r.translation.title},r=${r.title})}"
+                                class="btn btn--outline btn--sm" target="_blank">Глядзець →</a>
+                            <form th:action="@{/mod/releases/{id}/delete(id=${r.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/content/releases(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}"
+                        th:href="@{/mod/content/releases(page=${currentPage + 1})}" class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

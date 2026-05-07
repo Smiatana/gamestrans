@@ -2,35 +2,36 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1rem;
+
+    padding: 0.65rem 1rem;
+
+    border-radius: var(--radius-sm);
     border: 1px solid transparent;
-    border-radius: var(--radius);
+
     font-size: 0.875rem;
-    font-weight: 500;
-    transition: background-color 150ms;
+    font-weight: 600;
+
+    transition: all var(--transition);
+
     text-decoration: none;
 }
 
 .btn:hover {
     text-decoration: none;
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    pointer-events: none;
+    transform: translateY(-1px);
 }
 
 .btn--primary {
     background: var(--color-primary);
-    color: #fff;
+    color: white;
 }
 
 .btn--primary:hover {
     background: var(--color-primary-hover);
-    color: #fff;
 }
 
 .btn--outline {
+    background: white;
     border-color: var(--color-border);
     color: var(--color-text);
 }
@@ -41,20 +42,15 @@
 
 .btn--danger {
     background: var(--color-danger);
-    color: #fff;
+    color: white;
 }
 
-.btn--danger:hover {
-    background: #b91c1c;
-    color: #fff;
+.btn--success {
+    background: var(--color-success);
+    color: white;
 }
 
 .btn--sm {
-    padding: 0.25rem 0.75rem;
+    padding: 0.45rem 0.75rem;
     font-size: 0.8rem;
-}
-
-.btn--full {
-    width: 100%;
-    padding: 0.625rem;
 }

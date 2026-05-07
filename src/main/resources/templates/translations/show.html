@@ -11,17 +11,20 @@
                     </a>
                     <h1 th:text="${translation.title}"></h1>
                 </div>
-                <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
-                    class="btn btn--outline">Праблемы</a>
-                <div class="page-header__actions" th:if="${isOwner}">
-                    <a th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
+                <div class="page-header__actions">
+                    <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
+                        class="btn btn--outline">Праблемы</a>
+                    <a th:if="${isOwner}"
+                        th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>
+                    <div th:replace="~{fragments/report :: button('translation', ${translation.id})}"></div>
                 </div>
             </div>
+
             <div class="content-grid">
                 <div class="content-main">
                     <div class="card">
-                        <div class="card__header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                        <div class="card__header" style="flex-direction:column; align-items:flex-start; gap:0.5rem;">
                             <div class="text" th:utext="${translation.description}"></div>
                             <span class="badge" th:classappend="'badge--' + ${translation.status}">
                                 <th:block th:switch="${translation.status}">
@@ -33,14 +36,13 @@
                             </span>
                         </div>
                     </div>
+
                     <div class="card">
                         <div class="card__header">
                             <h2>Рэлізы</h2>
-                            <div th:if="${isOwner || isMember}">
-                                <a th:href="@{/releases/new(translationId=${translation.id})}"
-                                    class="btn btn--primary">Новы
-                                    рэліз</a>
-                            </div>
+                            <a th:if="${isOwner || isMember}"
+                                th:href="@{/releases/new(translationId=${translation.id})}"
+                                class="btn btn--primary">Новы рэліз</a>
                         </div>
                         <div th:if="${#lists.isEmpty(releases)}" class="text-muted">
                             <p>Рэлізаў пакуль няма</p>
@@ -48,9 +50,12 @@
                         <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                             <a th:each="release : ${releases}"
                                 th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
-                                class="release-item">
+                                class="release-item"
+                                th:classappend="${release.status == 'draft' or release.status == 'on_review'} ? ' release-item--draft' : ''">
                                 <div class="release-item__info">
                                     <span class="release-item__title" th:text="${release.title}"></span>
+                                    <span th:if="${release.status == 'on_review'}" class="badge badge--review">На
+                                        разглядзе</span>
                                     <span class="text-muted text-sm"
                                         th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                                 </div>
@@ -58,11 +63,12 @@
                             </a>
                         </div>
                         <div th:if="${hasMoreReleases}" class="card__footer">
-                            <a th:href="@{/g/{g}/t/{t}/releases(g=${translation.game.title}, t=${translation.title})}"
+                            <a th:href="@{/g/{g}/t/{t}/r(g=${translation.game.title}, t=${translation.title})}"
                                 class="btn btn--outline btn--sm">Усе рэлізы</a>
                         </div>
                     </div>
                 </div>
+
                 <div class="content-sidebar">
                     <div class="card">
                         <h2>Удзельнікі</h2>
@@ -73,40 +79,41 @@
                             </li>
                         </ul>
                     </div>
-                </div>
-                <div
-                    th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}">
-                </div>
-                <div class="card">
-                    <h2>Ацэнка</h2>
-                    <div th:if="${avgRating != null}">
-                        <span class="rating-stars" th:text="${avgRating} + ' ★'"></span>
-                        <span class="text-muted text-sm" th:text="'(' + ${ratingCount} + ' ацэн.)'"></span>
-                    </div>
-                    <p th:unless="${avgRating != null}" class="text-muted">Ацэнак пакуль няма</p>
-                    <div th:if="${currentUser != null and !isMember}">
-                        <form th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
-                            method="post" class="rating-form">
-                            <div class="star-picker">
-                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                                    <button type="submit" name="stars" th:value="${i}" class="star-btn"
-                                        th:classappend="${userRating != null and userRating.stars >= i} ? ' star-btn--active' : ''">
-                                        ★
-                                    </button>
-                                </th:block>
-                            </div>
-                        </form>
-                        <form th:if="${userRating != null}"
-                            th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
-                            method="post">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn--outline btn--sm">Выдаліць ацэнку</button>
-                        </form>
+
+                    <div class="card">
+                        <h2>Ацэнка</h2>
+                        <div th:if="${avgRating != null}">
+                            <span class="rating-stars" th:text="${avgRating} + ' ★'"></span>
+                            <span class="text-muted text-sm" th:text="'(' + ${ratingCount} + ' ацэн.)'"></span>
+                        </div>
+                        <p th:unless="${avgRating != null}" class="text-muted">Ацэнак пакуль няма</p>
+                        <div th:if="${currentUser != null and !isMember and !isOwner}">
+                            <form th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
+                                method="post" class="rating-form">
+                                <div class="star-picker">
+                                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <button type="submit" name="stars" th:value="${i}" class="star-btn"
+                                            th:classappend="${userRating != null and userRating.stars >= i} ? ' star-btn--active' : ''">★</button>
+                                    </th:block>
+                                </div>
+                            </form>
+                            <form th:if="${userRating != null}"
+                                th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
+                                method="post">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn--outline btn--sm">Выдаліць ацэнку</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
+                <div
+                    th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}">
+                </div>
             </div>
         </div>
+
+        <div th:replace="~{fragments/report :: modal}"></div>
     </main>
 </body>
 

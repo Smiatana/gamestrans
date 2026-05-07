@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <th:block th:fragment="button(targetType, targetId)">
+        <button type="button" class="btn btn--ghost btn--sm report-btn"
+            th:attr="data-type=${targetType}, data-id=${targetId}" onclick="openReportModal(this)">
+            ⚑ Паведаміць
+        </button>
+    </th:block>
+
+    <th:block th:fragment="modal">
+        <script>
+            (function () {
+                let _reportTargetType = null;
+                let _reportTargetId = null;
+
+                function createModal() {
+                    const modal = document.createElement('div');
+                    modal.id = 'reportModal';
+                    modal.className = 'modal active';
+                    modal.setAttribute('aria-modal', 'true');
+                    modal.setAttribute('role', 'dialog');
+
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal__backdrop';
+                    backdrop.addEventListener('click', closeReportModal);
+
+                    const box = document.createElement('div');
+                    box.className = 'modal__box';
+                    box.innerHTML = `
+                        <h3>Паведаміць аб парушэнні</h3>
+                        <div class="form-group">
+                            <label>Прычына</label>
+                            <textarea id="reportReason" class="form-input" rows="4"
+                                      placeholder="Апішыце, чаму гэты змест парушае правілы..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn--outline" id="cancelBtn">Адмяніць</button>
+                            <button type="button" class="btn btn--danger" id="submitBtn">Адправіць</button>
+                        </div>
+                    `;
+
+                    modal.appendChild(backdrop);
+                    modal.appendChild(box);
+                    document.body.appendChild(modal);
+
+                    document.getElementById('cancelBtn').addEventListener('click', closeReportModal);
+                    document.getElementById('submitBtn').addEventListener('click', submitReport);
+                }
+
+                function removeModal() {
+                    const modal = document.getElementById('reportModal');
+                    if (modal) {
+                        modal.remove();
+                    }
+                }
+
+                window.openReportModal = function (btn) {
+                    _reportTargetType = btn.dataset.type;
+                    _reportTargetId = btn.dataset.id;
+                    removeModal();
+                    createModal();
+                };
+
+                window.closeReportModal = function () {
+                    removeModal();
+                };
+
+                window.submitReport = function () {
+                    const reason = document.getElementById('reportReason')?.value.trim();
+                    if (!reason) return alert('Укажыце прычыну');
+
+                    const csrf = document.querySelector('meta[name="_csrf"]')?.content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+                    fetch('/reports', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(csrfHeader ? { [csrfHeader]: csrf } : {})
+                        },
+                        body: JSON.stringify({
+                            targetType: _reportTargetType,
+                            targetId: _reportTargetId,
+                            reason
+                        })
+                    }).then(async res => {
+                        if (res.ok) {
+                            closeReportModal();
+                            alert('Скарга адпраўлена. Дзякуй!');
+                        } else {
+                            const msg = await res.text();
+                            alert(msg || 'Памылка пры адпраўцы');
+                        }
+                    });
+                };
+            })();
+        </script>
+    </th:block>
+
+</body>
+
+</html>

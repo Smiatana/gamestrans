@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Мадэратары', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('moderators')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Мадэратары</h1>
+                </div>
+
+                <div class="card">
+                    <h2>Бягучыя мадэратары</h2>
+                    <div th:if="${#lists.isEmpty(moderators)}" class="text-muted">
+                        Мадэратараў пакуль няма
+                    </div>
+                    <div class="mod-list" th:unless="${#lists.isEmpty(moderators)}">
+                        <div th:each="mod : ${moderators}" class="mod-item">
+                            <div class="mod-item__info">
+                                <a th:href="@{/u/{u}(u=${mod.username})}" th:text="${mod.username}"
+                                    class="text-bold"></a>
+                                <span class="text-muted text-sm" th:text="${mod.email}"></span>
+                                <span class="text-muted text-sm"
+                                    th:text="'З ' + ${#temporals.format(mod.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <div class="mod-item__actions">
+                                <form th:action="@{/admin/moderators/demote/{id}(id=${mod.id})}" method="post">
+                                    <button type="submit" class="btn btn--danger btn--sm"
+                                        onclick="return confirm('Зняць з пасады мадэратара?')">Зняць</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Прызначыць мадэратара</h2>
+                    <p class="text-muted text-sm">Знайдзіце карыстальніка па ID або імені</p>
+                    <div class="search-form">
+                        <input type="text" id="userSearchMod" class="form-input" placeholder="Пошук па імені...">
+                    </div>
+                    <div id="userSearchResults"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const csrf = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+            let timeout;
+            document.getElementById('userSearchMod').addEventListener('input', function () {
+                clearTimeout(timeout);
+                const q = this.value.trim();
+                if (q.length < 2) { document.getElementById('userSearchResults').innerHTML = ''; return; }
+                timeout = setTimeout(() => {
+                    fetch('/users/search?q=' + encodeURIComponent(q))
+                        .then(r => r.json())
+                        .then(users => {
+                            document.getElementById('userSearchResults').innerHTML = users.map(u => `
+                            <div class="mod-item" style="margin-top:0.5rem;">
+                                <span>${u.username}</span>
+                                <form action="/admin/moderators/promote/${u.id}" method="post" style="display:inline;">
+                                    <input type="hidden" name="${csrfHeader || '_csrf'}" value="${csrf || ''}">
+                                    <button type="submit" class="btn btn--primary btn--sm">Прызначыць мадэратарам</button>
+                                </form>
+                            </div>
+                        `).join('');
+                        });
+                }, 300);
+            });
+        </script>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Мадэрацыя', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('dashboard')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Дашборд мадэрацыі</h1>
+                </div>
+
+                <div class="mod-stats">
+                    <div class="mod-stat-card">
+                        <div class="mod-stat-card__value" th:text="${pendingReleaseCount}">0</div>
+                        <div class="mod-stat-card__label">Рэлізаў на разглядзе</div>
+                        <a th:href="@{/mod/releases}" class="btn btn--primary btn--sm">Перайсці</a>
+                    </div>
+                    <div class="mod-stat-card">
+                        <div class="mod-stat-card__value" th:text="${pendingReportCount}">0</div>
+                        <div class="mod-stat-card__label">Скарг чакаюць разгляду</div>
+                        <a th:href="@{/mod/reports}" class="btn btn--primary btn--sm">Перайсці</a>
+                    </div>
+                </div>
+
+                <div class="mod-quicklinks">
+                    <h2>Хуткі доступ</h2>
+                    <div class="mod-quicklinks__grid">
+                        <a th:href="@{/mod/content/games}" class="card mod-quicklink">
+                            <span>🎮</span> Усе гульні
+                        </a>
+                        <a th:href="@{/mod/content/translations}" class="card mod-quicklink">
+                            <span>📝</span> Усе пераклады
+                        </a>
+                        <a th:href="@{/mod/content/comments}" class="card mod-quicklink">
+                            <span>💬</span> Усе каментарыі
+                        </a>
+                        <a th:href="@{/mod/users}" class="card mod-quicklink">
+                            <span>👤</span> Карыстальнікі
+                        </a>
+                        <a th:href="@{/mod/logs}" class="card mod-quicklink">
+                            <span>📋</span> Логі
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -20,12 +20,19 @@ public class AuditLog {
     @JoinColumn(name = "actor_id")
     private User actor;
 
+    /**
+     * Action format: "ENTITY_ACTION" e.g. "GAME_CREATE", "RELEASE_DELETE",
+     * "USER_BAN", "REPORT_RESOLVE"
+     */
     @Column(nullable = false)
     private String action;
 
     private String targetType;
 
     private UUID targetId;
+
+    @Column(columnDefinition = "TEXT")
+    private String summary;
 
     @Column(columnDefinition = "TEXT") // JSON
     private String details;

@@ -14,26 +14,50 @@
                 </p>
                 <h1 th:text="${release.title}"></h1>
                 <p class="text-muted text-sm" th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></p>
-                <div th:if="${isMember}">
-                    <a th:href="@{/g/{title}/t/{tid}/r/{r}/edit(title=${release.translation.game.title}, tid=${release.translation.title}, r=${release.title})}"
-                        class="btn btn--outline">Рэдагаваць</a>
-                </div>
+                <p class="text-muted text-sm">
+                    Аўтар:
+                    <a th:if="${release.createdBy != null and !release.createdBy.isDeleted()}"
+                        th:href="@{/u/{u}(u=${release.createdBy.username})}"
+                        th:text="${release.createdBy.username}"></a>
+                    <span th:if="${release.createdBy == null or release.createdBy.isDeleted()}"
+                        class="text-muted">&lt;deleted&gt;</span>
+                </p>
+            </div>
+            <div class="page-header__actions">
+                <a th:if="${isMember}"
+                    th:href="@{/g/{title}/t/{tid}/r/{r}/edit(title=${release.translation.game.title}, tid=${release.translation.title}, r=${release.title})}"
+                    class="btn btn--outline">Рэдагаваць</a>
+                <div th:replace="~{fragments/report :: button('release', ${release.id})}"></div>
             </div>
         </div>
+
         <div class="content-grid">
             <div class="content-main">
+                <div th:if="${release.status != 'published'}" class="card">
+                    <span class="badge"
+                        th:classappend="${release.status == 'on_review'} ? ' badge--review' : ' badge--draft'" th:text="${release.status == 'on_review'} ? 'На разглядзе' :
+                               (${release.status == 'hidden'} ? 'Схаваны' :
+                               (${release.status == 'deleted'} ? 'Выдалены' : ${release.status}))"></span>
+                    <p th:if="${release.status == 'on_review'}" class="text-muted text-sm">
+                        Гэты рэліз чакае ўхвалення мадэратара.
+                    </p>
+                </div>
+
                 <div class="card" th:if="${release.description}">
                     <h2>Апісанне</h2>
-                    <p th:utext="${release.description}"></p>
+                    <div th:utext="${release.description}"></div>
                 </div>
-                <div class="badge" th:if="${release.status}" th:text="${release.status}">
-                </div>
-                <div class="card">
+
+                <div class="card" th:if="${release.status == 'published'}">
                     <h2>Спампаваць</h2>
-                    <a th:href="${release.fileUrl}" class="btn btn--primary" target="_blank">Спампаваць / Адкрыць</a>
+                    <a th:href="${release.fileUrl}" class="btn btn--primary" target="_blank">
+                        Спампаваць / Адкрыць
+                    </a>
                 </div>
             </div>
         </div>
+
+        <div th:replace="~{fragments/report :: modal}"></div>
     </main>
 </body>
 

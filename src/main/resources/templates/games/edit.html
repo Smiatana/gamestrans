@@ -21,14 +21,26 @@
                     <input type="text" th:field="*{developer}" class="form-input" placeholder="напр. CD Projekt Red">
                 </div>
                 <div class="form-group">
+                    <label for="releaseYear">Год выпуску</label>
+                    <input type="number" id="releaseYear" th:field="*{releaseYear}" class="form-input"
+                        placeholder="напр. 2024" min="1970" th:attr="max=${#dates.year(#dates.createNow()) + 5}">
+                </div>
+                <div class="form-group">
                     <label>Жанры</label>
                     <input id="genres" name="genres">
                 </div>
                 <div class="form-group">
                     <label>Вокладка</label>
-                    <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="cover-preview">
+                    <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="image-preview image-preview--cover">
                     <input type="file" name="gameCover" accept="image/*" class="form-input">
                     <small class="text-muted">Пакіньце пустым, каб не мяняць вокладку</small>
+                </div>
+                <div class="form-group ">
+                    <label for="gameCover">Фонавы відарыс</label>
+                    <img th:if="${game.backgroundUrl}" th:src="${game.backgroundUrl}"
+                        class="image-preview image-preview--background">
+                    <input type="file" id="gameBackground" name="gameBackground" accept="image/*" class="form-input">
+                    <small class="text-muted">Пакіньце пустым, каб не мяняць фон</small>
                 </div>
                 <div class="form-group">
                     <label>Апісанне гульні</label>

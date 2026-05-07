@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Логі', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('logs')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Лог дзеянняў</h1>
+                    <div class="page-header__actions">
+                        <a th:href="@{/mod/logs}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == null} ? ' btn--primary' : ''">Усё</a>
+                        <a th:href="@{/mod/logs(type='game')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == 'game'} ? ' btn--primary' : ''">Гульні</a>
+                        <a th:href="@{/mod/logs(type='release')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == 'release'} ? ' btn--primary' : ''">Рэлізы</a>
+                        <a th:href="@{/mod/logs(type='user')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == 'user'} ? ' btn--primary' : ''">Карыстальнікі</a>
+                        <a th:href="@{/mod/logs(type='comment')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == 'comment'} ? ' btn--primary' : ''">Каментарыі</a>
+                        <a th:href="@{/mod/logs(type='report')}" class="btn btn--outline btn--sm"
+                            th:classappend="${selectedType == 'report'} ? ' btn--primary' : ''">Скаргі</a>
+                    </div>
+                </div>
+
+                <div class="mod-list">
+                    <div th:each="log : ${logs}" class="card mod-item mod-item--log">
+                        <div class="mod-item__info">
+                            <div>
+                                <span class="badge" th:text="${log.action}"></span>
+                                <span th:if="${log.targetType}" class="text-muted text-sm"
+                                    th:text="${log.targetType}"></span>
+                            </div>
+                            <div th:if="${log.summary}" th:text="${log.summary}"></div>
+                            <div class="text-sm text-muted">
+                                <a th:if="${log.actor != null}" th:href="@{/u/{u}(u=${log.actor.username})}"
+                                    th:text="${log.actor.username}"></a>
+                                <span th:unless="${log.actor != null}" class="text-muted">сістэма</span>
+                                · <span th:text="${#temporals.format(log.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/logs(page=${currentPage - 1}, type=${selectedType})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}"
+                        th:href="@{/mod/logs(page=${currentPage + 1}, type=${selectedType})}"
+                        class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -42,6 +42,12 @@ public class User {
     @Column(nullable = false)
     private String status = "pending";
 
+    private LocalDateTime bannedUntil;
+    @Column(columnDefinition = "TEXT")
+    private String banReason;
+    @Column(columnDefinition = "TEXT")
+    private String banNote;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -60,4 +66,23 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public boolean isBanned() {
+        if (!"banned".equals(status))
+            return false;
+        if (bannedUntil == null)
+            return true; // permanent
+        return LocalDateTime.now().isBefore(bannedUntil);
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null || "deleted".equals(status);
+    }
+
+    public String getDisplayName() {
+        if (isDeleted())
+            return "<deleted>";
+        return username;
+    }
+
 }

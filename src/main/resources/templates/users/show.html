@@ -10,11 +10,19 @@
                 <p class="text" th:utext="${user.bio}"></p>
             </div>
         </div>
-        <div class="page-header__actions" th:if="${isOwner}">
-            <a th:href="@{/u/{u}/edit(u=${user.username})}" class="btn btn--outline">Рэдагаваць</a>
+
+        <div class="page-header__actions">
+            <a th:if="${isOwner}" th:href="@{/u/{u}/edit(u=${user.username})}" class="btn btn--outline">Рэдагаваць</a>
+            <div th:if="${currentUser != null and !isOwner}"
+                th:replace="~{fragments/report :: button('user', ${user.id})}"></div>
         </div>
 
-        <div class="games-grid">
+        <div th:if="${isOwner and warningCount > 0}" class="alert alert--danger" style="margin-bottom: 1rem;">
+            ⚠ У вас ёсць <strong th:text="${warningCount}"></strong>
+            папярэджанне(-яў) ад мадэратара.
+        </div>
+
+        <div class="games-grid" th:unless="${#lists.isEmpty(games)}">
             <a th:each="game : ${games}" th:href="@{/g/{id}(id=${game.title})}" class="game-card">
                 <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
                 <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
@@ -25,6 +33,35 @@
         </div>
 
         <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
+
+        <div th:if="${isOwner and !#lists.isEmpty(deletedGames)}" class="section">
+            <div class="section-header">
+                <h2>Выдаленыя гульні</h2>
+            </div>
+            <div class="card">
+                <p class="text-muted text-sm" style="margin-bottom:0.75rem;">
+                    Гэтыя гульні схаваны. Вы можаце аднавіць або выдаліць назаўжды.
+                </p>
+                <div th:each="game : ${deletedGames}" class="mod-item">
+                    <div class="mod-item__info">
+                        <span class="text-bold" th:text="${game.title}"></span>
+                        <span class="text-muted text-sm"
+                            th:text="'Выдалена: ' + ${#temporals.format(game.deletedAt, 'dd.MM.yyyy')}"></span>
+                    </div>
+                    <div class="mod-item__actions">
+                        <form th:action="@{/g/{t}/restore(t=${game.title})}" method="post">
+                            <button type="submit" class="btn btn--outline btn--sm">Аднавіць</button>
+                        </form>
+                        <form th:action="@{/g/{t}/delete-permanent(t=${game.title})}" method="post">
+                            <button type="submit" class="btn btn--danger btn--sm"
+                                onclick="return confirm('Выдаліць назаўжды?')">Выдаліць назаўжды</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/report :: modal}"></div>
     </main>
 </body>
 

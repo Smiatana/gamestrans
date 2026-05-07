@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэлізы на разглядзе', ~{::main})}">
+
+<body>
+    <main>
+        <div class="mod-layout">
+            <div th:replace="~{fragments/mod-nav :: nav('releases')}"></div>
+            <div class="mod-content">
+                <div class="page-header">
+                    <h1>Рэлізы на разглядзе</h1>
+                </div>
+
+                <div th:if="${#lists.isEmpty(releases)}" class="card">
+                    <p class="text-muted">Усе рэлізы разгледжаны 🎉</p>
+                </div>
+
+                <div class="mod-list" th:unless="${#lists.isEmpty(releases)}">
+                    <div th:each="release : ${releases}" class="card mod-item">
+                        <div class="mod-item__info">
+                            <div class="text-sm text-muted" th:text="${release.translation.game.title}"></div>
+                            <div class="text-bold" th:text="${release.translation.title}"></div>
+                            <div>
+                                <strong th:text="${release.title}"></strong>
+                                <span class="badge badge--review">На разглядзе</span>
+                            </div>
+                            <div class="text-sm text-muted">
+                                Аўтар:
+                                <a th:href="@{/u/{u}(u=${release.createdBy.username})}"
+                                    th:text="${release.createdBy.username}"></a>
+                                · <span th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </div>
+                            <div th:if="${release.fileUrl}" class="mod-item__file">
+                                <a th:href="${release.fileUrl}" target="_blank" class="btn btn--outline btn--sm">
+                                    ⬇ Файл / спасылка
+                                </a>
+                                <a th:if="${release.fileUrl.startsWith('/uploads/')}"
+                                    th:href="'https://www.virustotal.com/gui/url/' + ${#strings.replace(release.fileUrl, '/', '-')}"
+                                    target="_blank" class="btn btn--outline btn--sm">
+                                    🛡 VirusTotal
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mod-item__actions">
+                            <a th:href="@{/g/{g}/t/{t}/r/{r}(g=${release.translation.game.title},t=${release.translation.title},r=${release.title})}"
+                                class="btn btn--outline btn--sm" target="_blank">Глядзець →</a>
+
+                            <form th:action="@{/mod/releases/{id}/approve(id=${release.id})}" method="post">
+                                <button type="submit" class="btn btn--success btn--sm">✓ Ухваліць</button>
+                            </form>
+
+                            <div class="mod-item__reject-form">
+                                <input type="text" class="form-input form-input--sm"
+                                    placeholder="Нататка (неабавязкова)" th:id="'note-' + ${release.id}">
+                                <form th:action="@{/mod/releases/{id}/reject(id=${release.id})}" method="post"
+                                    th:id="'reject-' + ${release.id}">
+                                    <input type="hidden" name="note" th:id="'note-val-' + ${release.id}">
+                                    <button type="button" class="btn btn--danger btn--sm"
+                                        th:attr="onclick='submitReject(\'' + ${release.id} + '\')'">✗ Адхіліць</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" th:if="${totalPages > 1}">
+                    <a th:if="${currentPage > 0}" th:href="@{/mod/releases(page=${currentPage - 1})}"
+                        class="btn btn--outline">← Назад</a>
+                    <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                    <a th:if="${currentPage + 1 < totalPages}" th:href="@{/mod/releases(page=${currentPage + 1})}"
+                        class="btn btn--outline">Далей →</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function submitReject(id) {
+                const note = document.getElementById('note-' + id).value;
+                document.getElementById('note-val-' + id).value = note;
+                document.getElementById('reject-' + id).submit();
+            }
+        </script>
+    </main>
+</body>
+
+</html>

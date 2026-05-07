@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} + ' — GamesTrans'">GamesTrans</title>
+
+    <th:block th:if="${appSettings != null and appSettings.metaTags != null}" th:utext="${appSettings.metaTags}">
+    </th:block>
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
@@ -12,10 +16,22 @@
 
 <body>
     <nav class="navbar">
-        <a th:href="@{/}" class="navbar__logo">GamesTrans</a>
+        <a th:href="@{/}" class="navbar__logo">
+            <img th:if="${appSettings != null and appSettings.logoUrl != null}" th:src="${appSettings.logoUrl}"
+                alt="Logo" class="navbar__logo-img">
+            <span th:unless="${appSettings != null and appSettings.logoUrl != null}">GamesTrans</span>
+        </a>
+
         <div class="navbar__links">
             <th:block th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/notifications}">Апавяшчэнні</a>
+                <a th:if="${currentUser != null and (currentUser.role == 'moderator' or currentUser.role == 'admin')}"
+                    th:href="@{/mod}" class="navbar__link--mod">Мадэрацыя</a>
+                <a th:if="${currentUser != null and currentUser.role == 'admin'}" th:href="@{/admin/settings}">Адмін</a>
+                <a th:href="@{/notifications}" class="navbar__notif">
+                    Апавяшчэнні
+                    <span th:if="${unreadNotificationCount > 0}" class="badge badge--danger"
+                        th:text="${unreadNotificationCount}"></span>
+                </a>
                 <a th:if="${currentUser}" th:href="@{/u/{u}(u=${currentUser.username})}">Профіль</a>
             </th:block>
             <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
@@ -24,7 +40,14 @@
             </th:block>
         </div>
     </nav>
+
     <main class="main-content" th:replace="${content}"></main>
+
+    <footer th:if="${appSettings != null and appSettings.footerContent != null}" class="site-footer">
+        <div th:utext="${appSettings.footerContent}"></div>
+    </footer>
+
+    <div th:replace="~{fragments/report :: modal}"></div>
 </body>
 
 </html>
