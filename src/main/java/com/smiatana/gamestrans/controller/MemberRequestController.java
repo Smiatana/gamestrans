@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.MemberRequestService;
 
 import lombok.RequiredArgsConstructor;
@@ -16,14 +17,15 @@ import lombok.RequiredArgsConstructor;
 public class MemberRequestController {
     private final MemberRequestService memberRequestService;
     private final TranslationRepository translationRepository;
+    private final AuthService authService;
 
     @PostMapping("/g/{gameTitle}/{transTitle}/members/invite/{username}")
     @ResponseBody
     public ResponseEntity<String> invite(@PathVariable String gameTitle,
             @PathVariable String transTitle,
-            @PathVariable String username,
-            @ModelAttribute("currentUser") User currentUser) {
+            @PathVariable String username) {
         try {
+            User currentUser = authService.getCurrentUser();
             Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle)
                     .orElseThrow();
 
@@ -36,8 +38,8 @@ public class MemberRequestController {
 
     @PostMapping("/g/{gameTitle}/{transTitle}/members/kick/{username}")
     public String kick(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @PathVariable String username,
-            @ModelAttribute("currentUser") User currentUser) {
+            @PathVariable String username) {
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         memberRequestService.kick(translation.getId(), currentUser.getEmail(), username);
         return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/edit";

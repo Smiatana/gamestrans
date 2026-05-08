@@ -40,7 +40,8 @@ public class ModerationController {
     }
 
     @GetMapping
-    public String dashboard(@ModelAttribute("currentUser") User currentUser, Model model) {
+    public String dashboard(Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
 
@@ -54,8 +55,9 @@ public class ModerationController {
     }
 
     @GetMapping("/releases")
-    public String releases(@ModelAttribute("currentUser") User currentUser,
+    public String releases(
             @RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
 
@@ -88,8 +90,8 @@ public class ModerationController {
     }
 
     @PostMapping("/releases/{id}/delete")
-    public String deleteRelease(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String deleteRelease(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         releaseService.softDelete(id, currentUser);
@@ -97,10 +99,11 @@ public class ModerationController {
     }
 
     @GetMapping("/users")
-    public String users(@ModelAttribute("currentUser") User currentUser,
+    public String users(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "") String q,
             Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
 
@@ -115,8 +118,8 @@ public class ModerationController {
 
     @PostMapping("/users/{id}/ban")
     public String banUser(@PathVariable UUID id,
-            @ModelAttribute BanRequest req,
-            @ModelAttribute("currentUser") User currentUser) {
+            @ModelAttribute BanRequest req) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.banUser(id, currentUser, req.getDurationDays(), req.getReason(), req.getNote());
@@ -124,8 +127,8 @@ public class ModerationController {
     }
 
     @PostMapping("/users/{id}/unban")
-    public String unbanUser(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String unbanUser(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.unbanUser(id, currentUser);
@@ -134,8 +137,8 @@ public class ModerationController {
 
     @PostMapping("/users/{id}/warn")
     public String warnUser(@PathVariable UUID id,
-            @RequestParam String reason,
-            @ModelAttribute("currentUser") User currentUser) {
+            @RequestParam String reason) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.warnUser(id, currentUser, reason);
@@ -143,10 +146,11 @@ public class ModerationController {
     }
 
     @GetMapping("/reports")
-    public String reports(@ModelAttribute("currentUser") User currentUser,
+    public String reports(
             @RequestParam(defaultValue = "pending") String status,
             @RequestParam(defaultValue = "0") int page,
             Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
 
@@ -164,8 +168,8 @@ public class ModerationController {
 
     @PostMapping("/reports/{id}/approve")
     public String approveReport(@PathVariable UUID id,
-            @RequestParam(required = false) String note,
-            @ModelAttribute("currentUser") User currentUser) {
+            @RequestParam(required = false) String note) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.resolveReport(id, currentUser, "approved", note);
@@ -174,8 +178,8 @@ public class ModerationController {
 
     @PostMapping("/reports/{id}/decline")
     public String declineReport(@PathVariable UUID id,
-            @RequestParam(required = false) String note,
-            @ModelAttribute("currentUser") User currentUser) {
+            @RequestParam(required = false) String note) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.resolveReport(id, currentUser, "declined", note);
@@ -183,8 +187,8 @@ public class ModerationController {
     }
 
     @PostMapping("/reports/{id}/delete")
-    public String deleteReport(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String deleteReport(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         moderationService.deleteReport(id, currentUser);
@@ -192,8 +196,8 @@ public class ModerationController {
     }
 
     @GetMapping("/content/games")
-    public String contentGames(@ModelAttribute("currentUser") User currentUser,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+    public String contentGames(@RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Pageable pageable = PageRequest.of(page, 30, Sort.by("createdAt").descending());
@@ -204,8 +208,8 @@ public class ModerationController {
     }
 
     @GetMapping("/content/translations")
-    public String contentTranslations(@ModelAttribute("currentUser") User currentUser,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+    public String contentTranslations(@RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Pageable pageable = PageRequest.of(page, 30, Sort.by("createdAt").descending());
@@ -217,8 +221,8 @@ public class ModerationController {
     }
 
     @GetMapping("/content/releases")
-    public String contentReleases(@ModelAttribute("currentUser") User currentUser,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+    public String contentReleases(@RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Pageable pageable = PageRequest.of(page, 30, Sort.by("createdAt").descending());
@@ -230,8 +234,8 @@ public class ModerationController {
     }
 
     @GetMapping("/content/comments")
-    public String contentComments(@ModelAttribute("currentUser") User currentUser,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+    public String contentComments(@RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Pageable pageable = PageRequest.of(page, 30, Sort.by("createdAt").descending());
@@ -243,8 +247,8 @@ public class ModerationController {
     }
 
     @GetMapping("/content/issues")
-    public String contentIssues(@ModelAttribute("currentUser") User currentUser,
-            @RequestParam(defaultValue = "0") int page, Model model) {
+    public String contentIssues(@RequestParam(defaultValue = "0") int page, Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Pageable pageable = PageRequest.of(page, 30, Sort.by("createdAt").descending());
@@ -256,7 +260,8 @@ public class ModerationController {
     }
 
     @PostMapping("/content/games/{id}/hide")
-    public String hideGame(@PathVariable UUID id, @ModelAttribute("currentUser") User currentUser) {
+    public String hideGame(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         Game game = gameRepository.findById(id).orElseThrow();
@@ -267,7 +272,8 @@ public class ModerationController {
     }
 
     @PostMapping("/content/comments/{id}/delete")
-    public String deleteComment(@PathVariable UUID id, @ModelAttribute("currentUser") User currentUser) {
+    public String deleteComment(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
         commentRepository.deleteById(id);
@@ -276,10 +282,11 @@ public class ModerationController {
     }
 
     @GetMapping("/logs")
-    public String logs(@ModelAttribute("currentUser") User currentUser,
+    public String logs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String type,
             Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
 

@@ -20,6 +20,7 @@ import com.smiatana.gamestrans.repository.GenreRepository;
 import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.GameService;
 import com.smiatana.gamestrans.service.UriService;
 
@@ -46,14 +47,15 @@ public class GameController {
     private final TranslationMemberRepository translationMemberRepository;
     private final UriService uriService;
     private final RatingRepository ratingRepository;
+    private final AuthService authService;
 
     @GetMapping("/")
     public String index(
-            @ModelAttribute("currentUser") User currentUser,
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) List<UUID> genres,
             @RequestParam(defaultValue = "0") int page,
             Model model) {
+        User currentUser = authService.getCurrentUser();
 
         Pageable pageable = PageRequest.of(page, 20, Sort.by("title").ascending());
         String email = currentUser != null ? currentUser.getEmail() : null;
@@ -90,8 +92,8 @@ public class GameController {
     }
 
     @GetMapping("/g/{title}")
-    public String getGame(@PathVariable String title,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
+    public String getGame(@PathVariable String title, Model model) {
+        User currentUser = authService.getCurrentUser();
 
         Game game = gameService.findByTitle(title);
 
@@ -134,7 +136,6 @@ public class GameController {
         }
         model.addAttribute("ratingsMap", ratingsMap);
 
-        // Per-translation member flag for draft badge
         Map<UUID, Boolean> isMemberMap = new HashMap<>();
         if (currentUser != null) {
             for (UUID id : translationIds) {
@@ -148,8 +149,8 @@ public class GameController {
     }
 
     @GetMapping("/g/{gameTitle}/edit")
-    public String editPage(@PathVariable String gameTitle,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
+    public String editPage(@PathVariable String gameTitle, Model model) {
+        User currentUser = authService.getCurrentUser();
         Game game = gameService.findByTitle(gameTitle);
         List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
         List<UUID> translationIds = translations.stream().map(Translation::getId).toList();
@@ -175,8 +176,8 @@ public class GameController {
     public String update(@PathVariable String gameTitle,
             @Valid @ModelAttribute AddGameRequest addGameRequest,
             BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser,
             Model model) throws java.io.IOException {
+        User currentUser = authService.getCurrentUser();
         if (binding.hasErrors()) {
             model.addAttribute("allGenres", genreRepository.findAllByOrderByNameAsc());
             model.addAttribute("game", gameService.findByTitle(gameTitle));
@@ -195,8 +196,8 @@ public class GameController {
     }
 
     @DeleteMapping("/g/{gameTitle}/delete")
-    public String deleteGame(@PathVariable String gameTitle,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String deleteGame(@PathVariable String gameTitle) {
+        User currentUser = authService.getCurrentUser();
         Game game = gameService.findByTitle(gameTitle);
         List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
         List<UUID> translationIds = translations.stream().map(Translation::getId).toList();

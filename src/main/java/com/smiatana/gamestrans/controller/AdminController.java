@@ -13,6 +13,7 @@ import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.AppSettingsRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.service.AuditLogService;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.FileStorageService;
 import com.smiatana.gamestrans.service.UserService;
 
@@ -27,13 +28,15 @@ public class AdminController {
     private final AppSettingsRepository appSettingsRepository;
     private final FileStorageService fileStorageService;
     private final AuditLogService auditLogService;
+    private final AuthService authService;
 
     private boolean isAdmin(User u) {
         return u != null && "admin".equals(u.getRole());
     }
 
     @GetMapping("/moderators")
-    public String moderators(@ModelAttribute("currentUser") User currentUser, Model model) {
+    public String moderators(Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isAdmin(currentUser))
             return "redirect:/";
         List<User> moderators = userRepository.findByRoleOrderByCreatedAtDesc("moderator");
@@ -42,7 +45,8 @@ public class AdminController {
     }
 
     @PostMapping("/moderators/promote/{id}")
-    public String promote(@PathVariable UUID id, @ModelAttribute("currentUser") User currentUser) {
+    public String promote(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isAdmin(currentUser))
             return "redirect:/";
         userService.setRole(id, "moderator");
@@ -51,7 +55,8 @@ public class AdminController {
     }
 
     @PostMapping("/moderators/demote/{id}")
-    public String demote(@PathVariable UUID id, @ModelAttribute("currentUser") User currentUser) {
+    public String demote(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         if (!isAdmin(currentUser))
             return "redirect:/";
         userService.setRole(id, "user");
@@ -60,7 +65,8 @@ public class AdminController {
     }
 
     @GetMapping("/settings")
-    public String settingsPage(@ModelAttribute("currentUser") User currentUser, Model model) {
+    public String settingsPage(Model model) {
+        User currentUser = authService.getCurrentUser();
         if (!isAdmin(currentUser))
             return "redirect:/";
         AppSettings settings = appSettingsRepository.findById(1)
@@ -74,10 +80,10 @@ public class AdminController {
 
     @PostMapping("/settings")
     public String saveSettings(
-            @ModelAttribute("currentUser") User currentUser,
             @RequestParam(required = false) String footerContent,
             @RequestParam(required = false) String metaTags,
             @RequestParam(required = false) MultipartFile logoFile) throws java.io.IOException {
+        User currentUser = authService.getCurrentUser();
         if (!isAdmin(currentUser))
             return "redirect:/";
 

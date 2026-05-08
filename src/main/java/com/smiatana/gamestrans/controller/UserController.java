@@ -22,6 +22,7 @@ import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.repository.WarningRepository;
 import com.smiatana.gamestrans.service.AuditLogService;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.UriService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,14 +38,15 @@ public class UserController {
     private final WarningRepository warningRepository;
     private final AuditLogService auditLogService;
     private final UriService uriService;
+    private final AuthService authService;
 
     @GetMapping("/u/{username}")
-    public String show(@PathVariable String username,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
+    public String show(@PathVariable String username, Model model) {
         User user = userRepository.findByUsername(username).orElseThrow();
 
         if (user.isDeleted())
             return "users/notfound";
+        User currentUser = authService.getCurrentUser();
         if ("frozen".equals(user.getStatus())) {
             boolean isOwner = currentUser != null && user.getEmail().equals(currentUser.getEmail());
             if (!isOwner)
@@ -77,9 +79,9 @@ public class UserController {
     }
 
     @GetMapping("/u/{username}/edit")
-    public String edit(@PathVariable String username,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
+    public String edit(@PathVariable String username, Model model) {
         User user = userRepository.findByUsername(username).orElseThrow();
+        User currentUser = authService.getCurrentUser();
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
         model.addAttribute("user", user);
@@ -91,8 +93,9 @@ public class UserController {
     @PatchMapping("/u/{username}/edit")
     public String edit(@PathVariable String username,
             @Valid @ModelAttribute EditProfileRequest editProfileRequest,
-            BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
+            BindingResult binding, Model model) throws IOException {
+
+        User currentUser = authService.getCurrentUser();
         if (binding.hasErrors())
             return "users/edit";
 
@@ -109,8 +112,8 @@ public class UserController {
     @PatchMapping("/u/{username}/changepassword")
     public String changePassword(@PathVariable String username,
             @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest,
-            BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
+            BindingResult binding, Model model) throws IOException {
+        User currentUser = authService.getCurrentUser();
         User user = userRepository.findByUsername(username).orElseThrow();
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
@@ -133,8 +136,8 @@ public class UserController {
 
     @DeleteMapping("/u/{username}/delete")
     public String deleteUser(@PathVariable String username,
-            @ModelAttribute("currentUser") User currentUser,
             HttpServletRequest request) {
+        User currentUser = authService.getCurrentUser();
         User user = userRepository.findByUsername(username).orElseThrow();
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
@@ -149,8 +152,8 @@ public class UserController {
     }
 
     @PostMapping("/g/{gameTitle}/restore")
-    public String restoreGame(@PathVariable String gameTitle,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String restoreGame(@PathVariable String gameTitle) {
+        User currentUser = authService.getCurrentUser();
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
         boolean isOwner = translationMemberRepository
                 .findByUserEmail(currentUser.getEmail()).stream()
@@ -164,8 +167,8 @@ public class UserController {
     }
 
     @PostMapping("/g/{gameTitle}/delete-permanent")
-    public String deletePermanent(@PathVariable String gameTitle,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String deletePermanent(@PathVariable String gameTitle) {
+        User currentUser = authService.getCurrentUser();
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
         boolean isOwner = translationMemberRepository
                 .findByUserEmail(currentUser.getEmail()).stream()

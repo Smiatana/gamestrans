@@ -18,6 +18,7 @@ import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.ReleaseService;
 import com.smiatana.gamestrans.service.UriService;
 
@@ -33,10 +34,11 @@ public class ReleaseController {
         private final TranslationMemberRepository translationMemberRepository;
         private final UriService uriService;
         private final ReleaseRepository releaseRepository;
+        private final AuthService authService;
 
         @GetMapping("/releases/new")
-        public String newReleasePage(@RequestParam(required = false) UUID translationId,
-                        @ModelAttribute("currentUser") User currentUser, Model model) {
+        public String newReleasePage(@RequestParam(required = false) UUID translationId, Model model) {
+                User currentUser = authService.getCurrentUser();
                 List<TranslationMember> members = translationMemberRepository.findByUserEmail(currentUser.getEmail());
                 List<Translation> translations = members.stream()
                                 .map(TranslationMember::getTranslation)
@@ -53,8 +55,8 @@ public class ReleaseController {
 
         @PostMapping("releases/new")
         public String createReleaseGlobalPage(@Valid @ModelAttribute CreateReleaseRequest createReleaseRequest,
-                        BindingResult binding,
-                        @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
+                        BindingResult binding, Model model) throws IOException {
+                User currentUser = authService.getCurrentUser();
                 if (binding.hasErrors()) {
                         List<TranslationMember> members = translationMemberRepository
                                         .findByUserEmail(currentUser.getEmail());
@@ -75,8 +77,8 @@ public class ReleaseController {
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}")
         public String show(@PathVariable String gameTitle, @PathVariable String transTitle,
-                        @PathVariable String releaseTitle,
-                        @ModelAttribute("currentUser") User currentUser, Model model) {
+                        @PathVariable String releaseTitle, Model model) {
+                User currentUser = authService.getCurrentUser();
                 Translation translation = translationRepository
                                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
                 Release release = releaseRepository
@@ -96,7 +98,8 @@ public class ReleaseController {
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/r")
         public String index(@PathVariable String gameTitle, @PathVariable String transTitle,
-                        @ModelAttribute("currentUser") User currentUser, Model model) {
+                        Model model) {
+                User currentUser = authService.getCurrentUser();
                 Translation translation = translationRepository
                                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
 
@@ -119,8 +122,8 @@ public class ReleaseController {
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/edit")
         public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle,
-                        @PathVariable String releaseTitle,
-                        @ModelAttribute("currentUser") User currentUser, Model model) {
+                        @PathVariable String releaseTitle, Model model) {
+                User currentUser = authService.getCurrentUser();
                 Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle)
                                 .orElseThrow();
                 boolean isMember = translationMemberRepository.existsByTranslationIdAndUserEmail(translation.getId(),
@@ -142,8 +145,9 @@ public class ReleaseController {
         @PatchMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/edit")
         public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
                         @PathVariable String releaseTitle,
-                        @Valid @ModelAttribute CreateReleaseRequest createReleaseRequest,
-                        @ModelAttribute("currentUser") User currentUser, Model model) throws IOException {
+                        @Valid @ModelAttribute CreateReleaseRequest createReleaseRequest, Model model)
+                        throws IOException {
+                User currentUser = authService.getCurrentUser();
                 Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle)
                                 .orElseThrow();
                 Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)

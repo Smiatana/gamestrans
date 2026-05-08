@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.smiatana.gamestrans.entity.Notification;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.NotificationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.MemberRequestService;
 import com.smiatana.gamestrans.service.SseService;
 
@@ -26,6 +27,7 @@ public class NotificationController {
     private final SseService sseService;
     private final MemberRequestService memberRequestService;
     private final NotificationRepository notificationRepository;
+    private final AuthService authService;
 
     @GetMapping("/notifications")
     public String notificationsPage(@ModelAttribute("currentUser") User currentUser, Model model) {
@@ -38,15 +40,16 @@ public class NotificationController {
     }
 
     @GetMapping(value = "/notifications/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter stream(@ModelAttribute("currentUser") User currentUser) {
+    public SseEmitter stream() {
+        User currentUser = authService.getCurrentUser();
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         sseService.register(currentUser.getEmail(), emitter);
         return emitter;
     }
 
     @PostMapping("/notifications/{id}/read")
-    public String markRead(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String markRead(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         Notification notification = notificationRepository.findById(id).orElseThrow();
         if (notification.getUser().getEmail().equals(currentUser.getEmail())) {
             notification.setRead(true);
@@ -56,15 +59,15 @@ public class NotificationController {
     }
 
     @PostMapping("/member-requests/{id}/accept")
-    public String accept(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String accept(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         memberRequestService.accept(id, currentUser.getEmail());
         return "redirect:/notifications";
     }
 
     @PostMapping("/member-requests/{id}/reject")
-    public String reject(@PathVariable UUID id,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String reject(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
         memberRequestService.reject(id, currentUser.getEmail());
         return "redirect:/notifications";
     }

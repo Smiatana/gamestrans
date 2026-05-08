@@ -14,6 +14,7 @@ import com.smiatana.gamestrans.dto.CommentRequest;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.CommentService;
 
 import jakarta.validation.Valid;
@@ -24,11 +25,12 @@ import lombok.RequiredArgsConstructor;
 public class CommentController {
     private final CommentService commentService;
     private final TranslationRepository translationRepository;
+    private final AuthService authService;
 
     @PostMapping("/g/{gameTitle}/t/{transTitle}/comments")
     public String create(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @Valid @ModelAttribute CommentRequest commentRequest, BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser) {
+            @Valid @ModelAttribute CommentRequest commentRequest, BindingResult binding) {
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         if (!binding.hasErrors())
             commentService.create(commentRequest, currentUser, translation.getId());
@@ -37,8 +39,8 @@ public class CommentController {
 
     @PatchMapping("/g/{gameTitle}/t/{transTitle}/comments/{commentId}")
     public String update(@PathVariable String gameTitle, @PathVariable String transTitle, @PathVariable UUID commentId,
-            @Valid @ModelAttribute CommentRequest commentRequest, BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser) {
+            @Valid @ModelAttribute CommentRequest commentRequest, BindingResult binding) {
+        User currentUser = authService.getCurrentUser();
         if (!binding.hasErrors())
             commentService.update(commentId, commentRequest, currentUser);
         return "redirect:/g/" + gameTitle + "/t/" + transTitle;
@@ -46,8 +48,8 @@ public class CommentController {
 
     @DeleteMapping("/g/{gameTitle}/t/{transTitle}/comments/{commentId}")
     public String delete(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @PathVariable UUID commentId,
-            @ModelAttribute("currentUser") User currentUser) {
+            @PathVariable UUID commentId) {
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository
                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         commentService.delete(commentId, currentUser, translation.getId());

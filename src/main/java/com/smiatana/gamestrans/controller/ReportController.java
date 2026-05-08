@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.smiatana.gamestrans.dto.ReportRequest;
 import com.smiatana.gamestrans.entity.User;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.ModerationService;
 
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReportController {
     private final ModerationService moderationService;
+    private final AuthService authService;
 
     @PostMapping("/reports")
     @ResponseBody
     public ResponseEntity<String> report(
-            @RequestBody ReportRequest req,
-            @ModelAttribute("currentUser") User currentUser) {
+            @RequestBody ReportRequest req) {
+        User currentUser = authService.getCurrentUser();
         if (currentUser == null)
             return ResponseEntity.status(401).body("Трэба ўвайсці");
         try {

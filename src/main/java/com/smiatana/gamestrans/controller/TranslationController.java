@@ -27,6 +27,7 @@ import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.TranslationService;
 import com.smiatana.gamestrans.service.UriService;
 
@@ -46,9 +47,11 @@ public class TranslationController {
     private final CommentRepository commentRepository;
     private final RatingRepository ratingRepository;
     private final GenreRepository genreRepository;
+    private final AuthService authService;
 
     @GetMapping("/translations/new")
-    public String newPage(@ModelAttribute("currentUser") User currentUser, Model model) {
+    public String newPage(Model model) {
+        User currentUser = authService.getCurrentUser();
         if (currentUser == null)
             return "redirect:/login";
         model.addAttribute("createTranslationRequest", new CreateTranslationRequest());
@@ -60,8 +63,8 @@ public class TranslationController {
     public String createTranslation(
             @Valid @ModelAttribute CreateTranslationRequest createTranslationRequest,
             BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser,
             Model model) throws java.io.IOException {
+        User currentUser = authService.getCurrentUser();
         if (binding.hasErrors())
             return "translations/new";
         var translation = translationService.create(createTranslationRequest, currentUser);
@@ -83,8 +86,8 @@ public class TranslationController {
     public String addTranslation(@PathVariable String gameTitle,
             @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
             BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser,
             Model model) throws java.io.IOException {
+        User currentUser = authService.getCurrentUser();
         if (binding.hasErrors())
             return "translations/add";
 
@@ -97,9 +100,8 @@ public class TranslationController {
     }
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}")
-    public String translationPage(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
-
+    public String translationPage(@PathVariable String gameTitle, @PathVariable String transTitle, Model model) {
+        User currentUser = authService.getCurrentUser();
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
 
@@ -165,8 +167,8 @@ public class TranslationController {
     }
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}/edit")
-    public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @ModelAttribute("currentUser") User currentUser, Model model) {
+    public String editPage(@PathVariable String gameTitle, @PathVariable String transTitle, Model model) {
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         List<TranslationMember> members = translationMemberRepository.findByTranslationId(translation.getId());
 
@@ -192,11 +194,16 @@ public class TranslationController {
     public String update(@PathVariable String gameTitle, @PathVariable String transTitle,
             @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
             BindingResult binding,
-            @ModelAttribute("currentUser") User currentUser,
             Model model) throws java.io.IOException {
         if (binding.hasErrors())
             return "translations/edit";
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        boolean isOwner = translationMemberRepository
+                .existsByTranslationIdAndUserEmailAndRole(translation.getId(), currentUser.getEmail(), "owner");
+        if (!isOwner) {
+            return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        }
         translationService.update(translation.getId(), addTranslationRequest);
 
         String uriGameTitle = uriService.uri(gameTitle);
@@ -205,8 +212,8 @@ public class TranslationController {
     }
 
     @DeleteMapping("/g/{gameTitle}/t/{transTitle}/delete")
-    public String delete(@PathVariable String gameTitle, @PathVariable String transTitle,
-            @ModelAttribute("currentUser") User currentUser) {
+    public String delete(@PathVariable String gameTitle, @PathVariable String transTitle) {
+        User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), currentUser.getEmail(), "owner");
