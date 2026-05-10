@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.UserRepository;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
         private final UserRepository userRepository;
         private final OAuthSuccessHandler oauthSuccessHandler;
+        private final BannedUserFilter bannedUserFilter;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,7 +59,10 @@ public class SecurityConfig {
                                                 .successHandler(oauthSuccessHandler))
                                 .logout(logout -> logout
                                                 .logoutSuccessUrl("/login")
-                                                .permitAll());
+                                                .permitAll())
+                                .addFilterBefore(
+                                                bannedUserFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }

@@ -77,6 +77,8 @@
             <div class="modal__box">
                 <h3>Заблакаваць карыстальніка: <span id="banUsername"></span></h3>
                 <form id="banForm" method="post">
+
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <div class="form-group">
                         <label>Тэрмін блакіроўкі (дні, пакіньце пустым для пастаяннай)</label>
                         <input type="number" name="durationDays" class="form-input" min="1" placeholder="напр. 7">
