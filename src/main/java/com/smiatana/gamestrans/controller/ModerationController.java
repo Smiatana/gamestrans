@@ -39,9 +39,11 @@ public class ModerationController {
         return u != null && (u.getRole().equals("moderator") || u.getRole().equals("admin"));
     }
 
-    @GetMapping
+
+    @GetMapping("")
     public String dashboard(Model model) {
         User currentUser = authService.getCurrentUser();
+        System.out.println("this user's ROLE: " + currentUser.getRole());
         if (!isMod(currentUser))
             return "redirect:/";
 
@@ -168,21 +170,21 @@ public class ModerationController {
 
     @PostMapping("/reports/{id}/approve")
     public String approveReport(@PathVariable UUID id,
-            @RequestParam(required = false) String note) {
+            @RequestParam String reason) {
         User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
-        moderationService.resolveReport(id, currentUser, "approved", note);
+        moderationService.resolveReport(id, currentUser, "approved", reason);
         return "redirect:/mod/reports";
     }
 
     @PostMapping("/reports/{id}/decline")
     public String declineReport(@PathVariable UUID id,
-            @RequestParam(required = false) String note) {
+            @RequestParam String reason) {
         User currentUser = authService.getCurrentUser();
         if (!isMod(currentUser))
             return "redirect:/";
-        moderationService.resolveReport(id, currentUser, "declined", note);
+        moderationService.resolveReport(id, currentUser, "declined", reason);
         return "redirect:/mod/reports";
     }
 

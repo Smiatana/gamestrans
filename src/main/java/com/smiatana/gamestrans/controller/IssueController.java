@@ -23,6 +23,7 @@ import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.IssueService;
+import com.smiatana.gamestrans.service.UriService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class IssueController {
         private final TranslationRepository translationRepository;
         private final TranslationMemberRepository translationMemberRepository;
         private final AuthService authService;
+        private final UriService uriService;
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/issues")
         public String index(@PathVariable String gameTitle, @PathVariable String transTitle, Model model) {
@@ -68,7 +70,10 @@ public class IssueController {
                         return "issues/index";
                 }
                 issueService.create(issueRequest, currentUser, translation.getId());
-                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/issues";
+                String uriGameTitle = uriService.uri(gameTitle);
+                String uriTransTitle = uriService.uri(transTitle);
+
+                return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/issues";
         }
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/issues/{issueId}/edit")
@@ -98,7 +103,10 @@ public class IssueController {
                 User currentUser = authService.getCurrentUser();
                 if (!binding.hasErrors())
                         issueService.update(issueId, issueRequest, currentUser);
-                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/issues";
+                String uriGameTitle = uriService.uri(gameTitle);
+                String uriTransTitle = uriService.uri(transTitle);
+
+                return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/issues";
         }
 
         @PatchMapping("/g/{gameTitle}/t/{transTitle}/issues/{issueId}/status")
@@ -109,7 +117,11 @@ public class IssueController {
                 Translation translation = translationRepository
                                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
                 issueService.setStatus(issueId, status, currentUser, translation.getId());
-                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/issues";
+
+                String uriGameTitle = uriService.uri(gameTitle);
+                String uriTransTitle = uriService.uri(transTitle);
+
+                return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/issues";
         }
 
         @DeleteMapping("/g/{gameTitle}/t/{transTitle}/issues/{issueId}")
@@ -119,6 +131,9 @@ public class IssueController {
                 Translation translation = translationRepository
                                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
                 issueService.delete(issueId, currentUser, translation.getId());
-                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/issues";
+                String uriGameTitle = uriService.uri(gameTitle);
+                String uriTransTitle = uriService.uri(transTitle);
+
+                return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/issues";
         }
 }

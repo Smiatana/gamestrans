@@ -16,6 +16,7 @@ import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.CommentService;
+import com.smiatana.gamestrans.service.UriService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class CommentController {
     private final CommentService commentService;
     private final TranslationRepository translationRepository;
     private final AuthService authService;
+    private final UriService uriService;
 
     @PostMapping("/g/{gameTitle}/t/{transTitle}/comments")
     public String create(@PathVariable String gameTitle, @PathVariable String transTitle,
@@ -34,7 +36,10 @@ public class CommentController {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         if (!binding.hasErrors())
             commentService.create(commentRequest, currentUser, translation.getId());
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        String uriGameTitle = uriService.uri(gameTitle);
+        String uriTransTitle = uriService.uri(transTitle);
+
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
     @PatchMapping("/g/{gameTitle}/t/{transTitle}/comments/{commentId}")
@@ -43,7 +48,10 @@ public class CommentController {
         User currentUser = authService.getCurrentUser();
         if (!binding.hasErrors())
             commentService.update(commentId, commentRequest, currentUser);
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        String uriGameTitle = uriService.uri(gameTitle);
+        String uriTransTitle = uriService.uri(transTitle);
+
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
     @DeleteMapping("/g/{gameTitle}/t/{transTitle}/comments/{commentId}")
@@ -53,6 +61,9 @@ public class CommentController {
         Translation translation = translationRepository
                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         commentService.delete(commentId, currentUser, translation.getId());
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        String uriGameTitle = uriService.uri(gameTitle);
+        String uriTransTitle = uriService.uri(transTitle);
+
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 }

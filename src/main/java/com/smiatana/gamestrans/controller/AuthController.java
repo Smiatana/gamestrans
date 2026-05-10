@@ -2,6 +2,7 @@ package com.smiatana.gamestrans.controller;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,8 +31,13 @@ public class AuthController {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    @GetMapping("/register")
+  @GetMapping("/whoami")
+    @ResponseBody
+    public String whoami(Authentication auth) {
+        return auth.getAuthorities().toString();
+    }
 
+    @GetMapping("/register")
     public String registerPage(org.springframework.ui.Model model) {
         model.addAttribute("registerRequest", new RegisterRequest());
         return "auth/register";

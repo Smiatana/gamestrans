@@ -9,6 +9,7 @@ import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.RatingService;
+import com.smiatana.gamestrans.service.UriService;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class RatingController {
     private final RatingService ratingService;
     private final TranslationRepository translationRepository;
     private final AuthService authService;
+    private final UriService uriService;
 
     @PostMapping("/g/{gameTitle}/t/{transTitle}/rating")
     public String rate(@PathVariable String gameTitle, @PathVariable String transTitle,
@@ -27,7 +29,10 @@ public class RatingController {
         Translation translation = translationRepository
                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         ratingService.upsert(translation.getId(), currentUser, stars);
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        String uriGameTitle = uriService.uri(gameTitle);
+        String uriTransTitle = uriService.uri(transTitle);
+
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
     @DeleteMapping("/g/{gameTitle}/t/{transTitle}/rating")
@@ -36,6 +41,9 @@ public class RatingController {
         Translation translation = translationRepository
                 .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         ratingService.delete(translation.getId(), currentUser);
-        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+        String uriGameTitle = uriService.uri(gameTitle);
+        String uriTransTitle = uriService.uri(transTitle);
+
+        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 }

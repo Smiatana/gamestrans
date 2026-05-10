@@ -90,19 +90,19 @@ public class ModerationService {
     }
 
     @Transactional
-    public Complaint resolveReport(UUID complaintId, User moderator, String decision, String note) {
+    public Complaint resolveReport(UUID complaintId, User moderator, String decision, String reason) {
         // decision: "approved" | "declined"
         Complaint complaint = complaintRepository.findById(complaintId).orElseThrow();
         complaint.setStatus(decision);
         complaint.setResolvedBy(moderator);
-        complaint.setModeratorNote(note);
+        complaint.setModeratorNote(reason);
         complaint.setResolvedAt(LocalDateTime.now());
         complaintRepository.save(complaint);
 
         notificationService.send(complaint.getAuthor(), "report_resolved", Map.of(
                 "targetType", complaint.getTargetType(),
                 "decision", decision,
-                "note", note != null ? note : ""));
+                "reason", reason != null ? reason : ""));
 
         auditLogService.log(moderator, "REPORT_RESOLVE", "report", complaintId,
                 "Report resolved as '" + decision + "' by " + moderator.getUsername());

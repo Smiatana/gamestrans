@@ -41,29 +41,34 @@
                                     th:text="${report.author.username}"></a>
                                 · <span th:text="${#temporals.format(report.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                             </div>
-                            <div th:if="${report.moderatorNote}" class="text-sm text-muted">
-                                Нататка: <span th:text="${report.moderatorNote}"></span>
-                            </div>
                         </div>
 
                         <div class="mod-item__actions" th:if="${report.status == 'pending'}">
                             <div class="mod-inline-form">
-                                <input type="text" class="form-input form-input--sm"
-                                    placeholder="Нататка (неабавязкова)" th:id="'rnote-' + ${report.id}">
-                                <form th:action="@{/mod/reports/{id}/approve(id=${report.id})}" method="post"
-                                    th:id="'rapprove-' + ${report.id}">
-                                    <input type="hidden" name="note" th:id="'rnote-val-a-' + ${report.id}">
-                                    <button type="button" class="btn btn--success btn--sm"
-                                        th:attr="onclick='submitReport(\'' + ${report.id} + '\', \'approve\')'">✓
-                                        Прыняць</button>
+                                <form th:action="@{/mod/reports/{id}/approve(id=${report.id})}" method="post">
+                                    <input type="text"
+                                        name="reason"
+                                        class="form-input form-input--sm"
+                                        placeholder="Прычына"
+                                        required>
+
+                                    <button type="submit" class="btn btn--success btn--sm">
+                                        ✓ Прыняць
+                                    </button>
                                 </form>
-                                <form th:action="@{/mod/reports/{id}/decline(id=${report.id})}" method="post"
-                                    th:id="'rdecline-' + ${report.id}">
-                                    <input type="hidden" name="note" th:id="'rnote-val-d-' + ${report.id}">
-                                    <button type="button" class="btn btn--outline btn--sm"
-                                        th:attr="onclick='submitReport(\'' + ${report.id} + '\', \'decline\')'">✗
-                                        Адхіліць</button>
+
+                                <form th:action="@{/mod/reports/{id}/decline(id=${report.id})}" method="post">
+                                    <input type="text"
+                                        name="reason"
+                                        class="form-input form-input--sm"
+                                        placeholder="Прычына"
+                                        required>
+
+                                    <button type="submit" class="btn btn--outline btn--sm">
+                                        ✗ Адхіліць
+                                    </button>
                                 </form>
+
                             </div>
                             <form th:action="@{/mod/reports/{id}/delete(id=${report.id})}" method="post">
                                 <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
@@ -83,15 +88,6 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            function submitReport(id, action) {
-                const note = document.getElementById('rnote-' + id).value;
-                const suffix = action === 'approve' ? 'a' : 'd';
-                document.getElementById('rnote-val-' + suffix + '-' + id).value = note;
-                document.getElementById('r' + action + '-' + id).submit();
-            }
-        </script>
     </main>
 </body>
 

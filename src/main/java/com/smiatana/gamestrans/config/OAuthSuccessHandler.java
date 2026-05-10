@@ -45,6 +45,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
                 }
                 user.setUsername(username);
                 user.setAvatarUrl(avatar);
+                user.setRole("user");
                 user.setStatus("active");
                 userRepository.save(user);
             }

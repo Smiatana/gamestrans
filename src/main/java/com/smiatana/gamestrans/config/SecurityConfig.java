@@ -2,6 +2,7 @@ package com.smiatana.gamestrans.config;
 
 import java.util.List;
 
+import org.springframework.boot.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,10 +22,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.unit.DataSize;
 
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.UserRepository;
 
+import jakarta.servlet.MultipartConfigElement;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -45,7 +48,7 @@ public class SecurityConfig {
                                                                 "/login", "/u", "/u/**",
                                                                 "/css/**", "/js/**", "/uploads/**")
                                                 .permitAll()
-                                                .requestMatchers("/mod/**").hasAnyRole("MODERATOR", "ADMIN")
+                                                .requestMatchers("/mod", "/mod/**").hasAnyRole("MODERATOR", "ADMIN")
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form
@@ -105,6 +108,8 @@ public class SecurityConfig {
                                                 default -> "USER";
                                         };
 
+                                        System.out.println("Mapped Spring role: " + springRole);
+
                                         return org.springframework.security.core.userdetails.User
                                                         .withUsername(user.getEmail())
                                                         .password(user.getPasswordDigest() != null
@@ -148,5 +153,12 @@ public class SecurityConfig {
                                         oauthUser.getAttributes(),
                                         "email");
                 };
+        }
+        @Bean
+        public MultipartConfigElement multipartConfigElement() {
+                MultipartConfigFactory factory = new MultipartConfigFactory();
+                factory.setMaxFileSize(DataSize.ofMegabytes(10));
+                factory.setMaxRequestSize(DataSize.ofMegabytes(32));
+                return factory.createMultipartConfig();
         }
 }

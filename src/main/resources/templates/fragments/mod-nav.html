@@ -1,40 +1,35 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <body>
-    <th:block th:fragment="nav(active)">
-        <aside class="mod-sidebar">
-
-            <div class="mod-sidebar__group">
-                <p class="mod-sidebar__title">Мадэрацыя</p>
-
-                <a href="/mod" class="mod-sidebar__link">Дашборд</a>
-                <a href="/mod/releases" class="mod-sidebar__link">Рэлізы на разглядзе</a>
-                <a href="/mod/users" class="mod-sidebar__link">Карыстальнікі</a>
-                <a href="/mod/reports" class="mod-sidebar__link">Скаргі</a>
-            </div>
-
-            <div class="mod-sidebar__group">
-                <p class="mod-sidebar__title">Змест</p>
-
-                <a href="/mod/content/games" class="mod-sidebar__link">Гульні</a>
-                <a href="/mod/content/translations" class="mod-sidebar__link">Пераклады</a>
-                <a href="/mod/content/releases" class="mod-sidebar__link">Усе рэлізы</a>
-                <a href="/mod/content/comments" class="mod-sidebar__link">Каментарыі</a>
-                <a href="/mod/content/issues" class="mod-sidebar__link">Праблемы</a>
-                <a href="/mod/logs" class="mod-sidebar__link">Логі</a>
-            </div>
-
-            <div class="mod-sidebar__group">
-                <p class="mod-sidebar__title">Адміністраванне</p>
-
-                <a href="#" class="mod-sidebar__link">Мадэратары</a>
-                <a href="#" class="mod-sidebar__link">Налады сайта</a>
-            </div>
-
-        </aside>
-        </nav>
-    </th:block>
+<th:block th:fragment="nav(active)">
+<aside class="mod-sidebar">
+  <button class="mod-sidebar__toggle" onclick="this.closest('.mod-sidebar').classList.toggle('mod-sidebar--open')" aria-label="Меню мадэрацыі">
+    <span>☰</span> Меню
+  </button>
+  <div class="mod-sidebar__body">
+    <div class="mod-sidebar__group">
+      <p class="mod-sidebar__title">Мадэрацыя</p>
+      <a href="/mod" class="mod-sidebar__link">Дашборд</a>
+      <a href="/mod/releases" class="mod-sidebar__link">Рэлізы на разглядзе</a>
+      <a href="/mod/users" class="mod-sidebar__link">Карыстальнікі</a>
+      <a href="/mod/reports" class="mod-sidebar__link">Скаргі</a>
+    </div>
+    <div class="mod-sidebar__group">
+      <p class="mod-sidebar__title">Змест</p>
+      <a href="/mod/content/games" class="mod-sidebar__link">Гульні</a>
+      <a href="/mod/content/translations" class="mod-sidebar__link">Пераклады</a>
+      <a href="/mod/content/releases" class="mod-sidebar__link">Усе рэлізы</a>
+      <a href="/mod/content/comments" class="mod-sidebar__link">Каментарыі</a>
+      <a href="/mod/content/issues" class="mod-sidebar__link">Праблемы</a>
+      <a href="/mod/logs" class="mod-sidebar__link">Логі</a>
+    </div>
+    <div class="mod-sidebar__group">
+      <p class="mod-sidebar__title">Адміністраванне</p>
+      <a href="#" class="mod-sidebar__link">Мадэратары</a>
+      <a href="#" class="mod-sidebar__link">Налады сайта</a>
+    </div>
+  </div>
+</aside>
+</th:block>
 </body>
-
 </html>

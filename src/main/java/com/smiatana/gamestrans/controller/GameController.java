@@ -49,6 +49,12 @@ public class GameController {
     private final RatingRepository ratingRepository;
     private final AuthService authService;
 
+    private boolean isStaff(User user) {
+        return user != null &&
+                ("admin".equals(user.getRole()) ||
+                "moderator".equals(user.getRole()));
+    }
+
     @GetMapping("/")
     public String index(
             @RequestParam(defaultValue = "") String search,
@@ -104,9 +110,18 @@ public class GameController {
             translations = translationRepository.findPublicByGameId(game.getId());
         }
 
-        if (translations.isEmpty() && (currentUser == null ||
-                !translationMemberRepository.existsByTranslationGameIdAndUserEmail(
-                        game.getId(), currentUser.getEmail()))) {
+        boolean canViewHidden = false;
+
+        if (currentUser != null) {
+            canViewHidden =
+                    isStaff(currentUser) ||
+                    translationMemberRepository.existsByTranslationGameIdAndUserEmail(
+                            game.getId(),
+                            currentUser.getEmail()
+                    );
+        }
+
+        if (translations.isEmpty() && !canViewHidden) {
             return "redirect:/";
         }
 
@@ -158,7 +173,7 @@ public class GameController {
         boolean isOwnerOfAny = translationIds.stream()
                 .anyMatch(id -> translationMemberRepository
                         .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
-        if (!isOwnerOfAny)
+        if (!isOwnerOfAny && !isStaff(currentUser))
             return "redirect:/g/" + gameTitle;
 
         AddGameRequest req = new AddGameRequest();

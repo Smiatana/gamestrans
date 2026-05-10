@@ -49,6 +49,12 @@ public class TranslationController {
     private final GenreRepository genreRepository;
     private final AuthService authService;
 
+    private boolean isStaff(User user) {
+        return user != null &&
+                ("admin".equals(user.getRole()) ||
+                "moderator".equals(user.getRole()));
+    }
+
     @GetMapping("/translations/new")
     public String newPage(Model model) {
         User currentUser = authService.getCurrentUser();
@@ -105,11 +111,23 @@ public class TranslationController {
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
 
+
         if ("draft".equals(translation.getStatus())) {
-            boolean isMember = currentUser != null && translationMemberRepository
-                    .existsByTranslationIdAndUserEmail(translation.getId(), currentUser.getEmail());
-            if (!isMember)
+
+            boolean canViewDraft = false;
+
+            if (currentUser != null) {
+                canViewDraft =
+                        isStaff(currentUser) ||
+                        translationMemberRepository.existsByTranslationIdAndUserEmail(
+                                translation.getId(),
+                                currentUser.getEmail()
+                        );
+            }
+
+            if (!canViewDraft) {
                 return "redirect:/g/" + gameTitle;
+            }
         }
 
         List<TranslationMember> members = translationMemberRepository.findByTranslationId(translation.getId());
@@ -174,7 +192,7 @@ public class TranslationController {
 
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), currentUser.getEmail(), "owner");
-        if (!isOwner) {
+        if (!isOwner && !isStaff(currentUser)) {
             return "redirect:/g/" + gameTitle + "/t/" + transTitle;
         }
 
@@ -201,7 +219,7 @@ public class TranslationController {
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), currentUser.getEmail(), "owner");
-        if (!isOwner) {
+        if (!isOwner && !isStaff(currentUser)) {
             return "redirect:/g/" + gameTitle + "/t/" + transTitle;
         }
         translationService.update(translation.getId(), addTranslationRequest);
@@ -220,7 +238,7 @@ public class TranslationController {
         String uriGameTitle = uriService.uri(gameTitle);
         String uriTransTitle = uriService.uri(transTitle);
         if (!isOwner)
-            return "redirect:/games/" + uriGameTitle + "/" + uriTransTitle;
+            return "redirect:/g/" + uriGameTitle + "/" + uriTransTitle;
 
         translationService.delete(translation.getId());
         return "redirect:/";
