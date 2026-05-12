@@ -2,18 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Праблемы', ~{::main})}">
 
 <body>
-    <main>
-        <div class="page-header">
+    <main class="main-content">
+        <header class="page-header">
             <div>
-                <a th:href="@{/g/{g}/t/{t}(g=${translation.game.title},t=${translation.title})}">
+                <a th:href="@{/g/{g}/t/{t}(g=${translation.game.title},t=${translation.title})}" style="text-decoration: none;">
                     <p class="text-muted" th:text="${translation.title}"></p>
                 </a>
                 <h1>Праблемы</h1>
             </div>
-        </div>
+        </header>
 
         <div class="card" th:if="${currentUser != null}">
-            <h2>Паведаміць аб праблеме</h2>
+            <h2 style="margin-top: 0;">Паведаміць аб праблеме</h2>
             <form th:action="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
                 th:object="${issueRequest}" method="post">
                 <div class="form-group">
@@ -33,16 +33,16 @@
             </form>
         </div>
 
-        <div class="issue-list">
+        <div class="issue-list" style="display: flex; flex-direction: column; gap: 1rem;">
             <div th:each="issue : ${issues}" class="card issue-item">
-                <div class="issue-item__header">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                     <div>
                         <span class="badge"
-                            th:classappend="${issue.status == 'solved'} ? 'badge--completed' : 'badge--draft'"
+                            th:classappend="${issue.status == 'solved'} ? 'badge--success' : 'badge--draft'"
                             th:text="${issue.status == 'solved'} ? 'Вырашана' : 'Не вырашана'"></span>
-                        <strong th:text="${issue.title}"></strong>
+                        <strong style="margin-left: 0.75rem;" th:text="${issue.title}"></strong>
                     </div>
-                    <div class="issue-item__actions">
+                    <div class="btn-group" style="justify-content: flex-end;">
                         <form th:if="${isMember}"
                             th:action="@{/g/{g}/t/{t}/issues/{i}/status(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
                             method="post" style="display:inline;">
@@ -63,7 +63,7 @@
                         </form>
                     </div>
                 </div>
-                <p class="text" th:text="${issue.description}"></p>
+                <p class="rich-content" th:text="${issue.description}"></p>
                 <p class="text-muted text-sm" th:if="${issue.releaseTitle != null}">
                     Рэліз: <span th:text="${issue.releaseTitle}"></span>
                 </p>

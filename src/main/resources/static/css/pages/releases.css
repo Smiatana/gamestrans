@@ -1,0 +1,124 @@
+/* Release Page Styles */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header p {
+  margin: 0 0 0.5rem 0;
+  color: var(--clr-text-muted);
+  font-size: 0.9rem;
+}
+
+.page-header p a {
+  color: var(--clr-primary);
+  text-decoration: none;
+}
+
+.page-header p a:hover {
+  text-decoration: underline;
+}
+
+.page-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  width: min(100%, var(--container));
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.content-main {
+  min-width: 0;
+}
+
+.content-sidebar {
+  min-width: 0;
+}
+
+/* Release Status Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge--review {
+  background: var(--clr-warning);
+  color: var(--clr-warning-text);
+}
+
+.badge--draft {
+  background: var(--clr-text-muted);
+  color: var(--clr-surface);
+}
+
+.badge--danger {
+  background: var(--clr-danger);
+  color: white;
+}
+
+.badge--success {
+  background: var(--clr-success);
+  color: white;
+}
+
+/* Download Section */
+.card h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.card .btn {
+  width: 100%;
+}
+
+/* Description */
+.card p {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.card p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .content-sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-grid {
+    padding-inline: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+}

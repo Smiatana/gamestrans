@@ -26,9 +26,13 @@
                         </div>
                         <div class="mod-item__actions">
                             <a th:href="@{/g/{g}/t/{t}/r/{r}(g=${r.translation.game.title},t=${r.translation.title},r=${r.title})}"
-                                class="btn btn--outline btn--sm" target="_blank">Глядзець →</a>
+                                class="btn btn--outline btn--sm" target="_blank">
+                                <i data-lucide="eye"></i> Глядзець
+                            </a>
                             <form th:action="@{/mod/releases/{id}/delete(id=${r.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                                <button type="submit" class="btn btn--danger btn--sm">
+                                    <i data-lucide="trash-2"></i> Выдаліць
+                                </button>
                             </form>
                         </div>
                     </div>

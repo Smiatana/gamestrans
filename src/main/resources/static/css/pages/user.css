@@ -1,15 +1,17 @@
 .profile-header {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
 }
-
 .profile-header__pfp {
-    margin: 10px;
-    border-radius: 50%;
-    height: 200pt;
-    width: auto;
-}
-
-.profile-header__info {
-    margin-top: 10px;
+  border-radius: 50%;
+  height: 140pt;
+  width: 140pt;
+  max-width: 100%;
+  object-fit: cover;
+  border: 3px solid var(--clr-primary);
+  box-shadow: 0 0 30px var(--clr-primary);
 }

@@ -1,31 +1,186 @@
-h1,
-h2,
-h3,
-h4 {
-    line-height: 1.2;
-    color: var(--color-text);
+/* Base Typography */
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--clr-text);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.25;
+  color: var(--clr-text);
+  letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
 }
 
 h2 {
-    font-size: 1.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
 }
 
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+h6 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Paragraphs */
 p {
-    color: var(--color-text);
+  color: var(--clr-text);
+  margin: 0.75em 0;
 }
 
+p:first-child {
+  margin-top: 0;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+a {
+  color: var(--clr-primary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--clr-primary-hover);
+  text-decoration: underline;
+}
+
+/* Text Utilities */
 .text-muted {
-    color: var(--color-text-muted);
+  color: var(--clr-text-muted);
+  font-size: 0.9rem;
+}
+
+.text-dim {
+  color: var(--clr-text-dim);
 }
 
 .text-bold {
-    font-weight: 600;
+  font-weight: 700;
+}
+
+.text-semibold {
+  font-weight: 600;
 }
 
 .text-sm {
-    font-size: 0.875rem;
+  font-size: 0.875rem;
 }
 
 .text-xs {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Lists */
+ul, ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* Code */
+code, pre {
+  background: var(--clr-bg);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+code {
+  padding: 0.2rem 0.4rem;
+  color: var(--clr-primary);
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--clr-text-muted);
+}
+
+/* Blockquote */
+blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--clr-primary);
+  color: var(--clr-text-muted);
+}
+
+/* Horizontal Rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--clr-border);
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
 }

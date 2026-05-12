@@ -1,35 +1,26 @@
 .badge {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 0.25rem 0.6rem;
-
-    border-radius: 999px;
-
-    font-size: 0.75rem;
-    font-weight: 600;
-
-    background: var(--color-bg-secondary);
-    color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--clr-surface-hover);
+  color: var(--clr-text);
 }
-
-.badge--success,
-.badge--published {
-    background: #dcfce7;
-    color: #166534;
+.badge--success, .badge--published {
+  background: rgba(0,230,118,0.15);
+  color: var(--clr-success);
 }
-
 .badge--danger {
-    background: #fee2e2;
-    color: #991b1b;
+  background: rgba(255,23,68,0.15);
+  color: var(--clr-danger);
 }
-
 .badge--review {
-    background: #fef3c7;
-    color: #92400e;
+  background: rgba(255,171,0,0.15);
+  color: var(--clr-warning);
 }
-
 .badge--draft {
-    background: #e5e7eb;
-    color: #4b5563;
+  background: rgba(138,143,161,0.2);
+  color: var(--clr-text-muted);
 }

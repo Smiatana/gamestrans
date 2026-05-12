@@ -24,10 +24,16 @@
                         </div>
                         <div class="mod-item__actions">
                             <a th:href="@{/g/{t}(t=${game.title})}" class="btn btn--outline btn--sm"
-                                target="_blank">Глядзець →</a>
-                            <a th:href="@{/g/{t}/edit(t=${game.title})}" class="btn btn--outline btn--sm">Рэдагаваць</a>
+                                target="_blank">
+                                <i data-lucide="eye"></i> Глядзець
+                            </a>
+                            <a th:href="@{/g/{t}/edit(t=${game.title})}" class="btn btn--outline btn--sm">
+                                <i data-lucide="edit"></i> Рэдагаваць
+                            </a>
                             <form th:action="@{/mod/content/games/{id}/hide(id=${game.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">Схаваць</button>
+                                <button type="submit" class="btn btn--danger btn--sm">
+                                    <i data-lucide="eye-off"></i> Схаваць
+                                </button>
                             </form>
                         </div>
                     </div>

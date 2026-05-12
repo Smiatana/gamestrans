@@ -1,85 +1,106 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Галоўная', ~{::main})}">
-
 <body>
-    <main>
-        <div class="page-header">
-            <h1>Гульні</h1>
-            <a th:if="${currentUser}" th:href="@{/translations/new}" class="btn btn--primary">Дадаць пераклад</a>
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Бібліятэка гульняў</h1>
+        <p>Дзяліцеся беларускімі перакладамі для любімых гульняў.</p>
+      </div>
+      <a th:if="${currentUser}" th:href="@{/translations/new}" class="btn btn--primary">
+        <i data-lucide="plus-circle"></i> Дадаць пераклад
+      </a>
+    </header>
+
+    <div class="search-form-card">
+      <form th:action="@{/}" method="get" id="filterForm">
+        <div class="search-bar-row">
+          <div class="input-icon-group">
+            <input type="text" name="search" th:value="${search}" 
+                   class="form-input-main" placeholder="Назва гульні, распрацоўшчык..." autocomplete="off">
+          </div>
+          <button type="submit" class="btn btn--primary btn--lg">
+            <i data-lucide="search"></i>
+            Шукаць
+          </button>
         </div>
 
-        <form th:action="@{/}" method="get" id="filterForm" class="search-form">
-            <input type="hidden" name="page" value="0">
-            <input type="text" name="search" th:value="${search}" class="form-input" placeholder="Пошук гульняў...">
-            <div id="genreInputs">
-                <input th:each="gid : ${selectedGenres}" type="hidden" name="genres" th:value="${gid}">
+        <div class="genre-toggle-row" th:if="${!#lists.isEmpty(allGenres)}">
+          <button type="button" id="genreToggleBtn" class="btn btn--outline btn--sm">Паказаць жанры</button>
+          <span class="text-muted">Жанры схаваны па змаўчанні. Націсніце, каб паказаць.</span>
+        </div>
+
+        <div class="genre-filter collapsed" th:if="${!#lists.isEmpty(allGenres)}">
+          <span class="genre-filter__label">Жанры:</span>
+          <div id="genreInputs" style="display:none">
+            <input th:each="gid : ${selectedGenres}" type="hidden" name="genres" th:value="${gid}">
+          </div>
+          <button th:each="genre : ${allGenres}" 
+                  type="button" 
+                  class="tag-selectable"
+                  th:classappend="${selectedGenres.contains(genre.id)} ? 'active'"
+                  th:text="${genre.name}" 
+                  th:attr="data-id=${genre.id}" 
+                  onclick="toggleGenre(this)"></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="games-grid">
+      <div th:each="game : ${games}" class="game-card">
+        <a th:href="@{/g/{id}(id=${game.title})}">
+          <div class="game-card__image-box">
+            <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" alt="Вокладка">
+          </div>
+          <div class="game-card__body">
+            <h2 th:text="${game.title}"></h2>
+            <div class="game-card__dev" th:text="${game.developer}"></div>
+            
+            <div class="game-card__tags">
+              <span th:each="g : ${game.genres}" class="mini-tag" th:text="${g.name}"></span>
+              <span th:if="${hasNonDraftMap[game.id] == false}" class="mini-tag" style="color: var(--clr-warning);">Чарнавік</span>
             </div>
-            <button type="submit" class="btn btn--primary">Шукаць</button>
-            <a th:if="${!search.isEmpty() or !#lists.isEmpty(selectedGenres)}" th:href="@{/}"
-                class="btn btn--outline">Скінуць</a>
-        </form>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
 
-        <div class="filter-section" th:if="${!#lists.isEmpty(allGenres)}">
-            <span class="filter-section__label">Жанры:</span>
-            <div class="filter-section__tags">
-                <th:block th:each="genre : ${allGenres}">
-                    <button type="button" class="tag"
-                        th:classappend="${selectedGenres.contains(genre.id)} ? ' tag--active' : ''"
-                        th:attr="data-genre-id=${genre.id}" th:text="${genre.name}" onclick="toggleGenre(this)">
-                    </button>
-                </th:block>
-            </div>
-        </div>
+  <script>
+    function toggleGenre(btn) {
+      const id = btn.dataset.id;
+      const container = document.getElementById('genreInputs');
+      const existing = container.querySelector(`input[value="${id}"]`);
+      if (existing) {
+        existing.remove();
+        btn.classList.remove('active');
+      } else {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'genres';
+        input.value = id;
+        container.appendChild(input);
+        btn.classList.add('active');
+      }
+      document.getElementById('filterForm').submit();
+    }
 
-        <div class="games-grid" th:if="${!#lists.isEmpty(games)}">
-            <th:block th:each="game : ${games}">
-                <a th:href="@{/g/{id}(id=${game.title})}" class="game-card">
-                    <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
-                    <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
-                    <div class="game-card__body">
-                        <h2 th:text="${game.title}"></h2>
-                        <p th:if="${game.developer}" class="text-muted text-sm" th:text="${game.developer}"></p>
-                        <div class="game-card__genres" th:if="${!#sets.isEmpty(game.genres)}">
-                            <span th:each="g : ${game.genres}" class="tag tag--sm" th:text="${g.name}"></span>
-                        </div>
-                        <span th:if="${hasNonDraftMap[game.id] == false}" class="badge badge--draft">
-                            Чарнавік
-                        </span>
-                    </div>
-                </a>
-            </th:block>
-        </div>
-
-        <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
-
-        <div class="pagination" th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 0}" th:href="@{/(search=${search}, page=${currentPage - 1})}"
-                class="btn btn--outline">&larr; Назад</a>
-            <span class="text-muted" th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
-            <a th:if="${currentPage + 1 < totalPages}" th:href="@{/(search=${search}, page=${currentPage + 1})}"
-                class="btn btn--outline">Далей &rarr;</a>
-        </div>
-
-        <script>
-            function toggleGenre(btn) {
-                const genreId = btn.getAttribute('data-genre-id');
-                const container = document.getElementById('genreInputs');
-                const existing = container.querySelector('input[value="' + genreId + '"]');
-                if (existing) {
-                    existing.remove();
-                    btn.classList.remove('tag--active');
-                } else {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'genres';
-                    input.value = genreId;
-                    container.appendChild(input);
-                    btn.classList.add('tag--active');
-                }
-                document.getElementById('filterForm').submit();
-            }
-        </script>
-    </main>
+    document.addEventListener('DOMContentLoaded', () => {
+      const genreToggleBtn = document.getElementById('genreToggleBtn');
+      const genreFilter = document.querySelector('.genre-filter');
+      if (genreToggleBtn && genreFilter) {
+        genreToggleBtn.addEventListener('click', () => {
+          const expanded = genreFilter.classList.toggle('expanded');
+          genreFilter.classList.toggle('collapsed', !expanded);
+          genreToggleBtn.textContent = expanded ? 'Схаваць жанры' : 'Паказаць жанры';
+          if (expanded) {
+            genreFilter.style.display = 'flex';
+          } else {
+            genreFilter.style.display = 'none';
+          }
+        });
+      }
+    });
+  </script>
 </body>
-
 </html>

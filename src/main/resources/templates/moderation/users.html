@@ -43,20 +43,24 @@
                                     th:id="'warn-form-' + ${user.id}">
                                     <input type="hidden" name="reason" th:id="'warn-val-' + ${user.id}">
                                     <button type="button" class="btn btn--outline btn--sm"
-                                        th:attr="onclick='submitWarn(\'' + ${user.id} + '\')'">⚠ Папярэджанне</button>
+                                        th:attr="onclick='submitWarn(\'' + ${user.id} + '\')'">
+                                        <i data-lucide="alert-triangle"></i> Папярэджанне
+                                    </button>
                                 </form>
                             </div>
 
                             <!-- Ban -->
                             <button type="button" class="btn btn--danger btn--sm"
                                 th:attr="onclick='openBanModal(\'' + ${user.id} + '\', \'' + ${user.username} + '\')'">
-                                🚫 Заблакаваць
+                                <i data-lucide="ban"></i> Заблакаваць
                             </button>
 
                             <!-- Unban -->
                             <form th:if="${user.status == 'banned'}" th:action="@{/mod/users/{id}/unban(id=${user.id})}"
                                 method="post">
-                                <button type="submit" class="btn btn--outline btn--sm">✓ Разблакаваць</button>
+                                <button type="submit" class="btn btn--outline btn--sm">
+                                    <i data-lucide="check"></i> Разблакаваць
+                                </button>
                             </form>
                         </div>
                     </div>

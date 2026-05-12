@@ -23,9 +23,13 @@
                         </div>
                         <div class="mod-item__actions">
                             <a th:href="@{/g/{g}/t/{t}(g=${c.translation.game.title},t=${c.translation.title})}"
-                                class="btn btn--outline btn--sm" target="_blank">Кантэкст →</a>
+                                class="btn btn--outline btn--sm" target="_blank">
+                                <i data-lucide="external-link"></i> Кантэкст
+                            </a>
                             <form th:action="@{/mod/content/comments/{id}/delete(id=${c.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                                <button type="submit" class="btn btn--danger btn--sm">
+                                    <i data-lucide="trash-2"></i> Выдаліць
+                                </button>
                             </form>
                         </div>
                     </div>

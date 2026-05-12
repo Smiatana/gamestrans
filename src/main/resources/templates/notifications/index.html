@@ -13,7 +13,7 @@
 
         <div class="notification-list">
             <div th:each="n : ${notifications}" class="notification-item card"
-                th:classappend="${!n.read} ? ' notification-item--unread' : ''">
+                th:classappend="${!n.read} ? ' notification-item--unread' : ''" style="margin-bottom: 1rem;">
 
                 <div class="notification-item__body">
 
@@ -68,7 +68,8 @@
                     <!-- Release approved -->
                     <th:block th:if="${n.type == 'release_approved'}" th:with="p=${n.payloadMap}">
                         <p>
-                            ✓ Ваш рэліз <strong th:text="${p.get('releaseTitle')}"></strong>
+                            <i data-lucide="check-circle" style="color: var(--clr-success);"></i>
+                            Ваш рэліз <strong th:text="${p.get('releaseTitle')}"></strong>
                             перакладу <strong th:text="${p.get('translationTitle')}"></strong>
                             быў <strong>ухвалены</strong> мадэратарам і апублікаваны.
                         </p>
@@ -77,7 +78,8 @@
                     <!-- Release rejected -->
                     <th:block th:if="${n.type == 'release_rejected'}" th:with="p=${n.payloadMap}">
                         <p>
-                            ✗ Ваш рэліз <strong th:text="${p.get('releaseTitle')}"></strong>
+                            <i data-lucide="x-circle" style="color: var(--clr-danger);"></i>
+                            Ваш рэліз <strong th:text="${p.get('releaseTitle')}"></strong>
                             перакладу <strong th:text="${p.get('translationTitle')}"></strong>
                             быў <strong>адхілены</strong> мадэратарам.
                         </p>
@@ -89,7 +91,8 @@
                     <!-- Warning -->
                     <th:block th:if="${n.type == 'warning'}" th:with="p=${n.payloadMap}">
                         <p>
-                            ⚠ Вы атрымалі <strong>папярэджанне</strong> ад
+                            <i data-lucide="alert-triangle" style="color: var(--clr-warning);"></i>
+                            Вы атрымалі <strong>папярэджанне</strong> ад
                             <a th:href="@{/u/{u}(u=${p.get('moderatorUsername')})}"
                                 th:text="${p.get('moderatorUsername')}"></a>.
                         </p>

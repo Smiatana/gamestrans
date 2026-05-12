@@ -1,0 +1,144 @@
+/* User Profile Page Styles */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+}
+
+.profile-header__pfp {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--clr-primary);
+}
+
+.profile-header__info h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-header__info .text {
+  color: var(--clr-text-muted);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+/* Deleted Games Section */
+.section {
+  margin-top: 2rem;
+}
+
+.section-header h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.section .card {
+  margin-bottom: 1rem;
+}
+
+/* Mod Item Styles */
+.mod-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  background: var(--clr-surface);
+  margin-bottom: 0.75rem;
+}
+
+.mod-item__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mod-item__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* Danger Zone */
+.danger-zone {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+}
+
+.danger-zone h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--clr-danger);
+}
+
+.danger-zone label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.danger-zone form {
+  margin-bottom: 2rem;
+}
+
+.danger-zone form:last-child {
+  margin-bottom: 0;
+}
+
+/* Avatar Crop Container */
+.avatar-crop-container {
+  margin-bottom: 1rem;
+}
+
+.cover-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--clr-border);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .profile-header__pfp {
+    width: 100px;
+    height: 100px;
+  }
+
+  .mod-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mod-item__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

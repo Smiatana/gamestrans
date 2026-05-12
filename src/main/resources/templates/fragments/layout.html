@@ -1,53 +1,88 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:fragment="html(title, content)">
-
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="html(title, content)" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} + ' — GamesTrans'">GamesTrans</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title} + ' — GamesTrans'"></title>
 
-    <th:block th:if="${appSettings != null and appSettings.metaTags != null}" th:utext="${appSettings.metaTags}">
-    </th:block>
+  <!-- Professional Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
 </head>
-
 <body>
-    <nav class="navbar">
-        <a th:href="@{/}" class="navbar__logo">
-            <img th:if="${appSettings != null and appSettings.logoUrl != null}" th:src="${appSettings.logoUrl}"
-                alt="Logo" class="navbar__logo-img">
-            <span th:unless="${appSettings != null and appSettings.logoUrl != null}">GamesTrans</span>
-        </a>
+  <nav class="navbar">
+    <div class="navbar__container">
+      <a th:href="@{/}" class="navbar__logo">
+        <i data-lucide="layout-grid"></i>
+        <span>GamesTrans</span>
+      </a>
 
-        <div class="navbar__links">
-            <th:block th:if="${#authorization.expression('isAuthenticated()')}">
-                <a th:if="${currentUser != null and (currentUser.role == 'moderator' or currentUser.role == 'admin')}"
-                    th:href="@{/mod}" class="navbar__link--mod">Мадэрацыя</a>
-                <a th:if="${currentUser != null and currentUser.role == 'admin'}" th:href="@{/admin/settings}">Адмін</a>
-                <a th:href="@{/notifications}" class="navbar__notif">
-                    Апавяшчэнні
-                    <span th:if="${unreadNotificationCount > 0}" class="badge badge--danger"
-                        th:text="${unreadNotificationCount}"></span>
-                </a>
-                <a th:if="${currentUser}" th:href="@{/u/{u}(u=${currentUser.username})}">Профіль</a>
-            </th:block>
-            <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login}">Увайсці</a>
-                <a th:href="@{/register}">Рэгістрацыя</a>
-            </th:block>
-        </div>
-    </nav>
+      <div class="navbar__links">
+        <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+          <th:block th:if="${currentUser != null and (currentUser.role == 'moderator' or currentUser.role == 'admin')}">
+            <a th:href="@{/mod}" class="nav-icon-link" title="Мадэрацыя">
+              <i data-lucide="shield"></i>
+            </a>
+          </th:block>
+          <th:block th:if="${currentUser != null and currentUser.role == 'admin'}">
+            <a th:href="@{/admin/settings}" class="nav-icon-link" title="Адмін панэль">
+              <i data-lucide="settings"></i>
+            </a>
+          </th:block>
+          <a th:href="@{/notifications}" class="nav-icon-link" title="Апавяшчэнні">
+            <i data-lucide="bell"></i>
+            <span class="nav-badge" th:if="${unreadNotificationCount > 0}" th:text="${unreadNotificationCount}"></span>
+          </a>
+          <a th:href="@{/u/{u}(u=${currentUser.username})}" class="nav-user-pill" title="Профіль">
+            <i data-lucide="user"></i>
+            <span th:text="${currentUser.username}"></span>
+          </a>
+        </th:block>
+        
+        <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
+          <a th:href="@{/login}" class="btn btn--ghost">Увайсці</a>
+          <a th:href="@{/register}" class="btn btn--primary btn--sm">Рэгістрацыя</a>
+        </th:block>
 
-    <main class="main-content" th:replace="${content}"></main>
+        <button id="themeToggle" class="btn btn--ghost" style="padding: 8px;">
+          <i data-lucide="sun"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
 
-    <footer th:if="${appSettings != null and appSettings.footerContent != null}" class="site-footer">
-        <div th:utext="${appSettings.footerContent}"></div>
-    </footer>
+  <main th:replace="${content}"></main>
 
-    <div th:replace="~{fragments/report :: modal}"></div>
+  <footer class="main-content" style="padding-block: 40px; border-top: 1px solid var(--clr-border); text-align: center; color: var(--clr-text-dim);">
+    <div th:utext="${appSettings != null ? appSettings.footerContent : '&copy; 2025 GamesTrans'}"></div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    
+    // Simple Theme Toggle
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      localStorage.setItem('theme', target);
+      btn.innerHTML = `<i data-lucide="${target === 'dark' ? 'sun' : 'moon'}"></i>`;
+      lucide.createIcons();
+    });
+
+    if(localStorage.getItem('theme') === 'light') {
+       document.documentElement.setAttribute('data-theme', 'light');
+       btn.innerHTML = `<i data-lucide="moon"></i>`;
+       lucide.createIcons();
+    }
+  </script>
 </body>
-
 </html>

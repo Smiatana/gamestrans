@@ -84,8 +84,11 @@ public class UserController {
         User currentUser = authService.getCurrentUser();
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
+        EditProfileRequest editProfileRequest = new EditProfileRequest();
+        editProfileRequest.setUsername(user.getUsername());
+        editProfileRequest.setBio(user.getBio());
         model.addAttribute("user", user);
-        model.addAttribute("editProfileRequest", new EditProfileRequest());
+        model.addAttribute("editProfileRequest", editProfileRequest);
         model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
         return "users/edit";
     }
@@ -96,12 +99,17 @@ public class UserController {
             BindingResult binding, Model model) throws IOException {
 
         User currentUser = authService.getCurrentUser();
-        if (binding.hasErrors())
-            return "users/edit";
-
         User user = userRepository.findByUsername(username).orElseThrow();
+        
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
+        
+        if (binding.hasErrors()) {
+            model.addAttribute("user", user);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
+            return "users/edit";
+        }
 
         userService.update(user.getId(), editProfileRequest);
         auditLogService.log(currentUser, "USER_UPDATE", "user", user.getId(),
@@ -113,20 +121,30 @@ public class UserController {
     public String changePassword(@PathVariable String username,
             @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest,
             BindingResult binding, Model model) throws IOException {
+        
         User currentUser = authService.getCurrentUser();
         User user = userRepository.findByUsername(username).orElseThrow();
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
+        
+        EditProfileRequest editProfileRequest = new EditProfileRequest();
+        editProfileRequest.setUsername(user.getUsername());
+        editProfileRequest.setBio(user.getBio());
+        
         if (binding.hasErrors()) {
             model.addAttribute("user", user);
-            model.addAttribute("editProfileRequest", changePasswordRequest);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("editProfileRequest", editProfileRequest);
+            model.addAttribute("changePasswordRequest", changePasswordRequest);
             return "users/edit";
         }
+        
         try {
             userService.changePassword(user.getId(), changePasswordRequest);
         } catch (IllegalArgumentException e) {
             model.addAttribute("user", user);
-            model.addAttribute("editProfileRequest", changePasswordRequest);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("editProfileRequest", editProfileRequest);
             model.addAttribute("changePasswordRequest", changePasswordRequest);
             model.addAttribute("passwordError", e.getMessage());
             return "users/edit";

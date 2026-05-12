@@ -11,7 +11,7 @@
                 </div>
 
                 <div th:if="${#lists.isEmpty(releases)}" class="card">
-                    <p class="text-muted">Усе рэлізы разгледжаны 🎉</p>
+                    <p class="text-muted">Усе рэлізы разгледжаны <i data-lucide="party-popper"></i></p>
                 </div>
 
                 <div class="mod-list" th:unless="${#lists.isEmpty(releases)}">
@@ -31,22 +31,26 @@
                             </div>
                             <div th:if="${release.fileUrl}" class="mod-item__file">
                                 <a th:href="${release.fileUrl}" target="_blank" class="btn btn--outline btn--sm">
-                                    ⬇ Файл / спасылка
+                                    <i data-lucide="download"></i> Файл / спасылка
                                 </a>
                                 <a th:if="${release.fileUrl.startsWith('/uploads/')}"
                                     th:href="'https://www.virustotal.com/gui/url/' + ${#strings.replace(release.fileUrl, '/', '-')}"
                                     target="_blank" class="btn btn--outline btn--sm">
-                                    🛡 VirusTotal
+                                    <i data-lucide="shield"></i> VirusTotal
                                 </a>
                             </div>
                         </div>
 
                         <div class="mod-item__actions">
                             <a th:href="@{/g/{g}/t/{t}/r/{r}(g=${release.translation.game.title},t=${release.translation.title},r=${release.title})}"
-                                class="btn btn--outline btn--sm" target="_blank">Глядзець →</a>
+                                class="btn btn--outline btn--sm" target="_blank">
+                                <i data-lucide="eye"></i> Глядзець
+                            </a>
 
                             <form th:action="@{/mod/releases/{id}/approve(id=${release.id})}" method="post">
-                                <button type="submit" class="btn btn--success btn--sm">✓ Ухваліць</button>
+                                <button type="submit" class="btn btn--success btn--sm">
+                                    <i data-lucide="check"></i> Ухваліць
+                                </button>
                             </form>
 
                             <div class="mod-item__reject-form">
@@ -56,7 +60,9 @@
                                     th:id="'reject-' + ${release.id}">
                                     <input type="hidden" name="note" th:id="'note-val-' + ${release.id}">
                                     <button type="button" class="btn btn--danger btn--sm"
-                                        th:attr="onclick='submitReject(\'' + ${release.id} + '\')'">✗ Адхіліць</button>
+                                        th:attr="onclick='submitReject(\'' + ${release.id} + '\')'">
+                                        <i data-lucide="x"></i> Адхіліць
+                                    </button>
                                 </form>
                             </div>
                         </div>

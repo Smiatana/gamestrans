@@ -1,169 +1,97 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html(${game.title}, ~{::main})}">
-
 <body>
     <main>
-
-        <section class="game-hero">
-
-            <div class="game-hero__background">
-                <img th:if="${game.backgroundUrl}" th:src="${game.backgroundUrl}" alt="" class="game-hero__bg-image">
-
-                <div class="game-hero__overlay"></div>
-            </div>
-
-            <div class="main-content">
-                <div class="game-hero__content">
-
-                    <div class="game-hero__cover-wrapper">
-                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-hero__cover">
-                    </div>
-
-                    <div class="game-hero__info">
-
-                        <div class="game-hero__top">
-                            <h1 th:text="${game.title}"></h1>
-
-                            <div class="game-hero__meta">
-
-                                <span th:if="${game.developer}" class="badge" th:text="${game.developer}">
-                                </span>
-
-                                <span th:if="${game.releaseYear}" class="badge badge--dark"
-                                    th:text="${game.releaseYear}">
-                                </span>
-
-                            </div>
-
-                            <div th:if="${!#sets.isEmpty(game.genres)}" class="game-hero__genres">
-
-                                <span th:each="g : ${game.genres}" class="tag" th:text="${g.name}">
-                                </span>
-
-                            </div>
+        <div class="hero-game" th:style="${game.backgroundUrl} ? 'background-image: url(' + ${game.backgroundUrl} + ')' : ''">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a th:href="@{/}">Бібліятэка</a>
+                    <i data-lucide="chevron-right"></i>
+                    <span th:text="${game.title}"></span>
+                </nav>
+                
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;">
+                    <div>
+                        <h1 style="margin-top: 0;" th:text="${game.title}"></h1>
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; color: var(--clr-text-muted);">
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="building"></i>
+                                <span th:text="${game.developer}"></span>
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="calendar"></i>
+                                <span th:text="${game.releaseYear}"></span>
+                            </span>
                         </div>
-
-                        <div class="game-hero__actions" th:if="${isOwnerOfAny}">
-
-                            <th:block th:replace="~{fragments/report :: button('game', ${game.id})}">
-                            </th:block>
-
-                            <a th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--outline">
-                                Рэдагаваць
-                            </a>
-
-                        </div>
-
                     </div>
-
+                    
+                    <div style="display: flex; gap: 0.75rem; flex-direction: column;">
+                        <a th:if="${isOwnerOfAny}" th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--primary" style="white-space: nowrap;">
+                            <i data-lucide="edit-3"></i> Рэдагаваць
+                        </a>
+                        <div th:replace="~{fragments/report :: button('game', ${game.id})}"></div>
+                    </div>
                 </div>
             </div>
-
-        </section>
-
-        <div class="main-content">
-
-            <section class="game-description card">
-
-                <h2>Апісанне</h2>
-
-                <p class="text" th:utext="${game.description}">
-                </p>
-
-            </section>
-
-            <section class="section">
-
-                <div class="section-header">
-
-                    <h2>Пераклады</h2>
-
-                    <a th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm"
-                        th:if="${currentUser}">
-                        Дадаць пераклад
-                    </a>
-
-                </div>
-
-                <div th:if="${#lists.isEmpty(translations)}" class="card">
-
-                    <p class="text-muted">
-                        Перакладаў пакуль няма
-                    </p>
-
-                </div>
-
-                <div class="translation-list">
-
-                    <div th:each="translation : ${translations}" class="translation-item"
-                        th:classappend="${translation.status == 'draft'} ? ' translation-item--draft' : ''"
-                        th:attr="data-href=@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
-                        onclick="window.location.href=this.dataset.href">
-
-                        <div class="translation-item__main">
-
-                            <div class="translation-item__title-row">
-
-                                <span class="text" th:text="${translation.title}">
-                                </span>
-
-                                <span
-                                    th:if="${translation.status == 'draft' and isMemberMap != null and isMemberMap[translation.id] == true}"
-                                    class="badge badge--draft">
-                                    Чарнавік
-                                </span>
-
-                            </div>
-
-                            <div class="translation-item__members">
-
-                                <span th:each="member, iter : ${membersMap.get(translation.id)}">
-
-                                    <a class="member-link" th:text="${member.user.username}"
-                                        th:href="@{/u/{n}(n=${member.user.username})}">
-                                    </a>
-
-                                    <th:block th:if="!${iter.last}">
-                                        ,
-                                    </th:block>
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="translation-item__meta">
-
-                            <span th:if="${ratingsMap.containsKey(translation.id)}" class="text-muted text-sm"
-                                th:text="${ratingsMap.get(translation.id)} + ' ★'">
-                            </span>
-
-                            <span class="text-muted text-sm"
-                                th:text="${#temporals.format(translation.updatedAt, 'dd.MM.yyyy HH:mm')}">
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
         </div>
 
-        <script>
-            document.querySelectorAll('.member-link').forEach(el => {
-                el.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    window.location.href = this.getAttribute('href');
-                });
-            });
-        </script>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-grid">
+                <!-- Main Column -->
+                <div class="content-main">
+                    <section class="card detail-section">
+                        <h2 class="card__title"><i data-lucide="info"></i> Апісанне</h2>
+                        <div class="rich-content" th:utext="${game.description}"></div>
+                    </section>
 
+                    <section class="detail-section">
+                        <div class="section-heading">
+                            <h2>Пераклады</h2>
+                            <a th:if="${currentUser}" th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm">
+                                <i data-lucide="plus"></i> Новы пераклад
+                            </a>
+                        </div>
+
+                        <div class="list-container">
+                            <div th:if="${#lists.isEmpty(translations)}" class="card" style="padding: 2rem; text-align: center; color: var(--clr-text-muted);">
+                                Перакладаў пакуль няма
+                            </div>
+                            <div th:each="translation : ${translations}" class="card list-item-card">
+                                <div class="item-main" style="flex: 1;">
+                                    <h3 th:text="${translation.title}"></h3>
+                                    <div class="item-meta">
+                                        <i data-lucide="users"></i>
+                                        <span th:each="member, iter : ${membersMap.get(translation.id)}">
+                                            <a th:href="@{/u/{n}(n=${member.user.username})}" th:text="${member.user.username}"></a>
+                                            <span th:if="!${iter.last}">, </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="item-side">
+                                    <span class="rating-badge" th:if="${ratingsMap.containsKey(translation.id)}">
+                                        <i data-lucide="star"></i> <span th:text="${ratingsMap.get(translation.id)}"></span>
+                                    </span>
+                                    <a th:href="@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}" class="btn btn--outline btn--sm">
+                                        Дэталі <i data-lucide="arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Sidebar -->
+                <aside class="content-sidebar">
+                    <div class="card cover-card">
+                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="sidebar-cover" alt="Вокладка">
+                        <div class="genre-list">
+                            <span th:each="g : ${game.genres}" class="badge-tag" th:text="${g.name}"></span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
     </main>
 </body>
-
 </html>

@@ -2,11 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэгістрацыя', ~{::main})}">
 
 <body>
-    <main>
-        <div class="auth-page">
-            <div class="auth-card">
-                <h1>Рэгістрацыя</h1>
-
+    <main class="main-content">
+        <div style="max-width: 460px; margin-inline: auto;">
+            <div class="form-card">
+                <h1 style="text-align: center; margin-bottom: 2rem;">Рэгістрацыя</h1>
                 <div th:if="${error}" class="alert alert--danger" th:text="${error}"></div>
 
                 <form th:action="@{/register}" th:object="${registerRequest}" method="post">
@@ -27,9 +26,22 @@
                         <span class="form-error" th:if="${#fields.hasErrors('password')}"
                             th:errors="*{password}"></span>
                     </div>
-                    <button type="submit" class="btn btn--primary">Зарэгістравацца</button>
+                    <button type="submit" class="btn btn--primary" style="width: 100%; height: 50px; margin-top: 1rem;">Зарэгістравацца</button>
                 </form>
-                <p>Ёсць акаўнт? <a th:href="@{/login}">Увайсці</a></p>
+
+                <div style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem;">
+                   <p>Ёсць акаўнт? <a th:href="@{/login}" style="color: var(--clr-primary); font-weight: 600;">Увайсці</a></p>
+                </div>
+
+                <div style="margin-top: 1rem; position: relative; text-align: center;">
+                    <span style="background: var(--clr-surface); padding: 0 10px; font-size: 0.8rem; color: var(--clr-text-dim); z-index: 1;">АБО</span>
+                    <hr style="position: absolute; top: 50%; width: 100%; border: none; border-top: 1px solid var(--clr-border); margin: 0; z-index: -1;">
+                </div>
+
+                <a href="/oauth2/authorization/google" class="btn btn--outline" style="width: 100%; margin-top: 1.5rem;">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 18px;">
+                    Google
+                </a>
             </div>
         </div>
     </main>

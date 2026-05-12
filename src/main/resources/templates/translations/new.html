@@ -2,10 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Новы пераклад', ~{::main})}">
 
 <body>
-    <main>
-        <div class="page-header">
+    <main class="main-content">
+        <header class="page-header">
             <h1>Новы пераклад</h1>
-        </div>
+        </header>
+
         <form th:action="@{/translations/new}" th:object="${createTranslationRequest}" method="post"
             enctype="multipart/form-data" class="form-card">
             <section class="form-section">
