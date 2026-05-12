@@ -33,16 +33,16 @@ color-scheme: dark;
 }
 
 [data-theme="light"] {
-color-scheme: light;
---clr-bg: #f8fafc;
---clr-bg-alt: #f1f5f9;
---clr-surface: #ffffff;
---clr-surface-hover: #f1f5f9;
---clr-navbar: rgba(248, 250, 252, 0.8);
---clr-border: #e2e8f0;
---clr-border-strong: #cbd5e1;
---clr-text: #0f172a;
---clr-text-muted: #475569;
---clr-text-dim: #64748b;
---shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  color-scheme: light;
+  --clr-bg: #f8f6fa;
+  --clr-bg-alt: #f0ecf5;
+  --clr-surface: #ffffff;
+  --clr-surface-hover: #f6f3fa;
+  --clr-navbar: rgba(248, 246, 250, 0.85);
+  --clr-border: #e4dff0;
+  --clr-border-strong: #cfc7e0;
+  --clr-text: #1a1528;
+  --clr-text-muted: #4a4060;
+  --clr-text-dim: #6b6080;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }

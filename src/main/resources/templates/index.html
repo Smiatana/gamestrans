@@ -24,16 +24,18 @@
             Шукаць
           </button>
         </div>
-
-        <div class="genre-toggle-row" th:if="${!#lists.isEmpty(allGenres)}">
-          <button type="button" id="genreToggleBtn" class="btn btn--outline btn--sm">Паказаць жанры</button>
+      </form>
+      
+      <div th:if="${!#lists.isEmpty(allGenres)}" class="genre-section">
+        <div class="genre-toggle-row">
+          <button type="button" id="genreToggleBtn" class="btn btn--outline btn--sm" onclick="toggleGenres()">Паказаць жанры</button>
           <span class="text-muted">Жанры схаваны па змаўчанні. Націсніце, каб паказаць.</span>
         </div>
 
-        <div class="genre-filter collapsed" th:if="${!#lists.isEmpty(allGenres)}">
+        <div id="genreFilter" class="genre-filter" style="display: none;">
           <span class="genre-filter__label">Жанры:</span>
-          <div id="genreInputs" style="display:none">
-            <input th:each="gid : ${selectedGenres}" type="hidden" name="genres" th:value="${gid}">
+          <div id="genreInputs">
+            <input th:each="gid : ${selectedGenres}" type="hidden" name="genres" th:value="${gid}" form="filterForm">
           </div>
           <button th:each="genre : ${allGenres}" 
                   type="button" 
@@ -43,10 +45,10 @@
                   th:attr="data-id=${genre.id}" 
                   onclick="toggleGenre(this)"></button>
         </div>
-      </form>
-    </div>
+      </div>
+      <br>
 
-    <div class="games-grid">
+      <div class="games-grid">
       <div th:each="game : ${games}" class="game-card">
         <a th:href="@{/g/{id}(id=${game.title})}">
           <div class="game-card__image-box">
@@ -64,43 +66,50 @@
         </a>
       </div>
     </div>
-  </main>
 
-  <script>
-    function toggleGenre(btn) {
-      const id = btn.dataset.id;
-      const container = document.getElementById('genreInputs');
-      const existing = container.querySelector(`input[value="${id}"]`);
-      if (existing) {
-        existing.remove();
-        btn.classList.remove('active');
-      } else {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'genres';
-        input.value = id;
-        container.appendChild(input);
-        btn.classList.add('active');
+    <script>
+      function toggleGenres() {
+        const filter = document.getElementById('genreFilter');
+        const btn = document.getElementById('genreToggleBtn');
+        if (filter.style.display === 'none') {
+          filter.style.display = 'flex';
+          btn.textContent = 'Схаваць жанры';
+        } else {
+          filter.style.display = 'none';
+          btn.textContent = 'Паказаць жанры';
+        }
       }
-      document.getElementById('filterForm').submit();
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const genreToggleBtn = document.getElementById('genreToggleBtn');
-      const genreFilter = document.querySelector('.genre-filter');
-      if (genreToggleBtn && genreFilter) {
-        genreToggleBtn.addEventListener('click', () => {
-          const expanded = genreFilter.classList.toggle('expanded');
-          genreFilter.classList.toggle('collapsed', !expanded);
-          genreToggleBtn.textContent = expanded ? 'Схаваць жанры' : 'Паказаць жанры';
-          if (expanded) {
-            genreFilter.style.display = 'flex';
-          } else {
-            genreFilter.style.display = 'none';
+      function toggleGenre(btn) {
+        const id = btn.dataset.id;
+        const container = document.getElementById('genreInputs');
+        const existing = container.querySelector(`input[value="${id}"]`);
+        if (existing) {
+          existing.remove();
+          btn.classList.remove('active');
+        } else {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'genres';
+          input.value = id;
+          input.setAttribute('form', 'filterForm');
+          container.appendChild(input);
+          btn.classList.add('active');
+        }
+        document.getElementById('filterForm').submit();
+      }
+
+      (function() {
+        const selected = document.querySelectorAll('#genreInputs input[name="genres"]').length;
+        if (selected > 0) {
+          const filter = document.getElementById('genreFilter');
+          const btn = document.getElementById('genreToggleBtn');
+          if (filter && btn) {
+            filter.style.display = 'flex';
+            btn.textContent = 'Схаваць жанры';
           }
-        });
-      }
-    });
-  </script>
+        }
+      })();
+    </script>
 </body>
 </html>
