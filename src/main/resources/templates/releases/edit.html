@@ -2,23 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэдагаваць рэліз', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="page-header">
             <h1>Рэдагаваць рэліз</h1>
         </div>
         <form id="releaseForm"
             th:action="@{/g/{g}/t/{t}/r/{r}/edit(g=${release.translation.game.title}, t=${release.translation.title}, r=${release.title})}"
-            th:object="${createReleaseRequest}" th:method="post" enctype="multipart/form-data" class="form-card">
+            th:object="${createReleaseRequest}" th:method="post" enctype="multipart/form-data" class="form-card" novalidate>
             <input type="hidden" name="_method" value="patch" />
             <section class="form-section">
                 <h2>Інфармацыя пра рэліз</h2>
                 <div class="form-group">
-                    <label for="title">Назва рэлізу</label>
-                    <input type="text" id="title" th:field="*{title}" class="form-input" placeholder="v1.0">
+                    <label for="title">Назва рэлізу <span class="form-required">*</span></label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" 
+                        required placeholder="напр. v1.0.0" minlength="1" maxlength="255">
                     <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                 </div>
                 <div class="form-group">
-                    <label>Апісанне</label>
+                    <label for="description">Апісанне</label>
                     <div
                         th:replace="~{fragments/editor :: richEditor('description', ${createReleaseRequest.description})}">
                     </div>
@@ -28,21 +29,26 @@
             <section class="form-section">
                 <h2>Файл або спасылка</h2>
                 <div class="form-group">
-                    <label for="releaseLink">Знешняя спасылка</label>
-                    <input id="releaseLink" th:field="*{releaseLink}" class="form-input" placeholder="https://..."
+                    <label for="releaseLink">Знешняя спасылка (URL)</label>
+                    <input type="url" id="releaseLink" th:field="*{releaseLink}" class="form-input" 
+                        placeholder="https://github.com/example/releases/download/v1.0.0/file.zip"
                         th:value="${release.fileUrl}">
+                    <small class="text-muted">Должна быць дзейсная URL спасылка, пачынаючы з https://</small>
                 </div>
+                <div style="text-align: center; margin: 1rem 0; color: var(--clr-text-muted); font-size: 0.9rem;">— АБО —</div>
                 <div class="form-group">
-                    <label for="releaseFile">Або загрузіць файл</label>
+                    <label for="releaseFile">Абнавіць файл</label>
                     <input type="file" id="releaseFile" name="releaseFile" class="form-input">
+                    <small class="text-muted">Пакіньце пустым, каб захаваць текущы файл. Максімум 500 МБ.</small>
                 </div>
                 <span class="form-error" th:if="${error}" th:text="${error}"></span>
             </section>
 
             <section class="form-section">
                 <div class="form-group">
-                    <label>Статус рэліза</label>
-                    <select th:field="*{status}" class="form-input">
+                    <label for="status">Статус рэліза <span class="form-required">*</span></label>
+                    <select id="status" th:field="*{status}" class="form-input" required>
+                        <option value="">-- Выберыце статус --</option>
                         <option value="draft">Чарнавік</option>
                         <option value="published">Апублікаваны</option>
                     </select>

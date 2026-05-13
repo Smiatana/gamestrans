@@ -2,18 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Новы рэліз', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="page-header">
             <h1>Новы рэліз</h1>
         </div>
         <form id="releaseForm" th:action="@{/releases/new}" th:object="${createReleaseRequest}" method="post"
-            enctype="multipart/form-data" class="form-card">
+            enctype="multipart/form-data" class="form-card" novalidate>
 
             <section class="form-section">
                 <h2>Пераклад</h2>
                 <div class="form-group">
-                    <label for="translationId">Пераклад</label>
-                    <select id="translationId" th:field="*{translationId}" class="form-input">
+                    <label for="translationId">Пераклад <span class="form-required">*</span></label>
+                    <select id="translationId" th:field="*{translationId}" class="form-input" required>
                         <option value="">-- Выберыце пераклад --</option>
                         <option th:each="t : ${translations}" th:value="${t.id}"
                             th:text="${t.game.title} + ' — ' + ${t.title}">
@@ -27,12 +27,13 @@
             <section class="form-section">
                 <h2>Інфармацыя пра рэліз</h2>
                 <div class="form-group">
-                    <label for="title">Назва рэлізу</label>
-                    <input type="text" id="title" th:field="*{title}" class="form-input" placeholder="v1.0">
+                    <label for="title">Назва рэлізу <span class="form-required">*</span></label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" 
+                        required placeholder="напр. v1.0.0" minlength="1" maxlength="255">
                     <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                 </div>
                 <div class="form-group">
-                    <label>Апісанне</label>
+                    <label for="description">Апісанне</label>
                     <div
                         th:replace="~{fragments/editor :: richEditor('description', ${createReleaseRequest.description})}">
                     </div>
@@ -42,21 +43,25 @@
             <section class="form-section">
                 <h2>Файл або спасылка</h2>
                 <div class="form-group">
-                    <label for="releaseLink">Знешняя спасылка</label>
+                    <label for="releaseLink">Знешняя спасылка (URL)</label>
                     <input type="url" id="releaseLink" th:field="*{releaseLink}" class="form-input"
-                        placeholder="https://...">
+                        placeholder="https://github.com/example/releases/download/v1.0.0/file.zip">
+                    <small class="text-muted">Должна быць дзейсная URL спасылка, пачынаючы з https://</small>
                 </div>
+                <div style="text-align: center; margin: 1rem 0; color: var(--clr-text-muted); font-size: 0.9rem;">— АБО —</div>
                 <div class="form-group">
-                    <label for="releaseFile">Або загрузіць файл</label>
+                    <label for="releaseFile">Загрузіць файл</label>
                     <input type="file" id="releaseFile" name="releaseFile" class="form-input">
+                    <small class="text-muted">Максімум 500 МБ. Загружайце або спасылку, або файл.</small>
                 </div>
                 <span class="form-error" th:if="${error}" th:text="${error}"></span>
             </section>
 
             <section class="form-section">
                 <div class="form-group">
-                    <label>Статус рэліза</label>
-                    <select th:field="*{status}" class="form-input">
+                    <label for="status">Статус рэліза <span class="form-required">*</span></label>
+                    <select id="status" th:field="*{status}" class="form-input" required>
+                        <option value="">-- Выберыце статус --</option>
                         <option value="draft">Чарнавік</option>
                         <option value="published">Апублікаваны</option>
                     </select>

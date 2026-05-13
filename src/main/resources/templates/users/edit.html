@@ -3,41 +3,43 @@
     th:replace="~{fragments/layout :: html('Рэдагаванне профілю', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="page-header">
             <h1>Рэдагаванне профілю</h1>
         </div>
         <form th:action="@{/u/{name}/edit(name=${user.username})}" th:object="${editProfileRequest}" method="post"
-            enctype="multipart/form-data" class="form-card">
+            enctype="multipart/form-data" class="form-card" novalidate>
             <input type="hidden" name="_method" value="patch" />
 
             <section class="form-section">
+                <h2>Профіль</h2>
                 <div class="form-group">
-                    <label>Фота профілю</label>
+                    <label for="avatarInput">Фота профілю</label>
                     <div class="avatar-crop-container">
                         <img th:if="${user.avatarUrl}" th:src="${user.avatarUrl}" id="currentAvatar"
-                            class="cover-preview">
-                        <input type="file" id="avatarInput" accept="image/*" class="form-input">
+                            class="cover-preview" alt="Фота профілю">
+                        <input type="file" id="avatarInput" accept="image/*" class="form-input" onchange="handleAvatarSelect(event)">
                         <div id="cropperWrapper" style="display:none; max-width: 400px; margin-top: 1rem;">
-                            <img id="cropperImage" style="max-width: 100%;">
+                            <img id="cropperImage" style="max-width: 100%;" alt="Крапленне">
                             <button type="button" id="cropBtn" class="btn btn--primary btn--sm"
                                 style="margin-top: 0.5rem;">
                                 Абрэзаць
                             </button>
                         </div>
                         <input type="hidden" name="avatarCropped" id="avatarCropped">
-                        <small class="text-muted">Пакіньце пустым, каб не мяняць фота</small>
+                        <small class="text-muted">Пакіньце пустым, каб не мяняць фота. Адпавядаюць форматы: JPG, PNG, WebP</small>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Імя</label>
-                    <input type="text" th:field="*{username}" class="form-input">
+                    <label for="username">Імя карыстальніка <span class="form-required">*</span></label>
+                    <input type="text" id="username" th:field="*{username}" class="form-input" 
+                        required placeholder="Увядзіце імя" minlength="1" maxlength="100">
                     <span class="form-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
                 </div>
 
                 <div class="form-group">
-                    <label>Пра сябе</label>
+                    <label for="bio">Пра сябе</label>
                     <div th:replace="~{fragments/editor :: richEditor('bio', ${user.bio})}"></div>
                 </div>
             </section>
@@ -48,49 +50,65 @@
             </div>
         </form>
 
-        <div class="danger-zone">
+        <section class="form-card form-card--danger" th:if="${currentUser.passwordDigest != null}">
+            <h2>Змяніць пароль</h2>
+            <p class="text-muted">Абнавіце ваш пароль для лепшай бяспекі.</p>
+            <form th:action="@{/u/{u}/changepassword(u=${user.username})}" th:object="${changePasswordRequest}"
+                method="post" novalidate style="margin-top: 1.5rem;">
+                <input type="hidden" name="_method" value="patch" />
+                <div class="form-group">
+                    <label for="oldPassword">Стары пароль <span class="form-required">*</span></label>
+                    <input type="password" id="oldPassword" th:field="*{oldPassword}" class="form-input" 
+                        required placeholder="Увядзіце ваш поточны пароль" minlength="6">
+                    <span class="form-error" th:if="${#fields.hasErrors('oldPassword')}"
+                        th:errors="*{oldPassword}"></span>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Новы пароль <span class="form-required">*</span></label>
+                    <input type="password" id="newPassword" th:field="*{newPassword}" class="form-input" 
+                        required placeholder="Увядзіце новы пароль (мінімум 6 сімвалаў)" minlength="6">
+                    <span class="form-error" th:if="${#fields.hasErrors('newPassword')}"
+                        th:errors="*{newPassword}"></span>
+                </div>
+                <span class="form-error" th:if="${passwordError}" th:text="${passwordError}"></span>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Змяніць пароль</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="form-card form-card--danger">
             <h2>Небяспечная зона</h2>
-            <div th:if="${currentUser.passwordDigest != null}">
-                <label class="text-bold">Змяніць пароль</label>
-                <form th:action="@{/u/{u}/changepassword(u=${user.username})}" th:object="${changePasswordRequest}"
-                    method="post">
-                    <input type="hidden" name="_method" value="patch" />
-                    <div class="form-group">
-                        <label>Стары пароль</label>
-                        <input type="password" th:field="*{oldPassword}" class="form-input">
-                        <span class="form-error" th:if="${#fields.hasErrors('oldPassword')}"
-                            th:errors="*{oldPassword}"></span>
-                    </div>
-                    <div class="form-group">
-                        <label>Новы пароль</label>
-                        <input type="password" th:field="*{newPassword}" class="form-input">
-                        <span class="form-error" th:if="${#fields.hasErrors('newPassword')}"
-                            th:errors="*{newPassword}"></span>
-                    </div>
-                    <span class="form-error" th:if="${passwordError}" th:text="${passwordError}"></span>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn--primary">Змяніць пароль</button>
-                    </div>
+            <p class="text-muted">Вось некалькі потэнцыйна небяспечных дзеянняў. Будзьце асцярожны!</p>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem; color: var(--clr-text-muted);">Выйсці з уліковага запісу</h3>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn--outline">Выйсці</button>
                 </form>
             </div>
-            <label class="text-bold">Выйсці з уліковага запісу</label>
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выйсці з
-                    уліковага запісу</button>
-            </form>
 
-            <label class="text-bold">Замарозіць уліковы запіс</label>
-            <form th:action="@{/u/{u}/freeze(u=${user.username})}" method="post">
-                <button type="submit" class="btn btn--danger">Замарозіць акаўнт</button>
-            </form>
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--clr-border);">
 
-            <label class="text-bold">Выдаліць уліковы запіс</label>
-            <form th:action="@{/u/{u}/delete(u=${user.username})}" method="post">
-                <input type="hidden" name="_method" value="delete" />
-                <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
-                    уліковы запіс</button>
-            </form>
-        </div>
+            <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--clr-text-muted);">Замарозіць уліковы запіс</h3>
+                <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Вы зможаце адмарозіць акаўнт пазней.</p>
+                <form th:action="@{/u/{u}/freeze(u=${user.username})}" method="post">
+                    <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены? Вы зможаце адмарозіць акаўнт пазней.')">Замарозіць акаўнт</button>
+                </form>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--clr-border);">
+
+            <div>
+                <h3 style="margin-bottom: 0.5rem; color: var(--clr-text-muted);">Выдаліць уліковы запіс</h3>
+                <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Гэтую аперацыю нельга адмяніць. Усе ваша дадзеныя будзе выдалены.</p>
+                <form th:action="@{/u/{u}/delete(u=${user.username})}" method="post">
+                    <input type="hidden" name="_method" value="delete" />
+                    <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены? Гэтая аперацыя не мажа быць адмененая.')">Выдаліць уліковы запіс</button>
+                </form>
+            </div>
+        </section>
 
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -103,9 +121,17 @@
             const cropBtn = document.getElementById('cropBtn');
             const avatarCropped = document.getElementById('avatarCropped');
 
-            avatarInput.addEventListener('change', function () {
-                const file = this.files[0];
+            function handleAvatarSelect(event) {
+                const file = event.target.files[0];
                 if (!file) return;
+                
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Калі ласка, выберыце адзін файл зображэння (JPG, PNG, WebP)');
+                    avatarInput.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     cropperImage.src = e.target.result;
@@ -117,10 +143,14 @@
                         movable: true,
                         zoomable: true,
                         scalable: false,
+                        guides: true,
+                        highlight: true,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
                     });
                 };
                 reader.readAsDataURL(file);
-            });
+            }
 
             cropBtn.addEventListener('click', function () {
                 if (!cropper) return;
@@ -132,6 +162,7 @@
                     preview = document.createElement('img');
                     preview.id = 'currentAvatar';
                     preview.className = 'cover-preview';
+                    preview.alt = 'Фота профілю';
                     document.querySelector('.avatar-crop-container').prepend(preview);
                 }
                 preview.src = avatarCropped.value;

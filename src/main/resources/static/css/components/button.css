@@ -94,14 +94,9 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
-  .btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.9rem;
-  }
-
-  .btn--sm {
-    padding: 0.425rem 0.9rem;
-    font-size: 0.8rem;
-  }
+/* Extra Small Button */
+.btn--xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius);
 }

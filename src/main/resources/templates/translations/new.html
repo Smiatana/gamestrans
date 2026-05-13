@@ -8,17 +8,19 @@
         </header>
 
         <form th:action="@{/translations/new}" th:object="${createTranslationRequest}" method="post"
-            enctype="multipart/form-data" class="form-card">
+            enctype="multipart/form-data" class="form-card" novalidate>
             <section class="form-section">
                 <h2>Інфармацыя пра гульню</h2>
                 <div class="form-group">
-                    <label for="gameTitle">Назва гульні</label>
-                    <input type="text" id="gameTitle" th:field="*{gameTitle}" class="form-input">
+                    <label for="gameTitle">Назва гульні <span class="form-required">*</span></label>
+                    <input type="text" id="gameTitle" th:field="*{gameTitle}" class="form-input" 
+                        required placeholder="Увядзіце назву гульні" minlength="1" maxlength="255">
                     <span class="form-error" th:if="${#fields.hasErrors('gameTitle')}" th:errors="*{gameTitle}"></span>
                 </div>
                 <div class="form-group">
-                    <label>Распрацоўшчык</label>
-                    <input type="text" th:field="*{developer}" class="form-input" placeholder="напр. CD Projekt Red">
+                    <label for="developer">Распрацоўшчык</label>
+                    <input type="text" id="developer" th:field="*{developer}" class="form-input" 
+                        placeholder="напр. CD Projekt Red" maxlength="255">
                 </div>
                 <div class="form-group">
                     <label for="releaseYear">Год выпуску</label>
@@ -26,33 +28,36 @@
                         placeholder="напр. 2024" min="1970" th:attr="max=${#dates.year(#dates.createNow()) + 5}">
                 </div>
                 <div class="form-group">
-                    <label>Жанры</label>
-                    <input id="genres" name="genres">
+                    <label for="genres">Жанры</label>
+                    <input id="genres" name="genres" class="form-input" placeholder="Пошук і добавленне жанраў">
                 </div>
                 <div class="form-group">
-                    <label>Апісанне</label>
+                    <label for="gameDescription">Апісанне</label>
                     <div
                         th:replace="~{fragments/editor :: richEditor('gameDescription', ${createTranslationRequest.gameDescription})}">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Вокладка</label>
-                    <input type="file" name="gameCover" accept="image/*" class="form-input">
+                    <label for="gameCover">Вокладка</label>
+                    <input type="file" id="gameCover" name="gameCover" accept="image/*" class="form-input" onchange="previewImage(this, 'coverPreview')">
+                    <small class="text-muted">Формат: JPG, PNG або WebP</small>
                 </div>
-                <div class="form-group ">
-                    <label>Фонавы відарыс</label>
-                    <input type="file" id="gameBackground" name="gameBackground" accept="image/*" class="form-input">
+                <div class="form-group">
+                    <label for="gameBackground">Фонавы відарыс</label>
+                    <input type="file" id="gameBackground" name="gameBackground" accept="image/*" class="form-input" onchange="previewImage(this, 'bgPreview')">
+                    <small class="text-muted">Формат: JPG, PNG або WebP</small>
                 </div>
             </section>
             <section class="form-section">
                 <h2>Інфармацыя пра пераклад</h2>
                 <div class="form-group">
-                    <label for="title">Назва перакладу</label>
-                    <input type="text" id="title" th:field="*{title}" class="form-input">
+                    <label for="title">Назва перакладу <span class="form-required">*</span></label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" 
+                        required placeholder="Увядзіце назву перакладу" minlength="1" maxlength="255">
                     <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                 </div>
                 <div class="form-group">
-                    <label>Апісанне перакладу</label>
+                    <label for="description">Апісанне перакладу</label>
                     <div
                         th:replace="~{fragments/editor :: richEditor('description', ${createTranslationRequest.description})}">
                     </div>
@@ -66,6 +71,24 @@
         </form>
 
         <script>
+            // Image preview functionality
+            function previewImage(input, previewId) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        let preview = document.getElementById(previewId);
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.id = previewId;
+                            preview.className = 'image-preview';
+                            input.parentElement.insertBefore(preview, input);
+                        }
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
             const select = new TomSelect("#genres", {
                 valueField: "name",
                 labelField: "name",

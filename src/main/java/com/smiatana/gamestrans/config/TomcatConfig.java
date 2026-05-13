@@ -17,7 +17,7 @@ public class TomcatConfig {
 
             connector.setProperty("maxPartCount", "5000");
 
-            connector.setProperty("maxPostSize", String.valueOf(32 * 1024 * 1024));
+            connector.setProperty("maxPostSize", String.valueOf(1000 * 1024 * 1024));
         });
     }
 }

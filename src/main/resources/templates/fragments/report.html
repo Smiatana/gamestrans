@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
-    <th:block th:fragment="button(targetType, targetId)">
+    <th:block th:fragment="button(targetType, targetId)" th:if="${currentUser}">
         <button type="button" class="btn btn--ghost btn--sm report-btn"
             th:attr="data-type=${targetType}, data-id=${targetId}" onclick="openReportModal(this)">
             ⚑ Паведаміць

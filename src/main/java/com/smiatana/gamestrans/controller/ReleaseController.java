@@ -36,6 +36,11 @@ public class ReleaseController {
         private final ReleaseRepository releaseRepository;
         private final AuthService authService;
 
+        private boolean isStaff(User user) {
+        return user != null &&
+                ("admin".equals(user.getRole()) || "moderator".equals(user.getRole()));
+        }
+
         @GetMapping("/releases/new")
         public String newReleasePage(@RequestParam(required = false) UUID translationId, Model model) {
                 User currentUser = authService.getCurrentUser();
@@ -87,9 +92,11 @@ public class ReleaseController {
                 boolean isMember = currentUser != null &&
                                 translationMemberRepository.existsByTranslationIdAndUserEmail(
                                                 translation.getId(), currentUser.getEmail());
-                if ("draft".equals(release.getStatus()) && !isMember) {
-                        return "redirect:/g/" + gameTitle + "/t/" + transTitle;
+                boolean canViewRelease = isMember || isStaff(currentUser);
+                if (!"published".equals(release.getStatus()) && !canViewRelease) {
+                return "redirect:/g/" + gameTitle + "/t/" + transTitle;
                 }
+
 
                 model.addAttribute("release", release);
                 model.addAttribute("isMember", isMember);

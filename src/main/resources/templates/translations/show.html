@@ -66,6 +66,9 @@
                                 class="btn btn--outline btn--sm">Усе рэлізы</a>
                         </div>
                     </div>
+                    <div class="comments-wrapper">
+                        <div th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}"></div>
+                    </div>
                 </div>
 
                 <div class="content-sidebar">
@@ -107,10 +110,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div style="grid-column: 1 / -1;">
-                <div th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}"></div>
             </div>
         </div>
 

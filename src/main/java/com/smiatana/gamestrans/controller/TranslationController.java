@@ -131,10 +131,6 @@ public class TranslationController {
         }
 
         List<TranslationMember> members = translationMemberRepository.findByTranslationId(translation.getId());
-
-        List<Release> releases = releaseRepository.findTop5ByTranslationIdOrderByCreatedAtDesc(translation.getId());
-        long totalReleases = releaseRepository.countByTranslationId(translation.getId());
-
         boolean isOwner = false;
 
         if (currentUser != null) {
@@ -147,6 +143,19 @@ public class TranslationController {
             isMember = translationMemberRepository.existsByTranslationIdAndUserEmailAndRole(translation.getId(),
                     currentUser.getEmail(), "member");
         }
+
+        List<Release> releases;
+        boolean canSeeAllReleases = currentUser != null &&
+                (isOwner || isMember || isStaff(currentUser));
+        
+        if (canSeeAllReleases) {
+            releases = releaseRepository.findTop5ByTranslationIdOrderByCreatedAtDesc(translation.getId());
+        } else {
+            releases = releaseRepository.findTop5ByTranslationIdAndStatusOrderByCreatedAtDesc(
+                    translation.getId(), "published");
+        }
+
+        long totalReleases = releaseRepository.countByTranslationId(translation.getId());
 
         List<Comment> rootComments = commentRepository
                 .findByTranslationIdAndParentIsNullOrderByCreatedAtAsc(translation.getId());

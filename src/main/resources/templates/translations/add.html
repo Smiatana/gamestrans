@@ -2,49 +2,47 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Дадаць пераклад', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="page-header">
             <h1>Дадаць пераклад да <a th:href="@{/g/{title}(title=${game.title})}" th:text="${game.title}"></a></h1>
         </div>
 
         <form th:action="@{/g/{title}/t/add(title=${game.title})}" th:object="${addTranslationRequest}" method="post"
-            enctype="multipart/form-data" class="form-card">
+            enctype="multipart/form-data" class="form-card" novalidate>
             <section class="form-section">
-                <section class="form-section">
-                    <h2>Інфармацыя пра пераклад</h2>
+                <h2>Інфармацыя пра пераклад</h2>
 
-                    <div class="form-group">
-                        <label for="title">Назва перакладу</label>
-                        <input type="text" id="title" th:field="*{title}" class="form-input">
-                        <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Апісанне перакладу</label>
-                        <div
-                            th:replace="~{fragments/editor :: richEditor('description', ${addTranslationRequest.description})}">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Статус перакладу</label>
-                        <div class="form-group">
-                            <label>Статус перакладу</label>
-                            <select th:field="*{status}" class="form-input">
-                                <option value="draft">Чарнавік</option>
-                                <option value="in_progress">У распрацоўцы</option>
-                                <option value="completed">Завершаны</option>
-                            </select>
-                            <span class="form-error" th:if="${#fields.hasErrors('status')}"
-                                th:errors="*{status}"></span>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="form-actions">
-                    <a th:href="@{/}" class="btn btn--outline">Адмяніць</a>
-                    <button type="submit" class="btn btn--primary">Стварыць</button>
+                <div class="form-group">
+                    <label for="title">Назва перакладу <span class="form-required">*</span></label>
+                    <input type="text" id="title" th:field="*{title}" class="form-input" 
+                        required placeholder="Увядзіце назву перакладу" minlength="1" maxlength="255">
+                    <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                 </div>
+
+                <div class="form-group">
+                    <label for="description">Апісанне перакладу</label>
+                    <div
+                        th:replace="~{fragments/editor :: richEditor('description', ${addTranslationRequest.description})}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Статус перакладу <span class="form-required">*</span></label>
+                    <select id="status" th:field="*{status}" class="form-input" required>
+                        <option value="">-- Выберыце статус --</option>
+                        <option value="draft">Чарнавік</option>
+                        <option value="in_progress">У распрацоўцы</option>
+                        <option value="completed">Завершаны</option>
+                    </select>
+                    <span class="form-error" th:if="${#fields.hasErrors('status')}"
+                        th:errors="*{status}"></span>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <a th:href="@{/}" class="btn btn--outline">Адмяніць</a>
+                <button type="submit" class="btn btn--primary">Стварыць</button>
+            </div>
 
         </form>
     </main>

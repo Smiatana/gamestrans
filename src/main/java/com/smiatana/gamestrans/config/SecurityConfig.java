@@ -157,8 +157,8 @@ public class SecurityConfig {
         @Bean
         public MultipartConfigElement multipartConfigElement() {
                 MultipartConfigFactory factory = new MultipartConfigFactory();
-                factory.setMaxFileSize(DataSize.ofMegabytes(10));
-                factory.setMaxRequestSize(DataSize.ofMegabytes(32));
+                factory.setMaxFileSize(DataSize.ofMegabytes(500));
+                factory.setMaxRequestSize(DataSize.ofMegabytes(1000));
                 return factory.createMultipartConfig();
         }
 }

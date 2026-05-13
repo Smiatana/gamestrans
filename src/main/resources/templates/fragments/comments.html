@@ -4,29 +4,30 @@
 <body>
 
     <th:block th:fragment="section(translation, currentUser, rootComments, replies, commentRequest, isMember)">
-        <div class="card">
+        <div class="card comments-card">
             <h2>Каментарыі</h2>
 
             <div th:if="${currentUser != null}">
                 <form th:action="@{/g/{g}/t/{t}/comments(g=${translation.game.title},t=${translation.title})}"
-                    th:object="${commentRequest}" method="post">
+                    th:object="${commentRequest}" method="post" class="comment-create-form">
                     <div class="form-group">
                         <textarea th:field="*{body}" class="form-input" rows="3"
                             placeholder="Напісаць каментарый..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn--primary btn--sm">Адправіць</button>
+                    <div class="comment-create-actions">
+                        <button type="submit" class="btn btn--primary btn--xs" title="Адправіць">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
                 </form>
             </div>
 
             <div class="comment-list">
                 <div th:each="comment : ${rootComments}">
-                    <div
-                        th:replace="~{fragments/comments :: single(${translation}, ${currentUser}, ${comment}, ${isMember}, false)}">
-                    </div>
-
-                    <div th:each="reply : ${replies.get(comment.id)}" style="margin-left: 2rem;">
-                        <div
-                            th:replace="~{fragments/comments :: single(${translation}, ${currentUser}, ${reply}, ${isMember}, true)}">
+                    <div th:replace="~{fragments/comments :: single(${translation}, ${currentUser}, ${comment}, ${isMember}, false)}"></div>
+                    <div class="comment-replies" th:if="${replies.get(comment.id)}">
+                        <div th:each="reply : ${replies.get(comment.id)}">
+                            <div th:replace="~{fragments/comments :: single(${translation}, ${currentUser}, ${reply}, ${isMember}, true)}"></div>
                         </div>
                     </div>
                 </div>
@@ -60,13 +61,41 @@
     <th:block th:fragment="single(translation, currentUser, comment, isMember, isReply)">
         <div class="comment" th:classappend="${isReply} ? ' comment--reply' : ''" th:id="'comment-' + ${comment.id}">
 
-            <div class="comment__meta">
-                <a th:if="${!comment.author.isDeleted()}" th:href="@{/u/{u}(u=${comment.author.username})}"
-                    th:text="${comment.author.username}"></a>
-                <span th:if="${comment.author.isDeleted()}" class="text-muted">&lt;deleted&gt;</span>
+            <div class="comment__header">
+                <div class="comment__meta">
+                    <div class="comment__author">
+                        <a th:if="${!comment.author.isDeleted()}" th:href="@{/u/{u}(u=${comment.author.username})}"
+                            th:text="${comment.author.username}"></a>
+                        <span th:if="${comment.author.isDeleted()}" class="text-muted">&lt;deleted&gt;</span>
+                    </div>
+                    <span class="text-muted text-sm"
+                        th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                </div>
+                <div class="comment__actions" th:if="${currentUser != null}">
+                    <button th:if="${!isReply}" class="btn btn--ghost btn--xs" th:data-id="${comment.id}"
+                        data-action="reply" title="Адказаць">
+                        <i data-lucide="message-circle"></i>
+                    </button>
 
-                <span class="text-muted text-sm"
-                    th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                    <button th:if="${currentUser.id == comment.author.id}" class="btn btn--ghost btn--xs"
+                        th:data-id="${comment.id}" data-action="edit" title="Рэдагаваць">
+                        <i data-lucide="edit"></i>
+                    </button>
+
+                    <form th:if="${currentUser.id == comment.author.id or isMember}"
+                        th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${comment.id})}"
+                        method="post" class="comment__delete-form">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn--ghost btn--xs" title="Выдаліць">
+                            <i data-lucide="trash"></i>
+                        </button>
+                    </form>
+
+                    <button type="button" class="btn btn--ghost btn--xs report-btn"
+                        th:attr="data-type='comment', data-id=${comment.id}" onclick="openReportModal(this)" title="Паскардзіцца">
+                        <i data-lucide="flag"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="comment__body" th:id="'body-' + ${comment.id}" th:text="${comment.body}"></div>
@@ -74,38 +103,28 @@
             <form th:if="${currentUser != null and currentUser.id == comment.author.id}"
                 th:id="'edit-form-' + ${comment.id}"
                 th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${comment.id})}"
-                method="post" style="display:none;">
+                method="post" class="comment__edit-form" style="display:none;">
                 <input type="hidden" name="_method" value="PATCH">
-                <textarea name="body" class="form-input" rows="2" th:text="${comment.body}"></textarea>
-                <button type="submit" class="btn btn--primary btn--sm">Захаваць</button>
-                <button type="button" class="btn btn--outline btn--sm" th:data-id="${comment.id}"
-                    data-action="edit">Адмяніць</button>
+                <textarea name="body" class="form-input" rows="3" th:text="${comment.body}"></textarea>
+                <div class="comment__edit-actions">
+                    <button type="submit" class="btn btn--primary btn--xs">
+                        <i data-lucide="check"></i>
+                    </button>
+                    <button type="button" class="btn btn--outline btn--xs" th:data-id="${comment.id}"
+                        data-action="edit">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
             </form>
-
-            <div class="comment__actions" th:if="${currentUser != null}">
-                <button th:if="${!isReply}" class="btn btn--ghost btn--sm" th:data-id="${comment.id}"
-                    data-action="reply">Адказаць</button>
-
-                <button th:if="${currentUser.id == comment.author.id}" class="btn btn--ghost btn--sm"
-                    th:data-id="${comment.id}" data-action="edit">Рэдагаваць</button>
-
-                <form th:if="${currentUser.id == comment.author.id or isMember}"
-                    th:action="@{/g/{g}/t/{t}/comments/{c}(g=${translation.game.title},t=${translation.title},c=${comment.id})}"
-                    method="post" style="display:inline;">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn--ghost btn--sm">Выдаліць</button>
-                </form>
-
-                <button type="button" class="btn btn--ghost btn--sm report-btn"
-                    th:attr="data-type='comment', data-id=${comment.id}" onclick="openReportModal(this)">⚑</button>
-            </div>
 
             <form th:if="${currentUser != null and !isReply}" th:id="'reply-form-' + ${comment.id}"
                 th:action="@{/g/{g}/t/{t}/comments(g=${translation.game.title},t=${translation.title})}" method="post"
                 style="display:none;" class="comment__reply-form">
                 <input type="hidden" name="parentId" th:value="${comment.id}">
-                <textarea name="body" class="form-input" rows="2" placeholder="Адказаць..."></textarea>
-                <button type="submit" class="btn btn--primary btn--sm">Адправіць</button>
+                <textarea name="body" class="form-input" rows="3" placeholder="Адказаць..."></textarea>
+                <button type="submit" class="btn btn--primary btn--xs">
+                    <i data-lucide="send"></i>
+                </button>
             </form>
         </div>
     </th:block>

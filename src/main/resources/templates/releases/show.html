@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэліз', ~{::main})}">
 
 <body>
-    <main>
-        <div class="page-header">
+    <main class="main-content">
+        <div th:if="${release}">
+        <header class="page-header">
             <div>
                 <p class="text-muted">
                     <a th:href="@{/g/{g}(g=${release.translation.game.title})}"
@@ -29,7 +30,7 @@
                     class="btn btn--outline">Рэдагаваць</a>
                 <div th:replace="~{fragments/report :: button('release', ${release.id})}"></div>
             </div>
-        </div>
+        </header>
 
         <div class="content-grid">
             <div class="content-main">
@@ -48,16 +49,45 @@
                     <div th:utext="${release.description}"></div>
                 </div>
 
-                <div class="card" th:if="${release.status == 'published'}">
+                <div class="card" th:if="${release.fileUrl != null and (release.status == 'published' or isMember)}">
                     <h2>Спампаваць</h2>
+                    <p th:if="${release.status != 'published'}" class="text-muted text-sm">
+                        Рэліз пакуль не апублікаваны, але вы можаце атрымаць доступ да файла як член каманды.
+                    </p>
                     <a th:href="${release.fileUrl}" class="btn btn--primary" target="_blank">
                         Спампаваць / Адкрыць
                     </a>
                 </div>
             </div>
-        </div>
 
+            <div class="content-sidebar">
+                <div class="card">
+                    <h2>Дэталі рэліза</h2>
+                    <div class="meta-row">
+                        <span class="meta-label">Статус</span>
+                        <span th:switch="${release.status}">
+                            <span th:case="'published'" class="badge badge--success">Апублікаваны</span>
+                            <span th:case="'on_review'" class="badge badge--review">На разглядзе</span>
+                            <span th:case="'hidden'" class="badge badge--draft">Схаваны</span>
+                            <span th:case="'deleted'" class="badge badge--draft">Выдалены</span>
+                            <span th:case="*" class="badge badge--draft" th:text="${release.status}"></span>
+                        </span>
+                    </div>
+                    <div class="meta-row" th:if="${release.fileUrl != null}">
+                        <span class="meta-label">Файл</span>
+                        <a th:href="${release.fileUrl}" target="_blank" class="link-secondary"
+                            th:text="${#strings.startsWith(release.fileUrl, '/uploads/')} ? 'Загружаны файл' : 'Знешняя спасылка'"></a>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Пераклад</span>
+                        <span th:text="${release.translation.title}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
         <div th:replace="~{fragments/report :: modal}"></div>
+        
     </main>
 </body>
 

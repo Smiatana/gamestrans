@@ -113,6 +113,33 @@
   }
 }
 
+.content-sidebar .meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.content-sidebar .meta-row:last-child {
+  border-bottom: none;
+}
+
+.meta-label {
+  color: var(--clr-text-muted);
+  font-weight: 600;
+}
+
+.link-secondary {
+  color: var(--clr-primary);
+  text-decoration: none;
+}
+
+.link-secondary:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
   .content-grid {
     padding-inline: 16px;

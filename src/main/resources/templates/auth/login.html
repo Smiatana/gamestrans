@@ -5,23 +5,25 @@
 <div style="max-width: 460px; margin-inline: auto;">
 <div class="form-card">
 <h1 style="text-align: center; margin-bottom: 2rem;">Уваход</h1>
-<div th:if="${param.error}" class="alert alert--danger">Няправільны email або пароль</div>
-            <div th:if="${param.confirmed}" class="alert alert--success">Email пацверджаны</div>
-            <div th:if="${param.passwordReset}" class="alert alert--success">Пароль паспяхова зменены</div>
+<div th:if="${param.error}" class="alert alert--danger">Няправільны email або пароль. Калі ласка, спробуйце зноўку.</div>
+            <div th:if="${param.confirmed}" class="alert alert--success">Email пацверджаны. Вы можаце ўвайсці ў ваш акаўнт.</div>
+            <div th:if="${param.passwordReset}" class="alert alert--success">Пароль паспяхова зменены. Вы можаце ўвайсці з новым паролем.</div>
 
-            <form th:action="@{/login}" method="post">
+            <form th:action="@{/login}" method="post" novalidate>
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="username" class="form-input" autofocus required>
+                    <label for="email">Email адрас <span class="form-required">*</span></label>
+                    <input type="email" id="email" name="username" class="form-input" 
+                        required autofocus placeholder="вы@example.com">
                 </div>
                 <div class="form-group">
-                    <label>
-                        Пароль
-                        <a th:href="@{/forgot-password}" style="float: right; font-size: 0.8rem; color: var(--clr-primary);">Забылі пароль?</a>
-                    </label>
-                    <input type="password" name="password" class="form-input" required>
+                    <label for="password">Пароль <span class="form-required">*</span></label>
+                    <input type="password" id="password" name="password" class="form-input" 
+                        required minlength="6" placeholder="Увядзіце ваш пароль">
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <a th:href="@{/forgot-password}" style="font-size: 0.85rem; color: var(--clr-primary);">Забылі пароль?</a>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn--primary" style="width: 100%; height: 50px; margin-top: 1rem;">Увайсці</button>
+                <button type="submit" class="btn btn--primary" style="width: 100%; height: 50px; margin-top: 1rem; font-weight: 600;">Увайсці</button>
             </form>
             
             <div style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem;">
@@ -33,9 +35,9 @@
                 <hr style="position: absolute; top: 50%; width: 100%; border: none; border-top: 1px solid var(--clr-border); margin: 0; z-index: -1;">
             </div>
 
-            <a href="/oauth2/authorization/google" class="btn btn--outline" style="width: 100%; margin-top: 1.5rem;">
-                <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 18px;">
-                Google
+            <a href="/oauth2/authorization/google" class="btn btn--outline" style="width: 100%; margin-top: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 18px; height: 18px;" alt="Google">
+                Увайсці праз Google
             </a>
         </div>
     </div>

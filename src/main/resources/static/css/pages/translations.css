@@ -159,3 +159,141 @@
     width: 100%;
   }
 }
+
+/* Comment Section */
+.comments-card {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.comments-card .btn,
+.comment .btn {
+  width: auto;
+}
+
+.comment {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+}
+
+.comment--reply {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+.comment__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.comment__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--clr-text-muted);
+  font-size: 0.85rem;
+}
+
+.comment__author {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.comment__meta a {
+  color: var(--clr-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.comment__meta a:hover {
+  text-decoration: underline;
+}
+
+.comment__body {
+  white-space: pre-line;
+  line-height: 1.6;
+  color: var(--clr-text);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.comment__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.comment__actions .comment__delete-form {
+  display: inline-flex;
+}
+
+.comment__actions .btn--xs {
+  padding: 0.45rem;
+  height: 2rem;
+  min-width: 2rem;
+  width: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment__edit-form,
+.comment__reply-form {
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comment__edit-form.active,
+.comment__reply-form.active {
+  display: flex;
+}
+
+.comment__edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.comment__reply-form .form-input,
+.comment__edit-form .form-input {
+  min-height: 80px;
+  font-size: 0.9rem;
+}
+
+.comment-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comment-create-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--clr-border);
+}

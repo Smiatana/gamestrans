@@ -2,23 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Рэдагаванне гульні', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="page-header">
             <h1>Рэдагаванне гульні <a th:href="@{/g/{g}(g=${game.title})}" th:text="${game.title}"></a></h1>
         </div>
         <form th:action="@{/g/{title}/edit(title=${game.title})}" th:object="${addGameRequest}" method="post"
-            enctype="multipart/form-data" class="form-card">
+            enctype="multipart/form-data" class="form-card" novalidate>
             <input type="hidden" name="_method" value="patch" />
             <section class="form-section">
                 <h2>Інфармацыя пра гульню</h2>
                 <div class="form-group">
-                    <label>Назва гульні</label>
-                    <input type="text" th:field="*{gameTitle}" class="form-input">
+                    <label for="gameTitle">Назва гульні <span class="form-required">*</span></label>
+                    <input type="text" id="gameTitle" th:field="*{gameTitle}" class="form-input" 
+                        required placeholder="Увядзіце назву гульні" minlength="1" maxlength="255">
                     <span class="form-error" th:if="${#fields.hasErrors('gameTitle')}" th:errors="*{gameTitle}"></span>
                 </div>
                 <div class="form-group">
-                    <label>Распрацоўшчык</label>
-                    <input type="text" th:field="*{developer}" class="form-input" placeholder="напр. CD Projekt Red">
+                    <label for="developer">Распрацоўшчык</label>
+                    <input type="text" id="developer" th:field="*{developer}" class="form-input" 
+                        placeholder="напр. CD Projekt Red" maxlength="255">
                 </div>
                 <div class="form-group">
                     <label for="releaseYear">Год выпуску</label>
@@ -26,24 +28,28 @@
                         placeholder="напр. 2024" min="1970" th:attr="max=${#dates.year(#dates.createNow()) + 5}">
                 </div>
                 <div class="form-group">
-                    <label>Жанры</label>
-                    <input id="genres" name="genres">
+                    <label for="genres">Жанры</label>
+                    <input id="genres" name="genres" class="form-input" placeholder="Пошук і добавленне жанраў">
                 </div>
                 <div class="form-group">
-                    <label>Вокладка</label>
-                    <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="image-preview image-preview--cover">
-                    <input type="file" name="gameCover" accept="image/*" class="form-input">
-                    <small class="text-muted">Пакіньце пустым, каб не мяняць вокладку</small>
-                </div>
-                <div class="form-group ">
-                    <label for="gameCover">Фонавы відарыс</label>
-                    <img th:if="${game.backgroundUrl}" th:src="${game.backgroundUrl}"
-                        class="image-preview image-preview--background">
-                    <input type="file" id="gameBackground" name="gameBackground" accept="image/*" class="form-input">
-                    <small class="text-muted">Пакіньце пустым, каб не мяняць фон</small>
+                    <label for="gameCover">Вокладка</label>
+                    <div class="image-upload-group">
+                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="image-preview image-preview--cover" alt="Вокладка">
+                        <input type="file" id="gameCover" name="gameCover" accept="image/*" class="form-input" onchange="previewImage(this, 'coverPreview')">
+                        <small class="text-muted">Пакіньце пустым, каб не мяняць вокладку</small>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Апісанне гульні</label>
+                    <label for="gameBackground">Фонавы відарыс</label>
+                    <div class="image-upload-group">
+                        <img th:if="${game.backgroundUrl}" th:src="${game.backgroundUrl}"
+                            class="image-preview image-preview--background" alt="Фонавы відарыс">
+                        <input type="file" id="gameBackground" name="gameBackground" accept="image/*" class="form-input" onchange="previewImage(this, 'bgPreview')">
+                        <small class="text-muted">Пакіньце пустым, каб не мяняць фон</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="gameDescription">Апісанне гульні</label>
                     <div th:replace="~{fragments/editor :: richEditor('gameDescription', ${game.description})}"></div>
                 </div>
             </section>
@@ -52,19 +58,37 @@
                 <button type="submit" class="btn btn--primary">Захаваць</button>
             </div>
         </form>
-        <div class="danger-zone">
+        <section class="form-card form-card--danger">
             <h2>Небяспечная зона</h2>
-            <p class="text-muted">Выдаленне гульні немагчыма адмяніць</p>
-            <form th:action="@{/g/{title}/delete(title=${game.title})}" method="post">
+            <p class="text-muted">Выдаленне гульні немагчыма адмяніць. Гэтая аперацыя не мажа быць адмененая.</p>
+            <form th:action="@{/g/{title}/delete(title=${game.title})}" method="post" style="margin-top: 1.5rem;">
                 <input type="hidden" name="_method" value="delete" />
-                <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены?')">Выдаліць
+                <button type="submit" class="btn btn--danger" onclick="return confirm('Вы ўпэўнены? Гульня будзе выдалена назаўсёды.')">Выдаліць
                     гульню</button>
             </form>
-        </div>
+        </section>
         <script th:inline="javascript">
             const existingGenres = /*[[${game.genres}]]*/[];
         </script>
         <script>
+            // Image preview functionality
+            function previewImage(input, previewId) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        let preview = document.getElementById(previewId);
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.id = previewId;
+                            preview.className = 'image-preview';
+                            input.parentElement.insertBefore(preview, input);
+                        }
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
             const select = new TomSelect("#genres", {
                 valueField: "name",
                 labelField: "name",
