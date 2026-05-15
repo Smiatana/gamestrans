@@ -34,32 +34,37 @@
                                 th:text="'Зарэгістраваны: ' + ${#temporals.format(user.createdAt, 'dd.MM.yyyy')}"></div>
                         </div>
 
-                        <div class="mod-item__actions" th:if="${user.id != currentUser.id}">
-                            <!-- Warn -->
-                            <div class="mod-inline-form">
-                                <input type="text" class="form-input form-input--sm" placeholder="Прычына папярэджання"
-                                    th:id="'warn-' + ${user.id}">
-                                <form th:action="@{/mod/users/{id}/warn(id=${user.id})}" method="post"
-                                    th:id="'warn-form-' + ${user.id}">
-                                    <input type="hidden" name="reason" th:id="'warn-val-' + ${user.id}">
-                                    <button type="button" class="btn btn--outline btn--sm"
-                                        th:attr="onclick='submitWarn(\'' + ${user.id} + '\')'">
-                                        <i data-lucide="alert-triangle"></i> Папярэджанне
-                                    </button>
-                                </form>
-                            </div>
+                        <div class="mod-item__modal-content">
+                            <h3>Папярэджанне карыстальніка</h3>
+                            <form th:action="@{/mod/users/{id}/warn(id=${user.id})}" method="post">
+                                <div class="form-group">
+                                    <label>Прычына</label>
+                                    <input type="text" name="reason" class="form-input" placeholder="Прычына папярэджання" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn--outline" onclick="closeModPreview()">Адмяніць</button>
+                                    <button type="submit" class="btn btn--primary">Адправіць</button>
+                                </div>
+                            </form>
+                        </div>
 
-                            <!-- Ban -->
-                            <button type="button" class="btn btn--danger btn--sm"
-                                th:attr="onclick='openBanModal(\'' + ${user.id} + '\', \'' + ${user.username} + '\')'">
-                                <i data-lucide="ban"></i> Заблакаваць
+                        <div class="mod-item__actions" th:if="${user.id != currentUser.id}">
+                            <button type="button" class="btn btn--outline btn--icon" title="Папярэджанне" onclick="openModDialog(this, '.mod-item__modal-content')">
+                                <i data-lucide="alert-triangle"></i>
+                            </button>
+
+
+                            <button type="button" class="btn btn--danger btn--icon" title="Заблакаваць"
+                                th:attr="data-userid=${user.id}, data-username=${user.username}"
+                                onclick="openBanModal(this.dataset.userid, this.dataset.username)">
+                                <i data-lucide="ban"></i>
                             </button>
 
                             <!-- Unban -->
                             <form th:if="${user.status == 'banned'}" th:action="@{/mod/users/{id}/unban(id=${user.id})}"
                                 method="post">
-                                <button type="submit" class="btn btn--outline btn--sm">
-                                    <i data-lucide="check"></i> Разблакаваць
+                                <button type="submit" class="btn btn--outline btn--icon" title="Разблакаваць">
+                                    <i data-lucide="check"></i>
                                 </button>
                             </form>
                         </div>

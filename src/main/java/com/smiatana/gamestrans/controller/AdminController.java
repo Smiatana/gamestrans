@@ -40,7 +40,7 @@ public class AdminController {
         if (!isAdmin(currentUser))
             return "redirect:/";
         List<User> moderators = userRepository.findByRoleOrderByCreatedAtDesc("moderator");
-        model.addAttribute("moderators", moderators);
+        model.addAttribute("moderators", moderators != null ? moderators : List.of());
         return "admin/moderators";
     }
 

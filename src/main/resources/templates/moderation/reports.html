@@ -25,13 +25,29 @@
                 </div>
 
                 <div class="mod-list" th:unless="${#lists.isEmpty(reports)}">
-                    <div th:each="report : ${reports}" class="card mod-item">
+                    <div th:each="report : ${reports}" class="card mod-item" th:data-id="${report.id}" th:data-type="'report'">
                         <div class="mod-item__info">
                             <div>
                                 <span class="badge"
-                                    th:classappend="${report.status == 'pending'} ? ' badge--review' : (${report.status == 'approved'} ? ' badge--success' : ' badge--draft')"
-                                    th:text="${report.status}"></span>
-                                <span class="text-bold" th:text="${report.targetType}"></span>
+                                    th:classappend="${report.status == 'pending'} ? ' badge--review' : (${report.status == 'approved'} ? ' badge--success' : ' badge--draft')">
+                                    <th:block th:switch="${report.status}">
+                                        <span th:case="'pending'">Чакае</span>
+                                        <span th:case="'approved'">Ухвалена</span>
+                                        <span th:case="'declined'">Адхілена</span>
+                                        <span th:case="*" th:text="${report.status}"></span>
+                                    </th:block>
+                                </span>
+                                <span class="text-bold">
+                                    <th:block th:switch="${report.targetType}">
+                                        <span th:case="'game'">Гульня</span>
+                                        <span th:case="'release'">Рэліз</span>
+                                        <span th:case="'user'">Карыстальнік</span>
+                                        <span th:case="'comment'">Каментар</span>
+                                        <span th:case="'report'">Скарга</span>
+                                        <span th:case="'translation'">Пераклад</span>
+                                        <span th:case="*" th:text="${report.targetType}"></span>
+                                    </th:block>
+                                </span>
                                 <span class="text-sm text-muted" th:text="' ID: ' + ${report.targetId}"></span>
                             </div>
                             <div class="text-sm" th:text="${report.reason}"></div>
@@ -42,38 +58,67 @@
                                 · <span th:text="${#temporals.format(report.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                             </div>
                         </div>
-
+                        <div class="mod-item__preview">
+                            <h3>Скарга</h3>
+                            <p class="text-sm text-muted">
+                                <strong>Тып:</strong>
+                                <th:block th:switch="${report.targetType}">
+                                    <span th:case="'game'">Гульня</span>
+                                    <span th:case="'release'">Рэліз</span>
+                                    <span th:case="'user'">Карыстальнік</span>
+                                    <span th:case="'comment'">Каментар</span>
+                                    <span th:case="'report'">Скарга</span>
+                                    <span th:case="'translation'">Пераклад</span>
+                                    <span th:case="*" th:text="${report.targetType}"></span>
+                                </th:block>
+                            </p>
+                            <p><strong>Праблема:</strong> <span th:text="${report.reason}"></span></p>
+                            <p class="text-sm text-muted">
+                                <strong>Аўтар:</strong>
+                                <a th:href="@{/u/{u}(u=${report.author.username})}" th:text="${report.author.username}"></a>
+                                · <span th:text="${#temporals.format(report.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </p>
+                        </div>
                         <div class="mod-item__actions" th:if="${report.status == 'pending'}">
-                            <div class="mod-inline-form">
-                                <form th:action="@{/mod/reports/{id}/approve(id=${report.id})}" method="post">
-                                    <input type="text"
-                                        name="reason"
-                                        class="form-input form-input--sm"
-                                        placeholder="Прычына"
-                                        required>
-
-                                    <button type="submit" class="btn btn--success btn--sm">
-                                        <i data-lucide="check"></i> Прыняць
-                                    </button>
-                                </form>
-
-                                <form th:action="@{/mod/reports/{id}/decline(id=${report.id})}" method="post">
-                                    <input type="text"
-                                        name="reason"
-                                        class="form-input form-input--sm"
-                                        placeholder="Прычына"
-                                        required>
-
-                                    <button type="submit" class="btn btn--outline btn--sm">
-                                        <i data-lucide="x"></i> Адхіліць
-                                    </button>
-                                </form>
-
-                            </div>
+                            <button type="button" class="btn btn--outline btn--icon" title="Папярэдні прагляд" onclick="openModPreview(this)">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button type="button" class="btn btn--success btn--icon" title="Ухваліць" onclick="openModDialog(this, '.mod-item__approve-modal')">
+                                <i data-lucide="check"></i>
+                            </button>
+                            <button type="button" class="btn btn--outline btn--icon" title="Адхіліць" onclick="openModDialog(this, '.mod-item__decline-modal')">
+                                <i data-lucide="x"></i>
+                            </button>
                             <form th:action="@{/mod/reports/{id}/delete(id=${report.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">
-                                    <i data-lucide="trash-2"></i> Выдаліць
+                                <button type="submit" class="btn btn--danger btn--icon" title="Выдаліць">
+                                    <i data-lucide="trash-2"></i>
                                 </button>
+                            </form>
+                        </div>
+                        <div class="mod-item__approve-modal">
+                            <h3>Ухваліць скаргу</h3>
+                            <form th:action="@{/mod/reports/{id}/approve(id=${report.id})}" method="post">
+                                <div class="form-group">
+                                    <label>Прычына</label>
+                                    <input type="text" name="reason" class="form-input" placeholder="Прычына прыняцця" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn--outline" onclick="closeModPreview()">Адмяніць</button>
+                                    <button type="submit" class="btn btn--success">Ухваліць</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="mod-item__decline-modal">
+                            <h3>Адхіліць скаргу</h3>
+                            <form th:action="@{/mod/reports/{id}/decline(id=${report.id})}" method="post">
+                                <div class="form-group">
+                                    <label>Прычына</label>
+                                    <input type="text" name="reason" class="form-input" placeholder="Прычына адхілення" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn--outline" onclick="closeModPreview()">Адмяніць</button>
+                                    <button type="submit" class="btn btn--outline">Адхіліць</button>
+                                </div>
                             </form>
                         </div>
                     </div>

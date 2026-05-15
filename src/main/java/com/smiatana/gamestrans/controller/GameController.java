@@ -13,11 +13,13 @@ import org.springframework.stereotype.Controller;
 
 import com.smiatana.gamestrans.dto.AddGameRequest;
 import com.smiatana.gamestrans.entity.Game;
+import com.smiatana.gamestrans.entity.Release;
 import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.GenreRepository;
 import com.smiatana.gamestrans.repository.RatingRepository;
+import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.AuthService;
@@ -45,6 +47,7 @@ public class GameController {
     private final GenreRepository genreRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
+    private final ReleaseRepository releaseRepository;
     private final UriService uriService;
     private final RatingRepository ratingRepository;
     private final AuthService authService;
@@ -150,6 +153,13 @@ public class GameController {
                     .ifPresent(avg -> ratingsMap.put(id, Math.round(avg * 10.0) / 10.0));
         }
         model.addAttribute("ratingsMap", ratingsMap);
+
+        Map<UUID, Release> latestReleasesMap = new HashMap<>();
+        for (UUID id : translationIds) {
+            releaseRepository.findTop1ByTranslationIdAndStatusOrderByCreatedAtDesc(id, "published")
+                    .ifPresent(release -> latestReleasesMap.put(id, release));
+        }
+        model.addAttribute("latestReleasesMap", latestReleasesMap);
 
         Map<UUID, Boolean> isMemberMap = new HashMap<>();
         if (currentUser != null) {

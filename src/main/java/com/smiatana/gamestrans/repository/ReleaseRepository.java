@@ -17,6 +17,7 @@ public interface ReleaseRepository extends JpaRepository<Release, UUID> {
 
     List<Release> findTop5ByTranslationIdOrderByCreatedAtDesc(UUID translationId);
     List<Release> findTop5ByTranslationIdAndStatusOrderByCreatedAtDesc(UUID translationId, String status);
+    Optional<Release> findTop1ByTranslationIdAndStatusOrderByCreatedAtDesc(UUID translationId, String status);
 
     long countByTranslationId(UUID translationId);
 

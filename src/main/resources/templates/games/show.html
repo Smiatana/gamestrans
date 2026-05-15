@@ -72,6 +72,11 @@
                                     <span class="rating-badge" th:if="${ratingsMap.containsKey(translation.id)}">
                                         <i data-lucide="star"></i> <span th:text="${ratingsMap.get(translation.id)}"></span>
                                     </span>
+                                    <a th:if="${latestReleasesMap.get(translation.id)?.fileUrl != null}" 
+                                        th:href="${latestReleasesMap.get(translation.id).fileUrl}" target="_blank" 
+                                        class="btn btn--outline btn--sm" title="Спампаваць">
+                                        <i data-lucide="download"></i>
+                                    </a>
                                     <a th:href="@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}" class="btn btn--outline btn--sm">
                                         Дэталі <i data-lucide="arrow-right"></i>
                                     </a>

@@ -12,22 +12,22 @@
 
                 <div class="card">
                     <h2>Бягучыя мадэратары</h2>
-                    <div th:if="${#lists.isEmpty(moderators)}" class="text-muted">
+                    <div th:if="${moderators == null or #lists.isEmpty(moderators)}" class="text-muted">
                         Мадэратараў пакуль няма
                     </div>
-                    <div class="mod-list" th:unless="${#lists.isEmpty(moderators)}">
-                        <div th:each="mod : ${moderators}" class="mod-item">
+                    <div class="mod-list" th:unless="${moderators == null or #lists.isEmpty(moderators)}">
+                        <div th:each="moderator : ${moderators}" class="mod-item">
                             <div class="mod-item__info">
-                                <a th:href="@{/u/{u}(u=${mod.username})}" th:text="${mod.username}"
-                                    class="text-bold"></a>
-                                <span class="text-muted text-sm" th:text="${mod.email}"></span>
+                                <a th:href="@{/u/{u}(u=${moderator.username})}" th:text="${moderator.username}"
+                                class="text-bold"></a>
+                                <span class="text-muted text-sm" th:text="${moderator.email}"></span>
                                 <span class="text-muted text-sm"
-                                    th:text="'З ' + ${#temporals.format(mod.createdAt, 'dd.MM.yyyy')}"></span>
+                                    th:text="'З ' + ${#temporals.format(moderator.createdAt, 'dd.MM.yyyy')}"></span>
                             </div>
                             <div class="mod-item__actions">
-                                <form th:action="@{/admin/moderators/demote/{id}(id=${mod.id})}" method="post">
+                                <form th:action="@{/admin/moderators/demote/{id}(id=${moderator.id})}" method="post">
                                     <button type="submit" class="btn btn--danger btn--sm"
-                                        onclick="return confirm('Зняць з пасады мадэратара?')">Зняць</button>
+                                            onclick="return confirm('Зняць з пасады мадэратара?')">Зняць</button>
                                 </form>
                             </div>
                         </div>
@@ -62,7 +62,7 @@
                             <div class="mod-item" style="margin-top:0.5rem;">
                                 <span>${u.username}</span>
                                 <form action="/admin/moderators/promote/${u.id}" method="post" style="display:inline;">
-                                    <input type="hidden" name="${csrfHeader || '_csrf'}" value="${csrf || ''}">
+                                    <input type="hidden" name="_csrf" value="${csrf || ''}">
                                     <button type="submit" class="btn btn--primary btn--sm">Прызначыць мадэратарам</button>
                                 </form>
                             </div>

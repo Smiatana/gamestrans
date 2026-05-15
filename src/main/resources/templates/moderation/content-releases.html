@@ -10,28 +10,70 @@
                     <h1>Усе рэлізы</h1>
                 </div>
                 <div class="mod-list">
-                    <div th:each="r : ${releases}" class="card mod-item">
+                    <div th:each="r : ${releases}" class="card mod-item" th:data-id="${r.id}" th:data-type="'release'">
                         <div class="mod-item__info">
                             <div class="text-sm text-muted"
                                 th:text="${r.translation.game.title} + ' / ' + ${r.translation.title}"></div>
                             <div class="text-bold" th:text="${r.title}"></div>
                             <div class="text-sm text-muted">
                                 <span class="badge"
-                                    th:classappend="${r.status == 'published'} ? ' badge--success' : (${r.status == 'on_review'} ? ' badge--review' : ' badge--draft')"
-                                    th:text="${r.status}"></span>
+                                    th:classappend="${r.status == 'published'} ? ' badge--success' : (${r.status == 'on_review'} ? ' badge--review' : ' badge--draft')">
+                                    <th:block th:switch="${r.status}">
+                                        <span th:case="'published'">Апублікаваны</span>
+                                        <span th:case="'on_review'">На разглядзе</span>
+                                        <span th:case="'draft'">Чарнавік</span>
+                                        <span th:case="'deleted'">Выдалены</span>
+                                        <span th:case="*" th:text="${r.status}"></span>
+                                    </th:block>
+                                </span>
                                 Аўтар: <a th:href="@{/u/{u}(u=${r.createdBy.username})}"
                                     th:text="${r.createdBy.username}"></a>
                                 · <span th:text="${#temporals.format(r.createdAt, 'dd.MM.yyyy')}"></span>
                             </div>
                         </div>
+                        <div class="mod-item__preview">
+                            <h3 th:text="${r.title}"></h3>
+                            <p class="text-sm text-muted" th:text="${r.translation.game.title} + ' / ' + ${r.translation.title}"></p>
+                            <p><strong>Аўтар:</strong> <a th:href="@{/u/{u}(u=${r.createdBy.username})}" th:text="${r.createdBy.username}"></a></p>
+                            <p><strong>Статус:</strong>
+                                <th:block th:switch="${r.status}">
+                                    <span th:case="'published'">Апублікаваны</span>
+                                    <span th:case="'on_review'">На разглядзе</span>
+                                    <span th:case="'draft'">Чарнавік</span>
+                                    <span th:case="'deleted'">Выдалены</span>
+                                    <span th:case="*" th:text="${r.status}"></span>
+                                </th:block>
+                            </p>
+                            <p><strong>Створана:</strong> <span th:text="${#temporals.format(r.createdAt, 'dd.MM.yyyy HH:mm')}"></span></p>
+                            <div th:if="${r.description}">
+                                <p><strong>Апісанне:</strong></p>
+                                <p th:text="${r.description}"></p>
+                            </div>
+                            <div th:if="${r.fileUrl}">
+                                <a th:href="${r.fileUrl}" target="_blank" class="btn btn--outline btn--icon" title="Спампаваць файл">
+                                    <i data-lucide="download"></i>
+                                </a>
+                            </div>
+                        </div>
                         <div class="mod-item__actions">
+                            <button type="button" class="btn btn--outline btn--icon" title="Папярэдні прагляд" onclick="openModPreview(this)">
+                                <i data-lucide="eye"></i>
+                            </button>
                             <a th:href="@{/g/{g}/t/{t}/r/{r}(g=${r.translation.game.title},t=${r.translation.title},r=${r.title})}"
-                                class="btn btn--outline btn--sm" target="_blank">
-                                <i data-lucide="eye"></i> Глядзець
+                                class="btn btn--outline btn--icon" title="Адкрыць старонку" target="_blank">
+                                <i data-lucide="external-link"></i>
                             </a>
-                            <form th:action="@{/mod/releases/{id}/delete(id=${r.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">
-                                    <i data-lucide="trash-2"></i> Выдаліць
+                            <a th:if="${r.fileUrl}" th:href="${r.fileUrl}" target="_blank" class="btn btn--outline btn--icon" title="Спампаваць файл">
+                                <i data-lucide="download"></i>
+                            </a>
+                            <form th:if="${r.deletedAt == null}" th:action="@{/mod/content/releases/{id}/delete(id=${r.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--icon" title="Выдаліць">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </form>
+                            <form th:if="${r.deletedAt != null}" th:action="@{/mod/content/releases/{id}/restore(id=${r.id})}" method="post">
+                                <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
+                                    <i data-lucide="rotate-ccw"></i>
                                 </button>
                             </form>
                         </div>

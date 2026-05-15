@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="mod-list">
-                    <div th:each="game : ${games}" class="card mod-item">
+                    <div th:each="game : ${games}" class="card mod-item" th:data-id="${game.id}" th:data-type="'game'">
                         <div class="mod-item__info">
                             <div class="text-bold" th:text="${game.title}"></div>
                             <div class="text-sm text-muted" th:if="${game.developer}" th:text="${game.developer}"></div>
@@ -22,17 +22,52 @@
                                 <span th:if="${game.deletedAt != null}" class="badge badge--danger">Схавана</span>
                             </div>
                         </div>
+                        <div class="mod-item__preview">
+                            <h3 th:text="${game.title}"></h3>
+                            <p class="text-sm text-muted" th:if="${game.developer}" th:text="'Студыя: ' + ${game.developer}"></p>
+                            <p class="text-sm text-muted" th:if="${game.releaseYear}" th:text="'Год: ' + ${game.releaseYear}"></p>
+                            <p class="text-sm text-muted">
+                                <strong>Аўтар:</strong> <a th:href="@{/u/{u}(u=${game.createdBy.username})}" th:text="${game.createdBy.username}"></a>
+                                · <span th:text="${#temporals.format(game.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                            </p>
+                            <div th:if="${not #lists.isEmpty(game.genres)}">
+                                <p><strong>Жанры:</strong>
+                                    <span th:each="genre : ${game.genres}" class="badge badge--light"
+                                        th:text="${genre.name}"></span>
+                                </p>
+                            </div>
+                            <div th:if="${game.description}">
+                                <p><strong>Апісанне:</strong></p>
+                                <p th:utext="${game.description}"></p>
+                            </div>
+                            <div th:if="${game.coverUrl}">
+                                <p><strong>Cover:</strong></p>
+                                <img th:src="${game.coverUrl}" alt="Cover" class="mod-item__preview-image" />
+                            </div>
+                            <div th:if="${game.backgroundUrl}">
+                                <p><strong>Background:</strong></p>
+                                <img th:src="${game.backgroundUrl}" alt="Background" class="mod-item__preview-image" />
+                            </div>
+                            <p th:if="${game.deletedAt != null}" class="badge badge--danger">Схавана</p>
+                        </div>
                         <div class="mod-item__actions">
-                            <a th:href="@{/g/{t}(t=${game.title})}" class="btn btn--outline btn--sm"
-                                target="_blank">
-                                <i data-lucide="eye"></i> Глядзець
+                            <button type="button" class="btn btn--outline btn--icon" title="Папярэдні прагляд" onclick="openModPreview(this)">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <a th:href="@{/g/{t}(t=${game.title})}" class="btn btn--outline btn--icon" title="Адкрыць старонку" target="_blank">
+                                <i data-lucide="external-link"></i>
                             </a>
-                            <a th:href="@{/g/{t}/edit(t=${game.title})}" class="btn btn--outline btn--sm">
-                                <i data-lucide="edit"></i> Рэдагаваць
+                            <a th:href="@{/g/{t}/edit(t=${game.title})}" class="btn btn--outline btn--icon" title="Рэдагаваць">
+                                <i data-lucide="edit"></i>
                             </a>
-                            <form th:action="@{/mod/content/games/{id}/hide(id=${game.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--sm">
-                                    <i data-lucide="eye-off"></i> Схаваць
+                            <form th:if="${game.deletedAt == null}" th:action="@{/mod/content/games/{id}/hide(id=${game.id})}" method="post">
+                                <button type="submit" class="btn btn--danger btn--icon" title="Схаваць">
+                                    <i data-lucide="eye-off"></i>
+                                </button>
+                            </form>
+                            <form th:if="${game.deletedAt != null}" th:action="@{/mod/content/games/{id}/restore(id=${game.id})}" method="post">
+                                <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
+                                    <i data-lucide="eye"></i>
                                 </button>
                             </form>
                         </div>

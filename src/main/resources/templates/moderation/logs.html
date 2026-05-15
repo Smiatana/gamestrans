@@ -28,9 +28,27 @@
                     <div th:each="log : ${logs}" class="card mod-item mod-item--log">
                         <div class="mod-item__info">
                             <div>
-                                <span class="badge" th:text="${log.action}"></span>
-                                <span th:if="${log.targetType}" class="text-muted text-sm"
-                                    th:text="${log.targetType}"></span>
+                                <span class="badge">
+                                    <th:block th:switch="${log.action}">
+                                        <span th:case="'created'">Створана</span>
+                                        <span th:case="'updated'">Абноўлена</span>
+                                        <span th:case="'deleted'">Выдалена</span>
+                                        <span th:case="'approved'">Ухвалена</span>
+                                        <span th:case="'rejected'">Адхілена</span>
+                                        <span th:case="*" th:text="${log.action}"></span>
+                                    </th:block>
+                                </span>
+                                <span th:if="${log.targetType}" class="text-muted text-sm">
+                                    <th:block th:switch="${log.targetType}">
+                                        <span th:case="'game'">Гульня</span>
+                                        <span th:case="'release'">Рэліз</span>
+                                        <span th:case="'user'">Карыстальнік</span>
+                                        <span th:case="'comment'">Каментар</span>
+                                        <span th:case="'report'">Скарга</span>
+                                        <span th:case="'translation'">Пераклад</span>
+                                        <span th:case="*" th:text="${log.targetType}"></span>
+                                    </th:block>
+                                </span>
                             </div>
                             <div th:if="${log.summary}" th:text="${log.summary}"></div>
                             <div class="text-sm text-muted">

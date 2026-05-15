@@ -10,22 +10,51 @@
                     <h1>Усе праблемы</h1>
                 </div>
                 <div class="mod-list">
-                    <div th:each="issue : ${issues}" class="card mod-item">
+                    <div th:each="issue : ${issues}" class="card mod-item" th:data-id="${issue.id}" th:data-type="'issue'">
                         <div class="mod-item__info">
                             <div class="text-sm text-muted"
                                 th:text="${issue.translation.game.title} + ' / ' + ${issue.translation.title}"></div>
                             <div class="text-bold" th:text="${issue.title}"></div>
                             <div class="text-sm text-muted">
-                                <span class="badge" th:text="${issue.status}"></span>
+                                <span class="badge">
+                                    <th:block th:switch="${issue.status}">
+                                        <span th:case="'open'">Адчынена</span>
+                                        <span th:case="'closed'">Закрыта</span>
+                                        <span th:case="'pending'">У чаканні</span>
+                                        <span th:case="*" th:text="${issue.status}"></span>
+                                    </th:block>
+                                </span>
                                 Аўтар: <a th:href="@{/u/{u}(u=${issue.author.username})}"
                                     th:text="${issue.author.username}"></a>
                                 · <span th:text="${#temporals.format(issue.createdAt, 'dd.MM.yyyy')}"></span>
                             </div>
                         </div>
+                        <div class="mod-item__preview">
+                            <h3 th:text="${issue.title}"></h3>
+                            <p class="text-sm text-muted" th:text="${issue.translation.game.title} + ' / ' + ${issue.translation.title}"></p>
+                            <p><strong>Аўтар:</strong> <a th:href="@{/u/{u}(u=${issue.author.username})}" th:text="${issue.author.username}"></a></p>
+                            <p><strong>Статус:</strong>
+                                <th:block th:switch="${issue.status}">
+                                    <span th:case="'open'">Адчынена</span>
+                                    <span th:case="'closed'">Закрыта</span>
+                                    <span th:case="'pending'">У чаканні</span>
+                                    <span th:case="*" th:text="${issue.status}"></span>
+                                </th:block>
+                            </p>
+                            <p><strong>Створана:</strong> <span th:text="${#temporals.format(issue.createdAt, 'dd.MM.yyyy HH:mm')}"></span></p>
+                            <div th:if="${issue.description}">
+                                <p><strong>Апісанне:</strong></p>
+                                <p th:utext="${issue.description}"></p>
+                            </div>
+                            <p th:if="${issue.releaseTitle}" th:text="'Рэліз: ' + ${issue.releaseTitle}"></p>
+                        </div>
                         <div class="mod-item__actions">
+                            <button type="button" class="btn btn--outline btn--icon" title="Папярэдні прагляд" onclick="openModPreview(this)">
+                                <i data-lucide="eye"></i>
+                            </button>
                             <a th:href="@{/g/{g}/t/{t}/issues(g=${issue.translation.game.title},t=${issue.translation.title})}"
-                                class="btn btn--outline btn--sm" target="_blank">
-                                <i data-lucide="eye"></i> Глядзець
+                                class="btn btn--outline btn--icon" title="Адкрыць старонку" target="_blank">
+                                <i data-lucide="external-link"></i>
                             </a>
                         </div>
                     </div>

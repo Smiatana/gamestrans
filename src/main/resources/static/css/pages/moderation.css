@@ -176,10 +176,64 @@
 
 .mod-item__actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-shrink: 0;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.mod-item__actions .btn {
+  min-width: 0;
+}
+
+.btn--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  min-width: 2.6rem;
+  min-height: 2.6rem;
+  border-radius: 12px;
+  font-size: 0;
+}
+
+.btn--icon i {
+  font-size: 1rem;
+}
+
+.btn--icon i {
+  font-size: 1.1rem;
+}
+
+.btn--icon:hover {
+  background: var(--clr-surface-hover);
+}
+
+.mod-item__preview,
+.mod-item__modal-content {
+  display: none;
+}
+
+.mod-item__preview img,
+.mod-item__preview .mod-item__preview-image {
+  max-width: 100%;
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.mod-item__info {
+  word-break: break-word;
+}
+
+.mod-item__info .text,
+.mod-item__info .text-sm,
+.mod-item__info .text-bold {
+  margin-bottom: 0.35rem;
 }
 
 /* Mod Inline Form */
@@ -187,6 +241,13 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.mod-item__preview,
+.mod-item__approve-modal,
+.mod-item__reject-modal,
+.mod-item__modal-content {
+  display: none;
 }
 
 .mod-inline-form .form-input {
@@ -208,9 +269,13 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
+}
+
+.modal.active {
+  display: flex;
 }
 
 .modal__backdrop {

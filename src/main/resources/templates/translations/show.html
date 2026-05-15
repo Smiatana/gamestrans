@@ -17,6 +17,10 @@
                     <a th:if="${isOwner}"
                         th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
                         class="btn btn--outline">Рэдагаваць</a>
+                    <a th:if="${!#lists.isEmpty(releases) and releases[0].fileUrl != null}"
+                        th:href="${releases[0].fileUrl}" target="_blank" class="btn btn--primary">
+                        <i data-lucide="download"></i> Спампаваць
+                    </a>
                     <div th:replace="~{fragments/report :: button('translation', ${translation.id})}"></div>
                 </div>
             </header>

@@ -23,7 +23,7 @@
       <a href="/mod/content/issues" class="mod-sidebar__link">Праблемы</a>
       <a href="/mod/logs" class="mod-sidebar__link">Логі</a>
     </div>
-    <div class="mod-sidebar__group">
+    <div class="mod-sidebar__group" th:if="${currentUser != null and currentUser.role == 'admin'}">
       <p class="mod-sidebar__title">Адміністраванне</p>
       <a href="/admin/moderators" class="mod-sidebar__link">Мадэратары</a>
       <a href="/admin/settings" class="mod-sidebar__link">Налады сайта</a>

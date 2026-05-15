@@ -283,6 +283,66 @@ public class ModerationController {
         return "redirect:/mod/content/comments";
     }
 
+    @PostMapping("/content/releases/{id}/delete")
+    public String deleteContentRelease(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        Release release = releaseRepository.findById(id).orElseThrow();
+        release.setDeletedAt(java.time.LocalDateTime.now());
+        releaseRepository.save(release);
+        auditLogService.log(currentUser, "RELEASE_DELETE", "release", id, "Release deleted by mod");
+        return "redirect:/mod/content/releases";
+    }
+
+    @PostMapping("/content/releases/{id}/restore")
+    public String restoreContentRelease(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        Release release = releaseRepository.findById(id).orElseThrow();
+        release.setDeletedAt(null);
+        releaseRepository.save(release);
+        auditLogService.log(currentUser, "RELEASE_RESTORE", "release", id, "Release restored by mod");
+        return "redirect:/mod/content/releases";
+    }
+
+    @PostMapping("/content/games/{id}/restore")
+    public String restoreGame(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        Game game = gameRepository.findById(id).orElseThrow();
+        game.setDeletedAt(null);
+        gameRepository.save(game);
+        auditLogService.log(currentUser, "GAME_RESTORE", "game", id, "Game restored by mod");
+        return "redirect:/mod/content/games";
+    }
+
+    @PostMapping("/content/translations/{id}/delete")
+    public String deleteContentTranslation(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        Translation translation = translationRepository.findById(id).orElseThrow();
+        translation.setDeletedAt(java.time.LocalDateTime.now());
+        translationRepository.save(translation);
+        auditLogService.log(currentUser, "TRANSLATION_DELETE", "translation", id, "Translation deleted by mod");
+        return "redirect:/mod/content/translations";
+    }
+
+    @PostMapping("/content/translations/{id}/restore")
+    public String restoreTranslation(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        Translation translation = translationRepository.findById(id).orElseThrow();
+        translation.setDeletedAt(null);
+        translationRepository.save(translation);
+        auditLogService.log(currentUser, "TRANSLATION_RESTORE", "translation", id, "Translation restored by mod");
+        return "redirect:/mod/content/translations";
+    }
+
     @GetMapping("/logs")
     public String logs(
             @RequestParam(defaultValue = "0") int page,
@@ -302,5 +362,83 @@ public class ModerationController {
         model.addAttribute("totalPages", logPage.getTotalPages());
         model.addAttribute("selectedType", type);
         return "moderation/logs";
+    }
+
+    @GetMapping("/api/item/{type}/{id}")
+    @ResponseBody
+    public java.util.Map<String, Object> getItemDetails(@PathVariable String type, @PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            throw new RuntimeException("Unauthorized");
+
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        switch (type) {
+            case "game":
+                Game game = gameRepository.findById(id).orElseThrow();
+                result.put("title", game.getTitle());
+                result.put("developer", game.getDeveloper());
+                result.put("releaseYear", game.getReleaseYear());
+                result.put("genres", game.getGenres().stream().map(g -> g.getName()).toList());
+                result.put("description", game.getDescription());
+                result.put("createdBy", game.getCreatedBy().getUsername());
+                result.put("createdAt", game.getCreatedAt());
+                result.put("coverUrl", game.getCoverUrl());
+                result.put("backgroundUrl", game.getBackgroundUrl());
+                result.put("deleted", game.getDeletedAt() != null);
+                break;
+            case "translation":
+                Translation translation = translationRepository.findById(id).orElseThrow();
+                result.put("title", translation.getTitle());
+                result.put("game", translation.getGame().getTitle());
+                result.put("description", translation.getDescription());
+                result.put("status", translation.getStatus());
+                result.put("createdBy", translation.getCreatedBy().getUsername());
+                result.put("createdAt", translation.getCreatedAt());
+                result.put("deleted", translation.getDeletedAt() != null);
+                break;
+            case "release":
+                Release release = releaseRepository.findById(id).orElseThrow();
+                result.put("title", release.getTitle());
+                result.put("translation", release.getTranslation().getTitle());
+                result.put("game", release.getTranslation().getGame().getTitle());
+                result.put("description", release.getDescription());
+                result.put("fileUrl", release.getFileUrl());
+                result.put("status", release.getStatus());
+                result.put("createdBy", release.getCreatedBy().getUsername());
+                result.put("createdAt", release.getCreatedAt());
+                result.put("deleted", release.getDeletedAt() != null);
+                break;
+            case "comment":
+                Comment comment = commentRepository.findById(id).orElseThrow();
+                result.put("body", comment.getBody());
+                result.put("translation", comment.getTranslation().getTitle());
+                result.put("game", comment.getTranslation().getGame().getTitle());
+                result.put("author", comment.getAuthor().getUsername());
+                result.put("createdAt", comment.getCreatedAt());
+                break;
+            case "issue":
+                Issue issue = issueRepository.findById(id).orElseThrow();
+                result.put("title", issue.getTitle());
+                result.put("description", issue.getDescription());
+                result.put("releaseTitle", issue.getReleaseTitle());
+                result.put("status", issue.getStatus());
+                result.put("translation", issue.getTranslation().getTitle());
+                result.put("game", issue.getTranslation().getGame().getTitle());
+                result.put("author", issue.getAuthor().getUsername());
+                result.put("createdAt", issue.getCreatedAt());
+                break;
+            case "report":
+                Complaint complaint = complaintRepository.findById(id).orElseThrow();
+                result.put("targetType", complaint.getTargetType());
+                result.put("targetId", complaint.getTargetId());
+                result.put("reason", complaint.getReason());
+                result.put("status", complaint.getStatus());
+                result.put("moderatorNote", complaint.getModeratorNote());
+                result.put("author", complaint.getAuthor().getUsername());
+                result.put("createdAt", complaint.getCreatedAt());
+                result.put("resolvedAt", complaint.getResolvedAt());
+                break;
+        }
+        return result;
     }
 }
