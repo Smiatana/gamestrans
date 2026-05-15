@@ -26,12 +26,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GameService {
+    private final AuthService authService;
     private final GameRepository gameRepository;
     private final GenreRepository genreRepository;
     private final FileStorageService fileStorageService;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final ReleaseRepository releaseRepository;
+    private final AuditLogService auditLogService;
 
     public Game findById(UUID id) {
         return gameRepository.findById(id).orElseThrow();
@@ -63,6 +65,18 @@ public class GameService {
 
     @Transactional
     public void delete(UUID id) {
+        Game game = gameRepository.findById(id).orElseThrow();
+        
+        // Выдаляем вокладку калі яна ёсць
+        if (game.getCoverUrl() != null && !game.getCoverUrl().isBlank()) {
+            fileStorageService.delete(game.getCoverUrl());
+        }
+        
+        // Выдаляем фон калі ён ёсць
+        if (game.getBackgroundUrl() != null && !game.getBackgroundUrl().isBlank()) {
+            fileStorageService.delete(game.getBackgroundUrl());
+        }
+        
         List<Translation> translations = translationRepository.findByGameId(id);
         for (Translation t : translations) {
             translationMemberRepository.deleteByTranslationId(t.getId());
@@ -70,6 +84,9 @@ public class GameService {
         }
         translationRepository.deleteByGameId(id);
         gameRepository.deleteById(id);
+        
+        auditLogService.log(authService.getCurrentUser(), "GAME_DELETE_PERMANENT", "game", id, 
+                "Game '" + game.getTitle() + "' permanently deleted");
     }
 
     public Page<Game> findVisible(String email, String search, List<UUID> genreIds, Pageable pageable) {

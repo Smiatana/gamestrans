@@ -62,19 +62,28 @@ public class GameController {
     public String index(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) List<UUID> genres,
+            @RequestParam(defaultValue = "latest") String sort,
             @RequestParam(defaultValue = "0") int page,
             Model model) {
         User currentUser = authService.getCurrentUser();
 
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("title").ascending());
+        Sort sortOrder;
+        if ("alphabet".equals(sort)) {
+            sortOrder = Sort.by("title").ascending();
+        } else {
+            sortOrder = Sort.by("createdAt").descending();
+        }
+
+        Pageable pageable = PageRequest.of(page, 20, sortOrder);
         String email = currentUser != null ? currentUser.getEmail() : null;
         Page<Game> gamePage = gameService.findVisible(email, search, genres, pageable);
 
         model.addAttribute("gamePage", gamePage);
         model.addAttribute("games", gamePage.getContent());
         model.addAttribute("search", search);
+        model.addAttribute("sort", sort);
         model.addAttribute("selectedGenres", genres != null ? genres : List.of());
-        model.addAttribute("allGenres", genreRepository.findAllByOrderByNameAsc());
+        model.addAttribute("allGenres", genreRepository.findAllByVisibleGames());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", gamePage.getTotalPages());
 

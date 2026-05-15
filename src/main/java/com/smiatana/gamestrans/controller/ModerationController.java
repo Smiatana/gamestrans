@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ModerationController {
 
+    private final TranslationService translationService;
+    private final GameService gameService;
     private final ReleaseRepository releaseRepository;
     private final UserRepository userRepository;
     private final ComplaintRepository complaintRepository;
@@ -343,6 +345,36 @@ public class ModerationController {
         return "redirect:/mod/content/translations";
     }
 
+    @PostMapping("/content/games/{id}/delete-permanent")
+    public String deleteGamePermanently(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        gameService.delete(id);
+        auditLogService.log(currentUser, "GAME_DELETE_PERMANENT", "game", id, "Game permanently deleted by mod");
+        return "redirect:/mod/content/games";
+    }
+
+    @PostMapping("/content/translations/{id}/delete-permanent")
+    public String deleteTranslationPermanently(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        translationService.delete(id);
+        auditLogService.log(currentUser, "TRANSLATION_DELETE_PERMANENT", "translation", id, "Translation permanently deleted by mod");
+        return "redirect:/mod/content/translations";
+    }
+
+    @PostMapping("/content/releases/{id}/delete-permanent")
+    public String deleteReleasePermanently(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        releaseService.delete(id, currentUser);
+        auditLogService.log(currentUser, "TRANSLATION_DELETE_PERMANENT", "translation", id, "Translation permanently deleted by mod");
+        return "redirect:/mod/content/releases";
+    }
+
     @GetMapping("/logs")
     public String logs(
             @RequestParam(defaultValue = "0") int page,
@@ -375,68 +407,68 @@ public class ModerationController {
         switch (type) {
             case "game":
                 Game game = gameRepository.findById(id).orElseThrow();
-                result.put("title", game.getTitle());
-                result.put("developer", game.getDeveloper());
-                result.put("releaseYear", game.getReleaseYear());
-                result.put("genres", game.getGenres().stream().map(g -> g.getName()).toList());
-                result.put("description", game.getDescription());
-                result.put("createdBy", game.getCreatedBy().getUsername());
-                result.put("createdAt", game.getCreatedAt());
-                result.put("coverUrl", game.getCoverUrl());
-                result.put("backgroundUrl", game.getBackgroundUrl());
-                result.put("deleted", game.getDeletedAt() != null);
+                result.put("назва", game.getTitle());
+                result.put("распрацоўшчык", game.getDeveloper());
+                result.put("годВыпуску", game.getReleaseYear());
+                result.put("жанры", game.getGenres().stream().map(g -> g.getName()).toList());
+                result.put("апісанне", game.getDescription());
+                result.put("створанаКім", game.getCreatedBy().getUsername());
+                result.put("створанаКалі", game.getCreatedAt());
+                result.put("спасылкаНаВокладку", game.getCoverUrl());
+                result.put("спасылкаНаФон", game.getBackgroundUrl());
+                result.put("выдалена", game.getDeletedAt() != null);
                 break;
             case "translation":
                 Translation translation = translationRepository.findById(id).orElseThrow();
-                result.put("title", translation.getTitle());
-                result.put("game", translation.getGame().getTitle());
-                result.put("description", translation.getDescription());
-                result.put("status", translation.getStatus());
-                result.put("createdBy", translation.getCreatedBy().getUsername());
-                result.put("createdAt", translation.getCreatedAt());
-                result.put("deleted", translation.getDeletedAt() != null);
+                result.put("назва", translation.getTitle());
+                result.put("гульня", translation.getGame().getTitle());
+                result.put("апісанне", translation.getDescription());
+                result.put("статус", translation.getStatus());
+                result.put("створанаКім", translation.getCreatedBy().getUsername());
+                result.put("створанаКалі", translation.getCreatedAt());
+                result.put("выдалена", translation.getDeletedAt() != null);
                 break;
             case "release":
                 Release release = releaseRepository.findById(id).orElseThrow();
-                result.put("title", release.getTitle());
-                result.put("translation", release.getTranslation().getTitle());
-                result.put("game", release.getTranslation().getGame().getTitle());
-                result.put("description", release.getDescription());
-                result.put("fileUrl", release.getFileUrl());
-                result.put("status", release.getStatus());
-                result.put("createdBy", release.getCreatedBy().getUsername());
-                result.put("createdAt", release.getCreatedAt());
-                result.put("deleted", release.getDeletedAt() != null);
+                result.put("назва", release.getTitle());
+                result.put("пераклад", release.getTranslation().getTitle());
+                result.put("гульня", release.getTranslation().getGame().getTitle());
+                result.put("апісанне", release.getDescription());
+                result.put("спасылкаНаФайл", release.getFileUrl());
+                result.put("статус", release.getStatus());
+                result.put("створанаКім", release.getCreatedBy().getUsername());
+                result.put("створанаКалі", release.getCreatedAt());
+                result.put("выдалена", release.getDeletedAt() != null);
                 break;
             case "comment":
                 Comment comment = commentRepository.findById(id).orElseThrow();
-                result.put("body", comment.getBody());
-                result.put("translation", comment.getTranslation().getTitle());
-                result.put("game", comment.getTranslation().getGame().getTitle());
-                result.put("author", comment.getAuthor().getUsername());
-                result.put("createdAt", comment.getCreatedAt());
+                result.put("змест", comment.getBody());
+                result.put("пераклад", comment.getTranslation().getTitle());
+                result.put("гульня", comment.getTranslation().getGame().getTitle());
+                result.put("аўтар", comment.getAuthor().getUsername());
+                result.put("створанаКалі", comment.getCreatedAt());
                 break;
             case "issue":
                 Issue issue = issueRepository.findById(id).orElseThrow();
-                result.put("title", issue.getTitle());
-                result.put("description", issue.getDescription());
-                result.put("releaseTitle", issue.getReleaseTitle());
-                result.put("status", issue.getStatus());
-                result.put("translation", issue.getTranslation().getTitle());
-                result.put("game", issue.getTranslation().getGame().getTitle());
-                result.put("author", issue.getAuthor().getUsername());
-                result.put("createdAt", issue.getCreatedAt());
+                result.put("назва", issue.getTitle());
+                result.put("апісанне", issue.getDescription());
+                result.put("назваРэлізу", issue.getReleaseTitle());
+                result.put("статус", issue.getStatus());
+                result.put("пераклад", issue.getTranslation().getTitle());
+                result.put("гульня", issue.getTranslation().getGame().getTitle());
+                result.put("аўтар", issue.getAuthor().getUsername());
+                result.put("створанаКалі", issue.getCreatedAt());
                 break;
             case "report":
                 Complaint complaint = complaintRepository.findById(id).orElseThrow();
-                result.put("targetType", complaint.getTargetType());
-                result.put("targetId", complaint.getTargetId());
-                result.put("reason", complaint.getReason());
-                result.put("status", complaint.getStatus());
-                result.put("moderatorNote", complaint.getModeratorNote());
-                result.put("author", complaint.getAuthor().getUsername());
-                result.put("createdAt", complaint.getCreatedAt());
-                result.put("resolvedAt", complaint.getResolvedAt());
+                result.put("тыпСкаргі", complaint.getTargetType());
+                result.put("ідэнтыфікатарСкаргі", complaint.getTargetId());
+                result.put("прычына", complaint.getReason());
+                result.put("статус", complaint.getStatus());
+                result.put("нататкаМадэратара", complaint.getModeratorNote());
+                result.put("аўтар", complaint.getAuthor().getUsername());
+                result.put("створанаКалі", complaint.getCreatedAt());
+                result.put("вырашанаКалі", complaint.getResolvedAt());
                 break;
         }
         return result;

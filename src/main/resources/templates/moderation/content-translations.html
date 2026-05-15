@@ -58,15 +58,22 @@
                                 <i data-lucide="external-link"></i>
                             </a>
                             <form th:if="${t.deletedAt == null}" th:action="@{/mod/content/translations/{id}/delete(id=${t.id})}" method="post">
-                                <button type="submit" class="btn btn--danger btn--icon" title="Выдаліць">
-                                    <i data-lucide="trash-2"></i>
+                                <button type="submit" class="btn btn--danger btn--icon" title="Схаваць">
+                                    <i data-lucide="eye-off"></i>
                                 </button>
                             </form>
-                            <form th:if="${t.deletedAt != null}" th:action="@{/mod/content/translations/{id}/restore(id=${t.id})}" method="post">
-                                <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
-                                    <i data-lucide="rotate-ccw"></i>
-                                </button>
-                            </form>
+                            <div th:if="${t.deletedAt != null}" style="display: flex; gap: 0.4rem; align-items: center;">
+                                <form th:action="@{/mod/content/translations/{id}/restore(id=${t.id})}" method="post">
+                                    <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
+                                        <i data-lucide="rotate-ccw"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/mod/content/translations/{id}/delete-permanent(id=${t.id})}" method="post">
+                                    <button type="submit" class="btn btn--danger btn--icon" title="Выдаліць назаўсёды">
+                                        <i data-lucide="trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

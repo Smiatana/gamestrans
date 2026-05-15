@@ -28,6 +28,7 @@ public class UserService {
     private final TranslationMemberRepository translationMemberRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailService emailService;
+    
 
     public User register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail()))
@@ -83,8 +84,13 @@ public class UserService {
 
     @Transactional
     public void hardDelete(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()) {
+            fileStorageService.delete(user.getAvatarUrl());
+        }
         translationMemberRepository.deleteByUserId(id);
         userRepository.deleteById(id);
+
     }
 
     public void freeze(UUID id) {

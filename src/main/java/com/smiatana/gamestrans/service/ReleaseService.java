@@ -84,6 +84,27 @@ public class ReleaseService {
     }
 
     @Transactional
+    public void delete(UUID releaseId, User currentUser) {
+        Release release = releaseRepository.findById(releaseId).orElseThrow();
+        
+        if (release.getFileUrl() != null && !release.getFileUrl().isBlank()) {
+            try {
+                fileStorageService.delete(release.getFileUrl());
+            } catch (Exception e) {
+                auditLogService.log(currentUser, "FILE_DELETE_ERROR", "release", releaseId,
+                        "Failed to delete file: " + release.getFileUrl());
+            }
+        }
+        
+        releaseRepository.delete(release);
+        syncTranslationVisibility(release.getTranslation().getId());
+        
+        auditLogService.log(currentUser, "RELEASE_DELETE_PERMANENT", "release", releaseId,
+                "Release '" + release.getTitle() + "' permanently deleted by " + currentUser.getUsername());
+    }
+
+
+    @Transactional
     public Release approve(UUID releaseId, User moderator) {
         Release release = releaseRepository.findById(releaseId).orElseThrow();
         release.setStatus("published");
@@ -122,6 +143,7 @@ public class ReleaseService {
     public void softDelete(UUID releaseId, User moderator) {
         Release release = releaseRepository.findById(releaseId).orElseThrow();
         release.setStatus("deleted");
+        release.setDeletedAt(java.time.LocalDateTime.now());
         releaseRepository.save(release);
         syncTranslationVisibility(release.getTranslation().getId());
         auditLogService.log(moderator, "RELEASE_DELETE", "release", releaseId,

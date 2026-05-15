@@ -61,6 +61,19 @@
                 <button type="submit" class="btn btn--primary">Абнавіць</button>
             </div>
         </form>
+
+        <section class="form-card form-card--danger">
+            <h2>Небяспечная зона</h2>
+            <p class="text-muted">Выдаленне рэлізу немагчыма адмяніць. Гэтая аперацыя не можа быць адмененая.</p>
+            <form th:action="@{/g/{g}/t/{t}/r/{r}/delete(g=${release.translation.game.title}, t=${release.translation.title}, r=${release.title})}" 
+                  method="post" style="margin-top: 1.5rem;">
+                <input type="hidden" name="_method" value="delete" />
+                <button type="submit" class="btn btn--danger" 
+                        onclick="return confirm('Вы ўпэўнены? Рэліз будзе выдалены назаўсёды.')">
+                    Выдаліць рэліз
+                </button>
+            </form>
+        </section>
     </main>
 </body>
 

@@ -164,4 +164,24 @@ public class ReleaseController {
                 return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + createReleaseRequest.getTitle();
         }
 
+        @DeleteMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/delete")
+        public String deleteRelease(@PathVariable String gameTitle, 
+                                @PathVariable String transTitle,
+                                @PathVariable String releaseTitle) {
+                User currentUser = authService.getCurrentUser();
+                Translation translation = translationRepository
+                        .findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+                Release release = releaseRepository
+                        .findByTranslationIdAndTitle(translation.getId(), releaseTitle).orElseThrow();
+                
+                boolean isCreator = release.getCreatedBy().getId().equals(currentUser.getId());
+                if (!isCreator && !isStaff(currentUser)) {
+                        return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + releaseTitle;
+                }
+                
+                releaseService.delete(release.getId(), currentUser);
+                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r";
+        }
+
+
 }

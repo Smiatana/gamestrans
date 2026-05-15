@@ -41,12 +41,12 @@
                                 <p th:utext="${game.description}"></p>
                             </div>
                             <div th:if="${game.coverUrl}">
-                                <p><strong>Cover:</strong></p>
-                                <img th:src="${game.coverUrl}" alt="Cover" class="mod-item__preview-image" />
+                                <p><strong>Вокладка:</strong></p>
+                                <img th:src="${game.coverUrl}" alt="Вокладка" class="mod-item__preview-image" />
                             </div>
                             <div th:if="${game.backgroundUrl}">
-                                <p><strong>Background:</strong></p>
-                                <img th:src="${game.backgroundUrl}" alt="Background" class="mod-item__preview-image" />
+                                <p><strong>Фон:</strong></p>
+                                <img th:src="${game.backgroundUrl}" alt="Фон" class="mod-item__preview-image" />
                             </div>
                             <p th:if="${game.deletedAt != null}" class="badge badge--danger">Схавана</p>
                         </div>
@@ -65,11 +65,18 @@
                                     <i data-lucide="eye-off"></i>
                                 </button>
                             </form>
-                            <form th:if="${game.deletedAt != null}" th:action="@{/mod/content/games/{id}/restore(id=${game.id})}" method="post">
-                                <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
-                                    <i data-lucide="eye"></i>
-                                </button>
-                            </form>
+                            <div th:if="${game.deletedAt != null}" style="display: flex; gap: 0.4rem; align-items: center;">
+                                <form th:action="@{/mod/content/games/{id}/restore(id=${game.id})}" method="post">
+                                    <button type="submit" class="btn btn--success btn--icon" title="Аднавіць">
+                                        <i data-lucide="rotate-ccw"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/mod/content/games/{id}/delete-permanent(id=${game.id})}" method="post">
+                                    <button type="submit" class="btn btn--danger btn--icon" title="Выдаліць назаўсёды">
+                                        <i data-lucide="trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
