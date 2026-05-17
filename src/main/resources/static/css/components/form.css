@@ -94,6 +94,10 @@ select:focus {
   flex-wrap: wrap;
 }
 
+.form-select {
+  height: 54px;
+}
+
 @media (max-width: 640px) {
   .search-bar-row {
     flex-direction: column;

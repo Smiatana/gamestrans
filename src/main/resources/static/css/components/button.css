@@ -79,7 +79,8 @@
 /* Large Button */
 .btn--lg {
   padding: 1rem 2rem;
-  font-size: 1.1rem;
+  height: 54px;
+  font-size: 1rem;
 }
 
 /* Full Width Button */

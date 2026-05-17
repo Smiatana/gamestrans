@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Праблемы', ~{::main})}">
-
 <body>
     <main class="main-content">
         <header class="page-header">
@@ -12,28 +11,41 @@
             </div>
         </header>
 
-        <div class="card" th:if="${currentUser != null}">
-            <h2 style="margin-top: 0;">Паведаміць аб праблеме</h2>
-            <form th:action="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
-                th:object="${issueRequest}" method="post">
-                <div class="form-group">
-                    <label>Назва</label>
-                    <input type="text" th:field="*{title}" class="form-input">
-                    <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+        <div class="card" th:if="${currentUser != null}" style="padding: 0; overflow: hidden;">
+            <button type="button"
+                id="toggleFormBtn"
+                class="btn btn--outline"
+                onclick="toggleForm()">
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="message-circle"></i>
+                    <span>Паведаміць аб праблеме</span>
+                </span>
+                <i data-lucide="chevron-down" id="toggleIcon" style="transition: transform 0.3s ease;"></i>
+            </button>
+            <div id="collapsibleForm" style="display: none;">
+                <div style="padding: 1.5rem;">
+                    <form th:action="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
+                        th:object="${issueRequest}" method="post">
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" th:field="*{title}" class="form-input">
+                            <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Апісанне</label>
+                            <textarea th:field="*{description}" class="form-input" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Назва рэліза (неабавязкова)</label>
+                            <input type="text" th:field="*{releaseTitle}" class="form-input">
+                        </div>
+                        <button type="submit" class="btn btn--primary">Адправіць</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Апісанне</label>
-                    <textarea th:field="*{description}" class="form-input" rows="4"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Назва рэліза (неабавязкова)</label>
-                    <input type="text" th:field="*{releaseTitle}" class="form-input">
-                </div>
-                <button type="submit" class="btn btn--primary">Адправіць</button>
-            </form>
+            </div>
         </div>
 
-        <div class="issue-list" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="issue-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
             <div th:each="issue : ${issues}" class="card issue-item">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
                     <div>
@@ -73,7 +85,53 @@
                 </p>
             </div>
         </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('collapsibleForm');
+            const icon = document.getElementById('toggleIcon');
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+
+                if (icon) {
+                    icon.style.transform = 'rotate(180deg)';
+                }
+
+                localStorage.setItem('issueFormExpanded', 'true');
+            } else {
+                form.style.display = 'none';
+
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+
+                localStorage.setItem('issueFormExpanded', 'false');
+            }
+        }
+
+        (function () {
+            const form = document.getElementById('collapsibleForm');
+            const icon = document.getElementById('toggleIcon');
+            const isExpanded = localStorage.getItem('issueFormExpanded') === 'true';
+
+            if (!form) return;
+
+            if (isExpanded) {
+                form.style.display = 'block';
+
+                if (icon) {
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            } else {
+                form.style.display = 'none';
+
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            }
+        })();
+    </script>
     </main>
 </body>
-
 </html>

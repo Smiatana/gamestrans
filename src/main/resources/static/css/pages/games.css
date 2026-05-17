@@ -18,7 +18,7 @@
 }
 
 [data-theme="light"] .hero-game::before {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(248, 250, 252, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(221, 222, 255, 0.6) 30%, rgba(248, 250, 252, 0.95) 100%);
 }
 
 .hero-game .container {

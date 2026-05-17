@@ -20,8 +20,9 @@
                    class="form-input-main" placeholder="Назва гульні, распрацоўшчык..." autocomplete="off">
           </div>
           <div class="sort-select">
-            <label for="sort">Сартаваць па</label>
-            <select id="sort" name="sort" class="form-select" onchange="document.getElementById('filterForm').submit()">
+            <select id="sort" name="sort" class="form-select" 
+                    title="Сартаванне гульняў"
+                    onchange="document.getElementById('filterForm').submit()">
               <option value="latest" th:selected="${sort == null or sort == 'latest'}">Па даце</option>
               <option value="alphabet" th:selected="${sort == 'alphabet'}">Па алфавіце</option>
             </select>
