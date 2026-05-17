@@ -113,7 +113,7 @@ public class UserController {
 
         userService.update(user.getId(), editProfileRequest);
         auditLogService.log(currentUser, "USER_UPDATE", "user", user.getId(),
-                "Profile updated: " + user.getUsername());
+            "Профіль абноўлены: " + user.getUsername());
         return "redirect:/u/" + uriService.uri(editProfileRequest.getUsername());
     }
 
@@ -141,6 +141,8 @@ public class UserController {
         
         try {
             userService.changePassword(user.getId(), changePasswordRequest);
+            auditLogService.log(currentUser, "USER_PASSWORD_CHANGE", "user", user.getId(),
+                    "Пароль абноўлены карыстальнікам " + user.getUsername());
         } catch (IllegalArgumentException e) {
             model.addAttribute("user", user);
             model.addAttribute("currentUser", currentUser);
@@ -181,6 +183,8 @@ public class UserController {
 
         game.setDeletedAt(null);
         gameRepository.save(game);
+        auditLogService.log(currentUser, "GAME_RESTORE", "game", game.getId(),
+            "Гульня '" + game.getTitle() + "' адноўлена карыстальнікам " + currentUser.getUsername());
         return "redirect:/u/" + currentUser.getUsername();
     }
 
@@ -199,7 +203,7 @@ public class UserController {
 
         gameRepository.deleteById(game.getId());
         auditLogService.log(currentUser, "GAME_DELETE_PERMANENT", "game", game.getId(),
-                "Game permanently deleted: " + game.getTitle());
+            "Гульня '" + game.getTitle() + "' назаўсёды выдалена");
         return "redirect:/u/" + currentUser.getUsername();
     }
 

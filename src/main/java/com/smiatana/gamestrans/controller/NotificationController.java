@@ -28,6 +28,7 @@ public class NotificationController {
     private final MemberRequestService memberRequestService;
     private final NotificationRepository notificationRepository;
     private final AuthService authService;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     @GetMapping("/notifications")
     public String notificationsPage(@ModelAttribute("currentUser") User currentUser, Model model) {
@@ -54,6 +55,8 @@ public class NotificationController {
         if (notification.getUser().getEmail().equals(currentUser.getEmail())) {
             notification.setRead(true);
             notificationRepository.save(notification);
+            auditLogService.log(currentUser, "NOTIFICATION_READ", "notification", id,
+                    "Апавяшчэнне прачытана карыстальнікам " + currentUser.getUsername());
         }
         return "redirect:/notifications";
     }

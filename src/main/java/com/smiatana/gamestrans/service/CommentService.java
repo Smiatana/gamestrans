@@ -19,6 +19,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     public Comment create(CommentRequest req, User author, UUID translationId) {
         Comment comment = new Comment();
@@ -28,7 +29,10 @@ public class CommentService {
         if (req.getParentId() != null) {
             comment.setParent(commentRepository.findById(req.getParentId()).orElseThrow());
         }
-        return commentRepository.save(comment);
+        Comment saved = commentRepository.save(comment);
+        auditLogService.log(author, "COMMENT_CREATE", "comment", saved.getId(),
+                "Каментар дададзены карыстальнікам " + author.getUsername());
+        return saved;
     }
 
     public Comment update(UUID id, CommentRequest req, User currentUser) {
@@ -37,7 +41,10 @@ public class CommentService {
             throw new IllegalArgumentException("Няма правоў");
         }
         comment.setBody(req.getBody());
-        return commentRepository.save(comment);
+        Comment saved = commentRepository.save(comment);
+        auditLogService.log(currentUser, "COMMENT_UPDATE", "comment", saved.getId(),
+                "Каментар абноўлены карыстальнікам " + currentUser.getUsername());
+        return saved;
     }
 
     public void delete(UUID id, User currentUser, UUID translationId) {
@@ -49,5 +56,7 @@ public class CommentService {
             throw new IllegalArgumentException("Няма праоў");
         }
         commentRepository.deleteById(id);
+        auditLogService.log(currentUser, "COMMENT_DELETE", "comment", id,
+            "Каментар выдалены карыстальнікам " + currentUser.getUsername());
     }
 }

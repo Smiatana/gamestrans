@@ -39,6 +39,7 @@ public class TranslationService {
     private final CommentRepository commentRepository;
     private final RatingRepository ratingRepository;
     private final IssueRepository issueRepository;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
@@ -66,9 +67,9 @@ public class TranslationService {
         TranslationMember member = new TranslationMember();
         member.setTranslation(translation);
         member.setUser(currentUser);
-        member.setRole("owner");
-        translationMemberRepository.save(member);
-
+        Translation saved = translationRepository.save(translation);
+        auditLogService.log(currentUser, "TRANSLATION_CREATE", "translation", saved.getId(),
+                "Пераклад '" + saved.getTitle() + "' створаны карыстальнікам " + currentUser.getUsername());
         return translation;
     }
 
@@ -79,13 +80,14 @@ public class TranslationService {
         Translation translation = new Translation();
         translation.setTitle(req.getTitle());
         translation.setDescription(req.getDescription());
-        translation.setCreatedBy(currentUser);
+        Translation saved = translationRepository.save(translation);
+        auditLogService.log(currentUser, "TRANSLATION_ADD", "translation", saved.getId(),
+                "Пераклад '" + saved.getTitle() + "' дададзены карыстальнікам " + currentUser.getUsername());
         translation.setGame(game);
         translation.setStatus("draft");
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
-        member.setTranslation(translation);
         member.setUser(currentUser);
         member.setRole("owner");
         translationMemberRepository.save(member);
@@ -100,7 +102,6 @@ public class TranslationService {
         return translationRepository.findByGameTitle(title);
     }
 
-    @Transactional
     public Translation update(UUID id, AddTranslationRequest req) throws java.io.IOException {
         Translation translation = findById(id);
         translation.setTitle(req.getTitle());
@@ -112,7 +113,10 @@ public class TranslationService {
         } else {
             translation.setStatus(req.getStatus());
         }
-        return translationRepository.save(translation);
+        Translation saved = translationRepository.save(translation);
+        auditLogService.log(saved.getCreatedBy(), "TRANSLATION_UPDATE", "translation", saved.getId(),
+                "Пераклад '" + saved.getTitle() + "' абноўлены");
+        return saved;
     }
 
     @Transactional

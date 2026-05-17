@@ -48,6 +48,7 @@ public class TranslationController {
     private final RatingRepository ratingRepository;
     private final GenreRepository genreRepository;
     private final AuthService authService;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     private boolean isStaff(User user) {
         return user != null &&
@@ -250,6 +251,8 @@ public class TranslationController {
             return "redirect:/g/" + uriGameTitle + "/" + uriTransTitle;
 
         translationService.delete(translation.getId());
+        auditLogService.log(currentUser, "TRANSLATION_DELETE", "translation", translation.getId(),
+            "Пераклад '" + translation.getTitle() + "' выдалены карыстальнікам " + currentUser.getUsername());
         return "redirect:/";
     }
 

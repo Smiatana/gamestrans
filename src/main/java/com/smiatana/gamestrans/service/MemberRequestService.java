@@ -28,6 +28,7 @@ public class MemberRequestService {
     private final MemberRequestRepository memberRequestRepository;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     @Transactional
     public void sendInvite(UUID translationId, String fromEmail, String toUsername) {
@@ -56,6 +57,8 @@ public class MemberRequestService {
                 "translationTitle", translation.getTitle(),
                 "gameTitle", translation.getGame().getTitle(),
                 "fromUsername", fromUser.getUsername()));
+        auditLogService.log(fromUser, "MEMBER_REQUEST_SEND", "member_request", request.getId(),
+            "Запрашэнне на пераклад '" + translation.getTitle() + "' адпраўлена карыстальніку " + toUser.getUsername());
 
     }
 
@@ -84,6 +87,8 @@ public class MemberRequestService {
                 "translationTitle", request.getTranslation().getTitle(),
                 "gameTitle", request.getTranslation().getGame().getTitle(),
                 "username", request.getToUser().getUsername()));
+        auditLogService.log(request.getToUser(), "MEMBER_REQUEST_ACCEPT", "member_request", request.getId(),
+            "Запрашэнне прынята карыстальнікам " + request.getToUser().getUsername());
 
     }
 
@@ -106,6 +111,8 @@ public class MemberRequestService {
                 "translationTitle", request.getTranslation().getTitle(),
                 "gameTitle", request.getTranslation().getGame().getTitle(),
                 "username", request.getToUser().getUsername()));
+        auditLogService.log(request.getToUser(), "MEMBER_REQUEST_REJECT", "member_request", request.getId(),
+            "Запрашэнне адхілена карыстальнікам " + request.getToUser().getUsername());
     }
 
     @Transactional
@@ -122,6 +129,11 @@ public class MemberRequestService {
         notificationService.send(target, "kicked", Map.of(
                 "translationTitle", translation.getTitle(),
                 "gameTitle", translation.getGame().getTitle()));
+        User owner = userRepository.findByEmail(ownerEmail).orElse(null);
+        if (owner != null) {
+            auditLogService.log(owner, "MEMBER_KICK", "translation", translationId,
+                "Карыстальнік " + target.getUsername() + " выдалены з перакладу '" + translation.getTitle() + "' карыстальнікам " + owner.getUsername());
+        }
     }
 
     public List<MemberRequest> getPendingForUser(String email) {

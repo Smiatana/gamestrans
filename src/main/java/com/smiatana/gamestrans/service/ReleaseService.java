@@ -52,7 +52,7 @@ public class ReleaseService {
 
         Release saved = releaseRepository.save(release);
         auditLogService.log(currentUser, "RELEASE_CREATE", "release", saved.getId(),
-                "Release '" + saved.getTitle() + "' submitted for review");
+            "Рэліз '" + saved.getTitle() + "' адпраўлены на праверку");
         return saved;
     }
 
@@ -79,7 +79,7 @@ public class ReleaseService {
         Release saved = releaseRepository.save(release);
         syncTranslationVisibility(release.getTranslation().getId());
         auditLogService.log(currentUser, "RELEASE_UPDATE", "release", saved.getId(),
-                "Release '" + saved.getTitle() + "' updated and resubmitted for review");
+            "Рэліз '" + saved.getTitle() + "' абноўлены і паўторна адпраўлены на праверку");
         return saved;
     }
 
@@ -92,7 +92,7 @@ public class ReleaseService {
                 fileStorageService.delete(release.getFileUrl());
             } catch (Exception e) {
                 auditLogService.log(currentUser, "FILE_DELETE_ERROR", "release", releaseId,
-                        "Failed to delete file: " + release.getFileUrl());
+                    "Не ўдалося выдаліць файл: " + release.getFileUrl());
             }
         }
         
@@ -100,7 +100,7 @@ public class ReleaseService {
         syncTranslationVisibility(release.getTranslation().getId());
         
         auditLogService.log(currentUser, "RELEASE_DELETE_PERMANENT", "release", releaseId,
-                "Release '" + release.getTitle() + "' permanently deleted by " + currentUser.getUsername());
+            "Рэліз '" + release.getTitle() + "' назаўсёды выдалены карыстальнікам " + currentUser.getUsername());
     }
 
 
@@ -117,7 +117,7 @@ public class ReleaseService {
                 "gameTitle", release.getTranslation().getGame().getTitle()));
 
         auditLogService.log(moderator, "RELEASE_APPROVE", "release", saved.getId(),
-                "Release '" + saved.getTitle() + "' approved by " + moderator.getUsername());
+            "Рэліз '" + saved.getTitle() + "' зацверджаны мадэратарам " + moderator.getUsername());
         return saved;
     }
 
@@ -135,7 +135,7 @@ public class ReleaseService {
                 "note", note != null ? note : ""));
 
         auditLogService.log(moderator, "RELEASE_REJECT", "release", saved.getId(),
-                "Release '" + saved.getTitle() + "' rejected by " + moderator.getUsername());
+            "Рэліз '" + saved.getTitle() + "' адхілены мадэратарам " + moderator.getUsername());
         return saved;
     }
 
@@ -147,7 +147,7 @@ public class ReleaseService {
         releaseRepository.save(release);
         syncTranslationVisibility(release.getTranslation().getId());
         auditLogService.log(moderator, "RELEASE_DELETE", "release", releaseId,
-                "Release '" + release.getTitle() + "' deleted by " + moderator.getUsername());
+            "Рэліз '" + release.getTitle() + "' выдалены мадэратарам " + moderator.getUsername());
     }
 
     private void syncTranslationVisibility(UUID translationId) {

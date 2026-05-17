@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class RatingService {
     private final RatingRepository ratingRepository;
     private final TranslationRepository translationRepository;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
     private final TranslationMemberRepository translationMemberRepository;
 
     public Rating upsert(UUID translationId, User user, int stars) {
@@ -34,7 +35,10 @@ public class RatingService {
                     return r;
                 });
         rating.setStars(stars);
-        return ratingRepository.save(rating);
+        Rating saved = ratingRepository.save(rating);
+        auditLogService.log(user, "RATING_UPSERT", "rating", saved.getId(),
+            "Ацэнка " + stars + " зор(ак) дадзена карыстальнікам " + user.getUsername() + " для перакладу '" + saved.getTranslation().getTitle() + "'");
+        return saved;
     }
 
     public void delete(UUID translationId, User user) {
@@ -42,5 +46,7 @@ public class RatingService {
                 .findByTranslationIdAndUserId(translationId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Ацэнка не знойдзена"));
         ratingRepository.delete(rating);
+        auditLogService.log(user, "RATING_DELETE", "rating", rating.getId(),
+            "Ацэнка выдалена карыстальнікам " + user.getUsername() + " для перакладу '" + rating.getTranslation().getTitle() + "'");
     }
 }

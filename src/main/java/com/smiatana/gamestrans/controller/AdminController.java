@@ -50,7 +50,7 @@ public class AdminController {
         if (!isAdmin(currentUser))
             return "redirect:/";
         userService.setRole(id, "moderator");
-        auditLogService.log(currentUser, "USER_PROMOTE", "user", id, "User promoted to moderator");
+        auditLogService.log(currentUser, "USER_PROMOTE", "user", id, "Карыстальнік павышаны да мадэратара");
         return "redirect:/admin/moderators";
     }
 
@@ -60,7 +60,7 @@ public class AdminController {
         if (!isAdmin(currentUser))
             return "redirect:/";
         userService.setRole(id, "user");
-        auditLogService.log(currentUser, "USER_DEMOTE", "user", id, "Moderator demoted to user");
+        auditLogService.log(currentUser, "USER_DEMOTE", "user", id, "Мадэратар паніжаны да карыстальніка");
         return "redirect:/admin/moderators";
     }
 
@@ -98,7 +98,7 @@ public class AdminController {
             settings.setLogoUrl(url);
         }
         appSettingsRepository.save(settings);
-        auditLogService.log(currentUser, "SETTINGS_UPDATE", "settings", null, "App settings updated");
+        auditLogService.log(currentUser, "SETTINGS_UPDATE", "settings", null, "Налады прыкладання абноўлены");
         return "redirect:/admin/settings?saved";
     }
 }

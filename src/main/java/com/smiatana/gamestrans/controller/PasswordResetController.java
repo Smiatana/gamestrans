@@ -24,6 +24,7 @@ public class PasswordResetController {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     @GetMapping("/forgot-password")
     public String forgotPage() {
@@ -51,6 +52,8 @@ public class PasswordResetController {
                                 passwordResetTokenRepository.save(prt);
 
                                 emailService.sendPasswordReset(user.getEmail(), token);
+                                auditLogService.log(user, "PASSWORD_RESET_REQUEST", "user", user.getId(),
+                                    "Запыт на скід пароля адпраўлены карыстальніку " + user.getUsername());
                             });
         });
 
@@ -101,6 +104,8 @@ public class PasswordResetController {
 
         prt.setUsedAt(LocalDateTime.now());
         passwordResetTokenRepository.save(prt);
+        auditLogService.log(user, "PASSWORD_RESET", "user", user.getId(),
+            "Пароль абноўлены карыстальнікам " + user.getUsername());
 
         return "redirect:/login?passwordReset";
     }

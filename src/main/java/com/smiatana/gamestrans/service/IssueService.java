@@ -19,6 +19,7 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
+    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
 
     public Issue create(IssueRequest req, User author, UUID translationId) {
         Issue issue = new Issue();
@@ -27,7 +28,10 @@ public class IssueService {
         issue.setTitle(req.getTitle());
         issue.setDescription(req.getDescription());
         issue.setReleaseTitle(req.getReleaseTitle());
-        return issueRepository.save(issue);
+        Issue saved = issueRepository.save(issue);
+        auditLogService.log(author, "ISSUE_CREATE", "issue", saved.getId(),
+                "Праблема '" + saved.getTitle() + "' створана карыстальнікам " + author.getUsername());
+        return saved;
     }
 
     public Issue update(UUID id, IssueRequest req, User currentUser) {
@@ -37,7 +41,10 @@ public class IssueService {
         issue.setTitle(req.getTitle());
         issue.setDescription(req.getDescription());
         issue.setReleaseTitle(req.getReleaseTitle());
-        return issueRepository.save(issue);
+        Issue saved = issueRepository.save(issue);
+        auditLogService.log(currentUser, "ISSUE_UPDATE", "issue", saved.getId(),
+            "Праблема '" + saved.getTitle() + "' абноўлена карыстальнікам " + currentUser.getUsername());
+        return saved;
     }
 
     public Issue setStatus(UUID id, String status, User currentUser, UUID translationId) {
@@ -45,7 +52,10 @@ public class IssueService {
             throw new IllegalArgumentException("Няма правоў");
         Issue issue = issueRepository.findById(id).orElseThrow();
         issue.setStatus(status);
-        return issueRepository.save(issue);
+        Issue saved = issueRepository.save(issue);
+        auditLogService.log(currentUser, "ISSUE_STATUS", "issue", saved.getId(),
+            "Статус праблемы '" + saved.getTitle() + "' зменены на '" + status + "' карыстальнікам " + currentUser.getUsername());
+        return saved;
     }
 
     public void delete(UUID id, User currentUser, UUID translationId) {
@@ -56,5 +66,7 @@ public class IssueService {
         if (!isAuthor && !isMember)
             throw new IllegalArgumentException("Няма правоў");
         issueRepository.deleteById(id);
+        auditLogService.log(currentUser, "ISSUE_DELETE", "issue", id,
+            "Праблема выдалена карыстальнікам " + currentUser.getUsername());
     }
 }

@@ -86,7 +86,7 @@ public class GameService {
         gameRepository.deleteById(id);
         
         auditLogService.log(authService.getCurrentUser(), "GAME_DELETE_PERMANENT", "game", id, 
-                "Game '" + game.getTitle() + "' permanently deleted");
+            "Гульня '" + game.getTitle() + "' назаўсёды выдалена");
     }
 
     public Page<Game> findVisible(String email, String search, List<UUID> genreIds, Pageable pageable) {

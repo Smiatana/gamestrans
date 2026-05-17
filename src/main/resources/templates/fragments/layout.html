@@ -116,20 +116,99 @@
       }
     }
 
+    function getModPreviewLabel(type, key) {
+      const labels = {
+        game: {
+          title: 'Назва',
+          developer: 'Студыя',
+          releaseYear: 'Год',
+          genres: 'Жанры',
+          description: 'Апісанне',
+          createdBy: 'Аўтар',
+          createdAt: 'Створана',
+          coverUrl: 'Вокладка',
+          backgroundUrl: 'Фон',
+          deleted: 'Схавана',
+        },
+        translation: {
+          title: 'Назва',
+          game: 'Гульня',
+          description: 'Апісанне',
+          status: 'Статус',
+          createdBy: 'Аўтар',
+          createdAt: 'Створана',
+          deleted: 'Схавана',
+        },
+        release: {
+          title: 'Назва',
+          translation: 'Пераклад',
+          game: 'Гульня',
+          description: 'Апісанне',
+          fileUrl: 'Файл',
+          status: 'Статус',
+          createdBy: 'Аўтар',
+          createdAt: 'Створана',
+          deleted: 'Схавана',
+        },
+        comment: {
+          body: 'Тэкст',
+          translation: 'Пераклад',
+          game: 'Гульня',
+          author: 'Аўтар',
+          createdAt: 'Створана',
+        },
+        issue: {
+          title: 'Назва',
+          description: 'Апісанне',
+          releaseTitle: 'Выпуск',
+          status: 'Статус',
+          translation: 'Пераклад',
+          game: 'Гульня',
+          author: 'Аўтар',
+          createdAt: 'Створана',
+        },
+        report: {
+          targetType: 'Тып аб’екта',
+          targetId: 'ID аб’екта',
+          reason: 'Прычына',
+          status: 'Статус',
+          moderatorNote: 'Нататка модэратара',
+          author: 'Аўтар',
+          createdAt: 'Створана',
+          resolvedAt: 'Вырашана',
+        },
+      };
+      return (labels[type] && labels[type][key]) || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    }
+
+    function getModPreviewTypeLabel(type) {
+      return {
+        game: 'Гульня',
+        translation: 'Пераклад',
+        release: 'Рэліз',
+        comment: 'Каментар',
+        issue: 'Праблема',
+        report: 'Скарга',
+      }[type] || type.charAt(0).toUpperCase() + type.slice(1);
+    }
+
     function generateModalContent(type, data) {
-      let html = `<h3>${type.charAt(0).toUpperCase() + type.slice(1)}</h3>`;
+      let html = `<h3>${getModPreviewTypeLabel(type)}</h3>`;
       for (const [key, value] of Object.entries(data)) {
         if (value != null) {
+          const label = getModPreviewLabel(type, key);
           if (key === 'coverUrl' || key === 'backgroundUrl') {
-            html += `<p><strong>${key}:</strong></p><img src="${value}" alt="${key}" class="mod-item__preview-image" />`;
+            html += `<p><strong>${label}:</strong></p><img src="${value}" alt="${label}" class="mod-item__preview-image" />`;
           } else if (key === 'genres' && Array.isArray(value)) {
-            html += `<p><strong>Genres:</strong> ${value.map(g => `<span class="badge badge--light">${g}</span>`).join(' ')}</p>`;
-          } else if (key === 'createdAt') {
-            html += `<p><strong>Created:</strong> ${new Date(value).toLocaleString('be-BY')}</p>`;
+            html += `<p><strong>${label}:</strong> ${value.map(g => `<span class="badge badge--light">${g}</span>`).join(' ')}</p>`;
+          } else if (key === 'createdAt' || key === 'resolvedAt') {
+            html += `<p><strong>${label}:</strong> ${new Date(value).toLocaleString('be-BY')}</p>`;
           } else if (key === 'deleted') {
-            if (value) html += `<p class="badge badge--danger">Hidden</p>`;
+            if (value) {
+              html += `<p class="badge badge--danger">${label}</p>`;
+            }
           } else {
-            html += `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</strong> ${value}</p>`;
+            html += `<p><strong>${label}:</strong> ${value}</p>`;
           }
         }
       }

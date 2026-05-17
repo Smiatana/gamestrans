@@ -14,6 +14,7 @@ import com.smiatana.gamestrans.repository.ConfirmationTokenRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.service.EmailService;
 import com.smiatana.gamestrans.service.UserService;
+import com.smiatana.gamestrans.service.AuditLogService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AuthController {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final AuditLogService auditLogService;
 
   @GetMapping("/whoami")
     @ResponseBody
@@ -48,7 +50,8 @@ public class AuthController {
         if (binding.hasErrors())
             return "auth/register";
         try {
-            userService.register(registerRequest);
+            var created = userService.register(registerRequest);
+            auditLogService.log(created, "USER_REGISTER", "user", created.getId(), "Карыстальнік зарэгістраваны: " + created.getUsername());
             return "redirect:/confirm?email=" + registerRequest.getEmail();
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -88,6 +91,7 @@ public class AuthController {
 
         user.setStatus("active");
         userRepository.save(user);
+        auditLogService.log(user, "USER_CONFIRM", "user", user.getId(), "Карыстальнік пацверджаны: " + user.getUsername());
 
         confirmationTokenRepository.delete(token);
 

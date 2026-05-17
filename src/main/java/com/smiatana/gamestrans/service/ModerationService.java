@@ -41,8 +41,8 @@ public class ModerationService {
 
         emailService.sendBanNotification(target);
         auditLogService.log(moderator, "USER_BAN", "user", targetId,
-                "User '" + target.getUsername() + "' banned by " + moderator.getUsername()
-                        + (durationDays != null ? " for " + durationDays + " days" : " permanently"));
+                "Карыстальнік '" + target.getUsername() + "' заблакаваны мадэратарам " + moderator.getUsername()
+                        + (durationDays != null ? " на " + durationDays + " дзён" : " назаўжды"));
     }
 
     @Transactional
@@ -54,7 +54,7 @@ public class ModerationService {
         target.setBanNote(null);
         userRepository.save(target);
         auditLogService.log(moderator, "USER_UNBAN", "user", targetId,
-                "User '" + target.getUsername() + "' unbanned by " + moderator.getUsername());
+                "Карыстальнік '" + target.getUsername() + "' разблакаваны мадэратарам " + moderator.getUsername());
     }
 
     @Transactional
@@ -73,7 +73,7 @@ public class ModerationService {
 
         emailService.sendWarningNotification(target, reason);
         auditLogService.log(moderator, "USER_WARN", "user", targetId,
-                "User '" + target.getUsername() + "' warned by " + moderator.getUsername());
+                "Карыстальнік '" + target.getUsername() + "' папярэджаны мадэратарам " + moderator.getUsername());
     }
 
     @Transactional
@@ -86,7 +86,10 @@ public class ModerationService {
         complaint.setTargetType(targetType);
         complaint.setTargetId(targetId);
         complaint.setReason(reason);
-        return complaintRepository.save(complaint);
+        Complaint saved = complaintRepository.save(complaint);
+        auditLogService.log(author, "REPORT_CREATE", "report", saved.getId(),
+                "Паведамленне пра '" + targetType + "' створана карыстальнікам " + author.getUsername());
+        return saved;
     }
 
     @Transactional
@@ -105,7 +108,7 @@ public class ModerationService {
                 "reason", reason != null ? reason : ""));
 
         auditLogService.log(moderator, "REPORT_RESOLVE", "report", complaintId,
-                "Report resolved as '" + decision + "' by " + moderator.getUsername());
+                "Паведамленне пазначана як '" + decision + "' мадэратарам " + moderator.getUsername());
         return complaint;
     }
 
@@ -113,6 +116,6 @@ public class ModerationService {
     public void deleteReport(UUID complaintId, User moderator) {
         complaintRepository.deleteById(complaintId);
         auditLogService.log(moderator, "REPORT_DELETE", "report", complaintId,
-                "Report deleted by " + moderator.getUsername());
+                "Паведамленне выдалена мадэратарам " + moderator.getUsername());
     }
 }
