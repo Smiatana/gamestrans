@@ -17,12 +17,14 @@ import com.smiatana.gamestrans.dto.ChangePasswordRequest;
 import com.smiatana.gamestrans.dto.EditProfileRequest;
 import com.smiatana.gamestrans.entity.Game;
 import com.smiatana.gamestrans.entity.User;
+import com.smiatana.gamestrans.entity.Subscription;
 import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.repository.WarningRepository;
 import com.smiatana.gamestrans.service.AuditLogService;
 import com.smiatana.gamestrans.service.AuthService;
+import com.smiatana.gamestrans.service.SubscriptionService;
 import com.smiatana.gamestrans.service.UriService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,7 @@ public class UserController {
     private final AuditLogService auditLogService;
     private final UriService uriService;
     private final AuthService authService;
+    private final SubscriptionService subscriptionService;
 
     @GetMapping("/u/{username}")
     public String show(@PathVariable String username, Model model) {
@@ -74,6 +77,23 @@ public class UserController {
 
         long warningCount = isOwner ? warningRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).size() : 0;
         model.addAttribute("warningCount", warningCount);
+
+        boolean isSubscribedToUser = subscriptionService.isSubscribed(
+        currentUser, SubscriptionService.TYPE_USER, user.getId());
+        model.addAttribute("isSubscribedToUser", isSubscribedToUser);
+
+        long subscriberCount = subscriptionService.countSubscribersOfUser(user.getId());
+        model.addAttribute("subscriberCount", subscriberCount);
+        
+        if (isOwner) {
+            List<Subscription> mySubscribers = subscriptionService.getSubscribersOfUser(user.getId());
+            model.addAttribute("mySubscribers", mySubscribers);
+        
+            List<Subscription> mySubscriptions = subscriptionService.getSubscriptionsOf(user);
+            model.addAttribute("mySubscriptions", mySubscriptions);
+        }
+
+
 
         return "users/show";
     }

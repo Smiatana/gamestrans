@@ -12,6 +12,7 @@
 @import 'pages/users.css';
 @import 'pages/releases.css';
 @import 'pages/moderation.css';
+@import 'components/subscription.css';
 
 /* Page Header */
 .page-header { 

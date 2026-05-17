@@ -25,6 +25,7 @@ public class ReleaseService {
     private final TranslationRepository translationRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
+    private final SubscriptionService subscriptionService;
 
     @Transactional
     public Release create(CreateReleaseRequest req, User currentUser, Translation translation) throws IOException {
@@ -118,6 +119,10 @@ public class ReleaseService {
 
         auditLogService.log(moderator, "RELEASE_APPROVE", "release", saved.getId(),
             "Рэліз '" + saved.getTitle() + "' зацверджаны мадэратарам " + moderator.getUsername());
+        
+        if ("published".equals(release.getStatus())) {
+            subscriptionService.notifySubscribersOfNewRelease(release);
+        }
         return saved;
     }
 

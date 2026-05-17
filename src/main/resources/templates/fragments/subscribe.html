@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="button(type, targetId, isSubscribed, subscriberCount)">
+
+    <div class="subscribe-wrap" th:if="${currentUser != null}">
+
+        <form th:if="${isSubscribed}"
+              th:action="@{/unsubscribe/{type}/{id}(type=${type},id=${targetId})}"
+              method="post">
+            <button type="submit" class="btn btn--outline btn--sm subscribe-btn subscribe-btn--active">
+                <i data-lucide="bell-off"></i>
+                <span>Адпісацца</span>
+            </button>
+        </form>
+
+        <form th:unless="${isSubscribed}"
+              th:action="@{/subscribe/{type}/{id}(type=${type},id=${targetId})}"
+              method="post">
+            <button type="submit" class="btn btn--outline btn--sm subscribe-btn">
+                <i data-lucide="bell-plus"></i>
+                <span>Падпісацца</span>
+            </button>
+        </form>
+
+        <span th:if="${subscriberCount > 0}"
+              class="subscribe-count text-muted text-sm"
+              th:text="${subscriberCount} + ' падпісчыкаў'">
+        </span>
+    </div>
+
+</th:block>
+
+</body>
+</html>

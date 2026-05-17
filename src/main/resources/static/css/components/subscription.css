@@ -1,0 +1,150 @@
+/* =============================================================
+   subscription.css
+   Import in main.css: @import 'components/subscription.css';
+   ============================================================= */
+
+/* ── Subscribe button wrapper ───────────────────────────────── */
+
+.subscribe-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.subscribe-count {
+  white-space: nowrap;
+}
+
+/* ── Subscribe / Unsubscribe button states ──────────────────── */
+
+.subscribe-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.subscribe-btn:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+/* Active = already subscribed → muted bell-off style */
+.subscribe-btn--active {
+  color: var(--clr-text-muted);
+  border-color: var(--clr-border);
+}
+
+.subscribe-btn--active:hover {
+  color: var(--clr-danger);
+  border-color: var(--clr-danger);
+}
+
+/* ── Profile: subscriber list ───────────────────────────────── */
+
+.subscriber-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subscriber-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.subscriber-item__info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.subscriber-item__avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--clr-surface-hover);
+  border: 1px solid var(--clr-border);
+}
+
+.subscriber-item__avatar--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text-dim);
+}
+
+.subscriber-item__name {
+  font-weight: 600;
+  color: var(--clr-text);
+  display: block;
+  line-height: 1.3;
+}
+
+.subscriber-item__name:hover {
+  color: var(--clr-primary);
+}
+
+.btn--danger-hover:hover {
+  border-color: var(--clr-danger);
+  color: var(--clr-danger);
+}
+
+.subscriptions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subscription-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.subscription-item__icon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--clr-primary-alpha);
+  color: var(--clr-primary);
+  flex-shrink: 0;
+}
+
+.subscription-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.subscription-item__name {
+  font-weight: 600;
+  color: var(--clr-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subscription-item__name:hover {
+  color: var(--clr-primary);
+}
+
+.text-upper {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

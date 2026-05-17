@@ -20,7 +20,7 @@ public class Subscription {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User subscriber;
 
     @Column(nullable = false)
     private String targetType;

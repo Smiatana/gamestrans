@@ -2,14 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html(${game.title}, ~{::main})}">
 <body>
     <main>
-        <div class="hero-game" th:style="${game.backgroundUrl} ? 'background-image: url(' + ${game.backgroundUrl} + ')' : ''">
+        <div class="hero-game"
+             th:style="${game.backgroundUrl} ? 'background-image: url(' + ${game.backgroundUrl} + ')' : ''">
             <div class="container">
                 <nav class="breadcrumb">
                     <a th:href="@{/}">Бібліятэка</a>
                     <i data-lucide="chevron-right"></i>
                     <span th:text="${game.title}"></span>
                 </nav>
-                
+
                 <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;">
                     <div>
                         <h1 style="margin-top: 0;" th:text="${game.title}"></h1>
@@ -24,21 +25,31 @@
                             </span>
                         </div>
                     </div>
-                    
-                    <div style="display: flex; gap: 0.75rem; flex-direction: column;">
-                        <a th:if="${isOwnerOfAny}" th:href="@{/g/{title}/edit(title=${game.title})}" class="btn btn--primary" style="white-space: nowrap;">
+
+                    <div style="display: flex; gap: 0.75rem; flex-direction: column; align-items: flex-end;">
+                        <a th:if="${isOwnerOfAny}"
+                           th:href="@{/g/{title}/edit(title=${game.title})}"
+                           class="btn btn--primary" style="white-space: nowrap;">
                             <i data-lucide="edit-3"></i> Рэдагаваць
                         </a>
+
+                        <th:block th:if="${currentUser != null}">
+                            <div th:replace="~{fragments/subscribe :: button(
+                                    'game',
+                                    ${game.id},
+                                    ${isSubscribedToGame},
+                                    ${gameSubscriberCount})}">
+                            </div>
+                        </th:block>
+
                         <div th:replace="~{fragments/report :: button('game', ${game.id})}"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <div class="content-grid">
-                <!-- Main Column -->
                 <div class="content-main">
                     <section class="card detail-section">
                         <h2 class="card__title"><i data-lucide="info"></i> Апісанне</h2>
@@ -48,13 +59,17 @@
                     <section class="detail-section">
                         <div class="section-heading">
                             <h2>Пераклады</h2>
-                            <a th:if="${currentUser}" th:href="@{/g/{title}/t/add(title=${game.title})}" class="btn btn--primary btn--sm">
+                            <a th:if="${currentUser}"
+                               th:href="@{/g/{title}/t/add(title=${game.title})}"
+                               class="btn btn--primary btn--sm">
                                 <i data-lucide="plus"></i> Новы пераклад
                             </a>
                         </div>
 
                         <div class="list-container">
-                            <div th:if="${#lists.isEmpty(translations)}" class="card" style="padding: 2rem; text-align: center; color: var(--clr-text-muted);">
+                            <div th:if="${#lists.isEmpty(translations)}"
+                                 class="card"
+                                 style="padding: 2rem; text-align: center; color: var(--clr-text-muted);">
                                 Перакладаў пакуль няма
                             </div>
                             <div th:each="translation : ${translations}" class="card list-item-card">
@@ -63,21 +78,26 @@
                                     <div class="item-meta">
                                         <i data-lucide="users"></i>
                                         <span th:each="member, iter : ${membersMap.get(translation.id)}">
-                                            <a th:href="@{/u/{n}(n=${member.user.username})}" th:text="${member.user.username}"></a>
+                                            <a th:href="@{/u/{n}(n=${member.user.username})}"
+                                               th:text="${member.user.username}"></a>
                                             <span th:if="!${iter.last}">, </span>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="item-side">
-                                    <span class="rating-badge" th:if="${ratingsMap.containsKey(translation.id)}">
-                                        <i data-lucide="star"></i> <span th:text="${ratingsMap.get(translation.id)}"></span>
+                                    <span class="rating-badge"
+                                          th:if="${ratingsMap.containsKey(translation.id)}">
+                                        <i data-lucide="star"></i>
+                                        <span th:text="${ratingsMap.get(translation.id)}"></span>
                                     </span>
-                                    <a th:if="${latestReleasesMap.get(translation.id)?.fileUrl != null}" 
-                                        th:href="${latestReleasesMap.get(translation.id).fileUrl}" target="_blank" 
-                                        class="btn btn--outline btn--sm" title="Спампаваць">
+                                    <a th:if="${latestReleasesMap.get(translation.id)?.fileUrl != null}"
+                                       th:href="${latestReleasesMap.get(translation.id).fileUrl}"
+                                       target="_blank"
+                                       class="btn btn--outline btn--sm" title="Спампаваць">
                                         <i data-lucide="download"></i>
                                     </a>
-                                    <a th:href="@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}" class="btn btn--outline btn--sm">
+                                    <a th:href="@{/g/{title}/t/{id}(title=${game.title}, id=${translation.title})}"
+                                       class="btn btn--outline btn--sm">
                                         Дэталі <i data-lucide="arrow-right"></i>
                                     </a>
                                 </div>
@@ -86,12 +106,14 @@
                     </section>
                 </div>
 
-                <!-- Sidebar -->
                 <aside class="content-sidebar">
                     <div class="card cover-card">
-                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="sidebar-cover" alt="Вокладка">
+                        <img th:if="${game.coverUrl}"
+                             th:src="${game.coverUrl}"
+                             class="sidebar-cover" alt="Вокладка">
                         <div class="genre-list">
-                            <span th:each="g : ${game.genres}" class="badge-tag" th:text="${g.name}"></span>
+                            <span th:each="g : ${game.genres}"
+                                  class="badge-tag" th:text="${g.name}"></span>
                         </div>
                     </div>
                 </aside>

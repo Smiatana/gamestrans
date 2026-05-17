@@ -13,14 +13,23 @@
                 </div>
                 <div class="page-header__actions">
                     <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
-                        class="btn btn--outline">Праблемы</a>
+                       class="btn btn--outline">Праблемы</a>
                     <a th:if="${isOwner}"
-                        th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
-                        class="btn btn--outline">Рэдагаваць</a>
+                       th:href="@{/g/{title}/t/{tid}/edit(title=${translation.game.title}, tid=${translation.title})}"
+                       class="btn btn--outline">Рэдагаваць</a>
                     <a th:if="${!#lists.isEmpty(releases) and releases[0].fileUrl != null}"
-                        th:href="${releases[0].fileUrl}" target="_blank" class="btn btn--primary">
+                       th:href="${releases[0].fileUrl}" target="_blank" class="btn btn--primary">
                         <i data-lucide="download"></i> Спампаваць
                     </a>
+                    <th:block th:if="${currentUser != null}">
+                        <div th:replace="~{fragments/subscribe :: button(
+                                'translation',
+                                ${translation.id},
+                                ${isSubscribedToTranslation},
+                                ${translationSubscriberCount})}">
+                        </div>
+                    </th:block>
+
                     <div th:replace="~{fragments/report :: button('translation', ${translation.id})}"></div>
                 </div>
             </header>
@@ -45,31 +54,35 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
                             <h2 style="margin: 0;">Рэлізы</h2>
                             <a th:if="${isOwner || isMember}"
-                                th:href="@{/releases/new(translationId=${translation.id})}"
-                                class="btn btn--primary btn--sm">Новы рэліз</a>
+                               th:href="@{/releases/new(translationId=${translation.id})}"
+                               class="btn btn--primary btn--sm">Новы рэліз</a>
                         </div>
-                        <div th:if="${#lists.isEmpty(releases)}" style="padding: 2rem; text-align: center; color: var(--clr-text-muted);">
+                        <div th:if="${#lists.isEmpty(releases)}"
+                             style="padding: 2rem; text-align: center; color: var(--clr-text-muted);">
                             Рэлізаў пакуль няма
                         </div>
                         <div class="release-list" th:unless="${#lists.isEmpty(releases)}">
                             <a th:each="release : ${releases}"
-                                th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
-                                class="release-item"
-                                th:classappend="${release.status == 'draft' or release.status == 'on_review'} ? ' release-item--draft' : ''">
+                               th:href="@{/g/{g}/t/{t}/r/{r}(g=${translation.game.title}, t=${translation.title}, r=${release.title})}"
+                               class="release-item"
+                               th:classappend="${release.status == 'draft' or release.status == 'on_review'} ? ' release-item--draft' : ''">
                                 <div class="release-item__info">
                                     <span class="release-item__title" th:text="${release.title}"></span>
-                                    <span th:if="${release.status == 'on_review'}" class="badge badge--review">На разглядзе</span>
+                                    <span th:if="${release.status == 'on_review'}"
+                                          class="badge badge--review">На разглядзе</span>
                                     <span class="text-muted text-sm"
-                                        th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                                          th:text="${#temporals.format(release.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
                                 </div>
                                 <span class="release-item__arrow">→</span>
                             </a>
                         </div>
-                        <div th:if="${hasMoreReleases}" style="padding-top: 1rem; border-top: 1px solid var(--clr-border); margin-top: 1rem;">
+                        <div th:if="${hasMoreReleases}"
+                             style="padding-top: 1rem; border-top: 1px solid var(--clr-border); margin-top: 1rem;">
                             <a th:href="@{/g/{g}/t/{t}/r(g=${translation.game.title}, t=${translation.title})}"
-                                class="btn btn--outline btn--sm">Усе рэлізы</a>
+                               class="btn btn--outline btn--sm">Усе рэлізы</a>
                         </div>
                     </div>
+
                     <div class="comments-wrapper">
                         <div th:replace="~{fragments/comments :: section(${translation}, ${currentUser}, ${rootComments}, ${replies}, ${commentRequest}, ${isMember})}"></div>
                     </div>
@@ -78,9 +91,13 @@
                 <div class="content-sidebar">
                     <div class="card">
                         <h2 style="margin-top: 0; margin-bottom: 1rem;">Удзельнікі</h2>
-                        <ul class="member-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
-                            <li th:each="member : ${members}" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-                                <a th:text="${member.user.username}" th:href="@{/u/{u}(u=${member.user.username})}" style="color: var(--clr-primary);"></a>
+                        <ul class="member-list"
+                            style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+                            <li th:each="member : ${members}"
+                                style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                                <a th:text="${member.user.username}"
+                                   th:href="@{/u/{u}(u=${member.user.username})}"
+                                   style="color: var(--clr-primary);"></a>
                                 <span class="badge" th:text="${member.role}"></span>
                             </li>
                         </ul>
@@ -89,27 +106,32 @@
                     <div class="card">
                         <h2 style="margin-top: 0; margin-bottom: 1rem;">Ацэнка</h2>
                         <div th:if="${avgRating != null}">
-                            <span class="rating-stars" style="font-size: 1.5rem; font-weight: 700; color: var(--clr-primary);" th:text="${avgRating} + ' ★'"></span>
-                            <span class="text-muted text-sm" th:text="'(' + ${ratingCount} + ' ацэн.)'"></span>
+                            <span class="rating-stars"
+                                  style="font-size: 1.5rem; font-weight: 700; color: var(--clr-primary);"
+                                  th:text="${avgRating} + ' ★'"></span>
+                            <span class="text-muted text-sm"
+                                  th:text="'(' + ${ratingCount} + ' ацэн.)'"></span>
                         </div>
                         <p th:unless="${avgRating != null}" class="text-muted">Ацэнак пакуль няма</p>
                         <div th:if="${currentUser != null and !isMember and !isOwner}">
                             <form th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
-                                method="post" style="margin-top: 1rem;">
-                                <div class="star-picker" style="display: flex; gap: 0.5rem; font-size: 1.5rem;">
+                                  method="post" style="margin-top: 1rem;">
+                                <div class="star-picker"
+                                     style="display: flex; gap: 0.5rem; font-size: 1.5rem;">
                                     <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                                        <button type="submit" name="stars" th:value="${i}" class="star-btn"
-                                            style="background: none; border: none; cursor: pointer; color: var(--clr-text-dim); padding: 0; transition: var(--transition);"
-                                            th:classappend="${userRating != null and userRating.stars >= i} ? 'star-btn--active' : ''">★</button>
+                                        <button type="submit" name="stars" th:value="${i}"
+                                                class="star-btn"
+                                                style="background: none; border: none; cursor: pointer; color: var(--clr-text-dim); padding: 0; transition: var(--transition);"
+                                                th:classappend="${userRating != null and userRating.stars >= i} ? 'star-btn--active' : ''">★</button>
                                     </th:block>
                                 </div>
                             </form>
                             <form th:if="${userRating != null}"
-                                th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
-                                method="post"
-                                style="margin-top: 1rem;">
+                                  th:action="@{/g/{g}/t/{t}/rating(g=${translation.game.title},t=${translation.title})}"
+                                  method="post" style="margin-top: 1rem;">
                                 <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn--outline btn--sm" style="width: 100%;">Выдаліць ацэнку</button>
+                                <button type="submit" class="btn btn--outline btn--sm"
+                                        style="width: 100%;">Выдаліць ацэнку</button>
                             </form>
                         </div>
                     </div>

@@ -24,6 +24,7 @@ import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.service.AuthService;
 import com.smiatana.gamestrans.service.GameService;
+import com.smiatana.gamestrans.service.SubscriptionService;
 import com.smiatana.gamestrans.service.UriService;
 
 import jakarta.validation.Valid;
@@ -51,6 +52,7 @@ public class GameController {
     private final UriService uriService;
     private final RatingRepository ratingRepository;
     private final AuthService authService;
+    private final SubscriptionService subscriptionService;
 
     private boolean isStaff(User user) {
         return user != null &&
@@ -178,6 +180,12 @@ public class GameController {
             }
         }
         model.addAttribute("isMemberMap", isMemberMap);
+
+        model.addAttribute("gameSubscriberCount",
+        subscriptionService.countSubscribersOfGame(game.getId()));
+        model.addAttribute("isSubscribedToGame",
+        subscriptionService.isSubscribed(currentUser,
+        SubscriptionService.TYPE_GAME, game.getId()));
 
         return "games/show";
     }

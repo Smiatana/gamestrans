@@ -27,7 +27,9 @@ import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
+import com.smiatana.gamestrans.service.AuditLogService;
 import com.smiatana.gamestrans.service.AuthService;
+import com.smiatana.gamestrans.service.SubscriptionService;
 import com.smiatana.gamestrans.service.TranslationService;
 import com.smiatana.gamestrans.service.UriService;
 
@@ -48,7 +50,8 @@ public class TranslationController {
     private final RatingRepository ratingRepository;
     private final GenreRepository genreRepository;
     private final AuthService authService;
-    private final com.smiatana.gamestrans.service.AuditLogService auditLogService;
+    private final AuditLogService auditLogService;
+    private final SubscriptionService subscriptionService;
 
     private boolean isStaff(User user) {
         return user != null &&
@@ -190,6 +193,12 @@ public class TranslationController {
         model.addAttribute("avgRating", avgRating.map(d -> Math.round(d * 10.0) / 10.0).orElse(null));
         model.addAttribute("ratingCount", ratingCount);
         model.addAttribute("userRating", userRating);
+
+        model.addAttribute("translationSubscriberCount",
+        subscriptionService.countSubscribersOfTranslation(translation.getId()));
+        model.addAttribute("isSubscribedToTranslation",
+        subscriptionService.isSubscribed(currentUser,
+        SubscriptionService.TYPE_TRANSLATION, translation.getId()));
 
         return "translations/show";
     }
