@@ -55,6 +55,10 @@ public class SubscriptionService {
     public List<Subscription> getSubscriptionsOf(User user) {
         return subscriptionRepository.findBySubscriberOrderByCreatedAtDesc(user);
     }
+
+    public List<Subscription> getSubscriptionsOfType(User user, String targetType) {
+        return subscriptionRepository.findBySubscriberAndTargetTypeOrderByCreatedAtDesc(user, targetType);
+    }
  
     public List<Subscription> getSubscribersOfUser(UUID userId) {
         return subscriptionRepository.findByTargetTypeAndTargetId(TYPE_USER, userId);

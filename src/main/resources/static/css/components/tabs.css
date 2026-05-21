@@ -1,0 +1,78 @@
+.tabs {
+  position: relative;
+}
+
+.tab-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.tab-labels {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--clr-border);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--clr-text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tab-label:hover {
+  color: var(--clr-text);
+}
+
+.tab-label .badge {
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
+}
+
+#tab-subscribers:checked ~ .tab-labels [for="tab-subscribers"],
+#tab-subscriptions:checked ~ .tab-labels [for="tab-subscriptions"] {
+  color: var(--clr-primary);
+  border-bottom-color: var(--clr-primary);
+}
+
+.tab-content {
+  display: none;
+}
+
+#tab-games:checked ~ #content-games,
+#tab-subscribers:checked ~ #content-subscribers,
+#tab-subscriptions:checked ~ #content-subscriptions {
+  display: block;
+}
+
+.tab-label__icon {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+#tab-subscriptions:checked ~ .tab-content#content-subscriptions,
+#tab-subscribers:checked ~ .tab-content#content-subscribers {
+    display: block;
+}
+
+#sub-tab-games:checked ~ .tab-content#content-sub-games,
+#sub-tab-translations:checked ~ .tab-content#content-sub-translations,
+#sub-tab-users:checked ~ .tab-content#content-sub-users {
+    display: block;
+}

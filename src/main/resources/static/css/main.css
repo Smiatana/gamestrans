@@ -3,18 +3,21 @@
 @import 'base/layout.css';
 @import 'base/typography.css';
 @import 'base/utilities.css';
+
 @import 'components/navbar.css';
 @import 'components/form.css';
 @import 'components/button.css';
 @import 'components/card.css';
+@import 'components/subscription.css';
+@import 'components/tabs.css';
+
 @import 'pages/games.css';
 @import 'pages/translations.css';
 @import 'pages/users.css';
 @import 'pages/releases.css';
 @import 'pages/moderation.css';
-@import 'components/subscription.css';
 
-/* Page Header */
+
 .page-header { 
   margin-bottom: 2.5rem; 
   border-bottom: 1px solid var(--clr-border); 
@@ -42,7 +45,6 @@
   align-items: center;
 }
 
-/* Section Heading */
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -55,7 +57,6 @@
   margin: 0;
 }
 
-/* Badges */
 .badge { 
   display: inline-block; 
   padding: 4px 12px; 
@@ -68,7 +69,6 @@
 .badge--review { color: var(--clr-warning); background: rgba(245, 158, 11, 0.1); }
 .badge--success { color: var(--clr-success); background: rgba(16, 185, 129, 0.1); }
 
-/* Alerts */
 .alert { 
   padding: 16px; 
   border-radius: var(--radius); 
@@ -86,7 +86,6 @@
   border: 1px solid var(--clr-danger); 
 }
 
-/* User PFP override */
 .profile-header__pfp {
   border-radius: 50%;
   width: 150px; 
@@ -96,7 +95,6 @@
   box-shadow: 0 0 20px var(--clr-primary-alpha);
 }
 
-/* Moderation Layout */
 .mod-layout { 
   display: grid; 
   grid-template-columns: 240px 1fr; 
@@ -133,7 +131,6 @@
   color: var(--clr-text-dim); 
 }
 
-/* Content Layout Sections */
 .content-main {
   display: flex;
   flex-direction: column;

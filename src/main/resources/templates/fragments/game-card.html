@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Simple game card (for profile pages) -->
+<th:block th:fragment="simple(game)">
+    <a th:href="@{/g/{id}(id=${game.title})}" class="game-card">
+        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
+        <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
+        <div class="game-card__body">
+            <h2 th:text="${game.title}"></h2>
+        </div>
+    </a>
+</th:block>
+
+<!-- Full game card with details (for index pages) -->
+<th:block th:fragment="full(game, hasNonDraftMap)">
+    <div class="game-card">
+        <a th:href="@{/g/{id}(id=${game.title})}">
+            <div class="game-card__image-box">
+                <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" alt="Вокладка">
+            </div>
+            <div class="game-card__body">
+                <h2 th:text="${game.title}"></h2>
+                <div class="game-card__dev" th:text="${game.developer}"></div>
+                <div class="game-card__tags">
+                    <span th:each="g : ${game.genres}" class="mini-tag" th:text="${g.name}"></span>
+                    <span th:if="${hasNonDraftMap[game.id] == false}" class="mini-tag" style="color: var(--clr-warning);">Чарнавік</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</th:block>
+
+</body>
+</html>

@@ -31,6 +31,12 @@ public class Subscription {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Transient
+    private String resolvedTitle;
+
+    @Transient
+    private String resolvedUrl;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: html('Профіль', ~{::main})}">
 
 <body>
-    <main>
+    <main class="main-content">
         <div class="profile-header">
             <img th:if="${user.avatarUrl}" th:src="${user.avatarUrl}" class="profile-header__pfp">
             <div class="profile-header__info">
@@ -18,7 +18,6 @@
         </div>
 
         <div class="page-header__actions">
-            <!-- Edit (owner) -->
             <a th:if="${isOwner}"
                th:href="@{/u/{u}/edit(u=${user.username})}"
                class="btn btn--outline">Рэдагаваць</a>
@@ -43,62 +42,191 @@
             папярэджанне(-яў) ад мадэратара.
         </div>
 
-        <div class="games-grid" th:unless="${#lists.isEmpty(games)}">
-            <a th:each="game : ${games}"
-               th:href="@{/g/{id}(id=${game.title})}"
-               class="game-card">
-                <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
-                <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
-                <div class="game-card__body">
-                    <h2 th:text="${game.title}"></h2>
-                </div>
-            </a>
-        </div>
-        <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
+        <!-- ── MAIN TABS ── -->
+        <div class="tabs" style="margin-top: 2rem;">
+            <input type="radio" name="profile-tab" id="tab-games"       class="tab-input" checked>
+            <input type="radio" name="profile-tab" id="tab-subscriptions" class="tab-input" th:if="${isOwner}">
+            <input type="radio" name="profile-tab" id="tab-subscribers"  class="tab-input" th:if="${isOwner}">
 
-        <div th:if="${isOwner and !#lists.isEmpty(deletedGames)}" class="section">
-            <div class="section-header">
-                <h2>Выдаленыя гульні</h2>
+            <div class="tab-labels">
+                <label for="tab-games" class="tab-label">
+                    <i data-lucide="gamepad-2" class="tab-label__icon"></i>
+                    <span>Гульні</span>
+                    <span class="badge" th:text="${#lists.size(games)}">0</span>
+                </label>
+                <label th:if="${isOwner}" for="tab-subscriptions" class="tab-label">
+                    <i data-lucide="bell" class="tab-label__icon"></i>
+                    <span>Падпіскі</span>
+                    <span class="badge"
+                          th:text="${#lists.size(gameSubscriptions) + #lists.size(translationSubscriptions) + #lists.size(userSubscriptions)}">0</span>
+                </label>
+                <label th:if="${isOwner}" for="tab-subscribers" class="tab-label">
+                    <i data-lucide="users" class="tab-label__icon"></i>
+                    <span>Падпісчыкі</span>
+                    <span class="badge" th:text="${#lists.size(mySubscribers)}">0</span>
+                </label>
             </div>
-            <div class="card">
-                <p class="text-muted text-sm" style="margin-bottom:0.75rem;">
-                    Гэтыя гульні схаваны. Вы можаце аднавіць або выдаліць назаўжды.
-                </p>
-                <div th:each="game : ${deletedGames}" class="mod-item">
-                    <div class="mod-item__info">
-                        <span class="text-bold" th:text="${game.title}"></span>
-                        <span class="text-muted text-sm"
-                              th:text="'Выдалена: ' + ${#temporals.format(game.deletedAt, 'dd.MM.yyyy')}"></span>
+
+            <!-- ── TAB: GAMES ── -->
+            <div class="tab-content" id="content-games">
+                <div class="games-grid" th:unless="${#lists.isEmpty(games)}">
+                    <a th:each="game : ${games}"
+                       th:href="@{/g/{id}(id=${game.title})}"
+                       class="game-card">
+                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
+                        <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
+                        <div class="game-card__body">
+                            <h2 th:text="${game.title}"></h2>
+                        </div>
+                    </a>
+                </div>
+                <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
+
+                <div th:if="${isOwner and !#lists.isEmpty(deletedGames)}" class="section" style="margin-top: 2rem;">
+                    <div class="section-header">
+                        <h2>Выдаленыя гульні</h2>
                     </div>
-                    <div class="mod-item__actions">
-                        <form th:action="@{/g/{t}/restore(t=${game.title})}" method="post">
-                            <button type="submit" class="btn btn--outline btn--sm">Аднавіць</button>
-                        </form>
-                        <form th:action="@{/g/{t}/delete-permanent(t=${game.title})}" method="post">
-                            <button type="submit" class="btn btn--danger btn--sm"
-                                    onclick="return confirm('Выдаліць назаўжды?')">Выдаліць назаўжды</button>
-                        </form>
+                    <div class="card">
+                        <p class="text-muted text-sm" style="margin-bottom:0.75rem;">
+                            Гэтыя гульні схаваны. Вы можаце аднавіць або выдаліць назаўжды.
+                        </p>
+                        <div th:each="game : ${deletedGames}" class="mod-item">
+                            <div class="mod-item__info">
+                                <span class="text-bold" th:text="${game.title}"></span>
+                                <span class="text-muted text-sm"
+                                      th:text="'Выдалена: ' + ${#temporals.format(game.deletedAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <div class="mod-item__actions">
+                                <form th:action="@{/g/{t}/restore(t=${game.title})}" method="post">
+                                    <button type="submit" class="btn btn--outline btn--sm">Аднавіць</button>
+                                </form>
+                                <form th:action="@{/g/{t}/delete-permanent(t=${game.title})}" method="post">
+                                    <button type="submit" class="btn btn--danger btn--sm"
+                                            onclick="return confirm('Выдаліць назаўжды?')">Выдаліць назаўжды</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <th:block th:if="${isOwner}">
+            <!-- ── TAB: SUBSCRIPTIONS (nested) ── -->
+            <div class="tab-content" id="content-subscriptions" th:if="${isOwner}">
 
-            <div class="section" style="margin-top: 2.5rem;">
-                <div class="section-heading">
-                    <h2>
-                        <i data-lucide="users" style="vertical-align: middle;"></i>
-                        Мае падпісчыкі
-                        <span class="badge" style="margin-left: 0.5rem;"
-                              th:text="${#lists.size(mySubscribers)}"></span>
-                    </h2>
+                <!-- nested radio inputs must be siblings of nested tab-content divs -->
+                <input type="radio" name="sub-tab" id="sub-tab-games"         class="tab-input" checked>
+                <input type="radio" name="sub-tab" id="sub-tab-translations"  class="tab-input">
+                <input type="radio" name="sub-tab" id="sub-tab-users"         class="tab-input">
+
+                <div class="tab-labels tab-labels--secondary">
+                    <label for="sub-tab-users" class="tab-label tab-label--sm">
+                        <i data-lucide="user" class="tab-label__icon"></i>
+                        <span>Падпіскі на карыстальнікаў</span>
+                        <span class="badge" th:text="${#lists.size(userSubscriptions)}">0</span>
+                    </label>
+                    <label for="sub-tab-games" class="tab-label tab-label--sm">
+                        <i data-lucide="gamepad-2" class="tab-label__icon"></i>
+                        <span>Падпіскі на гульні</span>
+                        <span class="badge" th:text="${#lists.size(gameSubscriptions)}">0</span>
+                    </label>
+                    <label for="sub-tab-translations" class="tab-label tab-label--sm">
+                        <i data-lucide="languages" class="tab-label__icon"></i>
+                        <span>Падпіскі на пераклады</span>
+                        <span class="badge" th:text="${#lists.size(translationSubscriptions)}">0</span>
+                    </label>
                 </div>
 
+                <!-- SUB-TAB: subscribed games -->
+                <div class="tab-content" id="content-sub-games">
+                    <div th:if="${#lists.isEmpty(gameSubscriptions)}" class="card">
+                        <p class="text-muted" style="margin: 0;">Вы яшчэ не падпісаны на гульні.</p>
+                    </div>
+                    <div class="subscriptions-list" th:unless="${#lists.isEmpty(gameSubscriptions)}">
+                        <div th:each="sub : ${gameSubscriptions}" class="subscription-item card">
+                            <div class="subscription-item__icon">
+                                <i data-lucide="gamepad-2"></i>
+                            </div>
+                            <div class="subscription-item__info">
+                                <span class="text-xs text-muted text-upper">Гульня</span>
+                                <a th:href="@{/g/{g}(g=${sub.resolvedTitle})}"
+                                   th:text="${sub.resolvedTitle}"
+                                   class="subscription-item__name"></a>
+                                <span class="text-muted text-sm"
+                                      th:text="'з ' + ${#temporals.format(sub.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <form th:action="@{/unsubscribe/{type}/{id}(type=${sub.targetType},id=${sub.targetId})}"
+                                  method="post">
+                                <button type="submit" class="btn btn--outline btn--sm" title="Адпісацца">
+                                    <i data-lucide="bell-off"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB: subscribed translations -->
+                <div class="tab-content" id="content-sub-translations">
+                    <div th:if="${#lists.isEmpty(translationSubscriptions)}" class="card">
+                        <p class="text-muted" style="margin: 0;">Вы яшчэ не падпісаны на пераклады.</p>
+                    </div>
+                    <div class="subscriptions-list" th:unless="${#lists.isEmpty(translationSubscriptions)}">
+                        <div th:each="sub : ${translationSubscriptions}" class="subscription-item card">
+                            <div class="subscription-item__icon">
+                                <i data-lucide="languages"></i>
+                            </div>
+                            <div class="subscription-item__info">
+                                <span class="text-xs text-muted text-upper">Пераклад</span>
+                                <a th:href="${sub.resolvedUrl}"
+                                   th:text="${sub.resolvedTitle}"
+                                   class="subscription-item__name"></a>
+                                <span class="text-muted text-sm"
+                                      th:text="'з ' + ${#temporals.format(sub.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <form th:action="@{/unsubscribe/{type}/{id}(type=${sub.targetType},id=${sub.targetId})}"
+                                  method="post">
+                                <button type="submit" class="btn btn--outline btn--sm" title="Адпісацца">
+                                    <i data-lucide="bell-off"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-TAB: subscribed users -->
+                <div class="tab-content" id="content-sub-users">
+                    <div th:if="${#lists.isEmpty(userSubscriptions)}" class="card">
+                        <p class="text-muted" style="margin: 0;">Вы яшчэ не падпісаны на карыстальніка.</p>
+                    </div>
+                    <div class="subscriptions-list" th:unless="${#lists.isEmpty(userSubscriptions)}">
+                        <div th:each="sub : ${userSubscriptions}" class="subscription-item card">
+                            <div class="subscription-item__icon">
+                                <i data-lucide="user"></i>
+                            </div>
+                            <div class="subscription-item__info">
+                                <span class="text-xs text-muted text-upper">Карыстальнік</span>
+                                <a th:href="@{/u/{u}(u=${sub.resolvedTitle})}"
+                                   th:text="${sub.resolvedTitle}"
+                                   class="subscription-item__name"></a>
+                                <span class="text-muted text-sm"
+                                      th:text="'з ' + ${#temporals.format(sub.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                            <form th:action="@{/unsubscribe/{type}/{id}(type=${sub.targetType},id=${sub.targetId})}"
+                                  method="post">
+                                <button type="submit" class="btn btn--outline btn--sm" title="Адпісацца">
+                                    <i data-lucide="bell-off"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- end content-subscriptions -->
+
+            <!-- ── TAB: SUBSCRIBERS ── -->
+            <div class="tab-content" id="content-subscribers" th:if="${isOwner}">
                 <div class="card" th:if="${#lists.isEmpty(mySubscribers)}">
                     <p class="text-muted" style="margin: 0;">Падпісчыкаў пакуль няма.</p>
                 </div>
-
                 <div class="subscriber-list" th:unless="${#lists.isEmpty(mySubscribers)}">
                     <div th:each="sub : ${mySubscribers}" class="subscriber-item card">
                         <div class="subscriber-item__info">
@@ -131,68 +259,7 @@
                 </div>
             </div>
 
-            <div class="section" style="margin-top: 2.5rem;">
-                <div class="section-heading">
-                    <h2>
-                        <i data-lucide="bell" style="vertical-align: middle;"></i>
-                        Мае падпіскі
-                        <span class="badge" style="margin-left: 0.5rem;"
-                              th:text="${#lists.size(mySubscriptions)}"></span>
-                    </h2>
-                </div>
-
-                <div class="card" th:if="${#lists.isEmpty(mySubscriptions)}">
-                    <p class="text-muted" style="margin: 0;">Вы яшчэ ні на кога не падпісаліся.</p>
-                </div>
-
-                <div class="subscriptions-list" th:unless="${#lists.isEmpty(mySubscriptions)}">
-                    <div th:each="sub : ${mySubscriptions}" class="subscription-item card">
-
-                        <div class="subscription-item__icon">
-                            <i th:if="${sub.targetType == 'user'}"        data-lucide="user"></i>
-                            <i th:if="${sub.targetType == 'game'}"        data-lucide="gamepad-2"></i>
-                            <i th:if="${sub.targetType == 'translation'}" data-lucide="languages"></i>
-                        </div>
-
-                        <div class="subscription-item__info">
-                            <th:block th:if="${sub.targetType == 'user'}">
-                                <span class="text-xs text-muted text-upper">Карыстальнік</span>
-                                <a th:href="@{/u/{u}(u=${sub.resolvedTitle})}"
-                                   th:text="${sub.resolvedTitle}"
-                                   class="subscription-item__name"></a>
-                            </th:block>
-
-                            <th:block th:if="${sub.targetType == 'game'}">
-                                <span class="text-xs text-muted text-upper">Гульня</span>
-                                <a th:href="@{/g/{g}(g=${sub.resolvedTitle})}"
-                                   th:text="${sub.resolvedTitle}"
-                                   class="subscription-item__name"></a>
-                            </th:block>
-
-                            <th:block th:if="${sub.targetType == 'translation'}">
-                                <span class="text-xs text-muted text-upper">Пераклад</span>
-                                <a th:href="${sub.resolvedUrl}"
-                                   th:text="${sub.resolvedTitle}"
-                                   class="subscription-item__name"></a>
-                            </th:block>
-
-                            <span class="text-muted text-sm"
-                                  th:text="'з ' + ${#temporals.format(sub.createdAt, 'dd.MM.yyyy')}"></span>
-                        </div>
-
-                        <form th:action="@{/unsubscribe/{type}/{id}(type=${sub.targetType},id=${sub.targetId})}"
-                              method="post">
-                            <button type="submit"
-                                    class="btn btn--outline btn--sm"
-                                    title="Адпісацца">
-                                <i data-lucide="bell-off"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-        </th:block>
+        </div><!-- end .tabs -->
 
         <div th:replace="~{fragments/report :: modal}"></div>
     </main>

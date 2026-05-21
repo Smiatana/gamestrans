@@ -20,6 +20,7 @@ import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.entity.Subscription;
 import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
+import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.repository.UserRepository;
 import com.smiatana.gamestrans.repository.WarningRepository;
 import com.smiatana.gamestrans.service.AuditLogService;
@@ -37,6 +38,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final GameRepository gameRepository;
+    private final TranslationRepository translationRepository;
     private final WarningRepository warningRepository;
     private final AuditLogService auditLogService;
     private final UriService uriService;
@@ -89,13 +91,41 @@ public class UserController {
             List<Subscription> mySubscribers = subscriptionService.getSubscribersOfUser(user.getId());
             model.addAttribute("mySubscribers", mySubscribers);
         
-            List<Subscription> mySubscriptions = subscriptionService.getSubscriptionsOf(user);
-            model.addAttribute("mySubscriptions", mySubscriptions);
+            List<Subscription> gameSubscriptions = subscriptionService.getSubscriptionsOfType(user, SubscriptionService.TYPE_GAME);
+            populateSubscriptionTitles(gameSubscriptions);
+            model.addAttribute("gameSubscriptions", gameSubscriptions);
+
+            List<Subscription> translationSubscriptions = subscriptionService.getSubscriptionsOfType(user, SubscriptionService.TYPE_TRANSLATION);
+            populateSubscriptionTitles(translationSubscriptions);
+            model.addAttribute("translationSubscriptions", translationSubscriptions);
+
+            List<Subscription> userSubscriptions = subscriptionService.getSubscriptionsOfType(user, SubscriptionService.TYPE_USER);
+            populateSubscriptionTitles(userSubscriptions);
+            model.addAttribute("userSubscriptions", userSubscriptions);
         }
 
 
 
         return "users/show";
+    }
+
+    private void populateSubscriptionTitles(List<Subscription> subscriptions) {
+        for (Subscription sub : subscriptions) {
+            if (SubscriptionService.TYPE_GAME.equals(sub.getTargetType())) {
+                gameRepository.findById(sub.getTargetId()).ifPresent(game -> {
+                    sub.setResolvedTitle(game.getTitle());
+                });
+            } else if (SubscriptionService.TYPE_TRANSLATION.equals(sub.getTargetType())) {
+                translationRepository.findById(sub.getTargetId()).ifPresent(translation -> {
+                    sub.setResolvedTitle(translation.getTitle());
+                    sub.setResolvedUrl("/g/" + translation.getGame().getTitle() + "/t/" + translation.getTitle());
+                });
+            } else if (SubscriptionService.TYPE_USER.equals(sub.getTargetType())) {
+                userRepository.findById(sub.getTargetId()).ifPresent(subscribedUser -> {
+                    sub.setResolvedTitle(subscribedUser.getUsername());
+                });
+            }
+        }
     }
 
     @GetMapping("/u/{username}/edit")

@@ -67,6 +67,8 @@ public class TranslationService {
         TranslationMember member = new TranslationMember();
         member.setTranslation(translation);
         member.setUser(currentUser);
+        member.setRole("owner");
+        translationMemberRepository.save(member);
         Translation saved = translationRepository.save(translation);
         auditLogService.log(currentUser, "TRANSLATION_CREATE", "translation", saved.getId(),
                 "Пераклад '" + saved.getTitle() + "' створаны карыстальнікам " + currentUser.getUsername());
@@ -88,6 +90,7 @@ public class TranslationService {
         translationRepository.save(translation);
 
         TranslationMember member = new TranslationMember();
+        member.setTranslation(translation);
         member.setUser(currentUser);
         member.setRole("owner");
         translationMemberRepository.save(member);

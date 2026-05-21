@@ -21,6 +21,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
     List<Subscription> findBySubscriberOrderByCreatedAtDesc(User subscriber);
  
     List<Subscription> findBySubscriberAndTargetType(User subscriber, String targetType);
+
+    List<Subscription> findBySubscriberAndTargetTypeOrderByCreatedAtDesc(User subscriber, String targetType);
  
     List<Subscription> findByTargetTypeAndTargetId(String targetType, UUID targetId);
  

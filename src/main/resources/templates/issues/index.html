@@ -64,9 +64,11 @@
                             <button type="submit" class="btn btn--outline btn--sm"
                                 th:text="${issue.status == 'solved'} ? 'Адкрыць' : 'Вырашыць'"></button>
                         </form>
-                        <a th:if="${currentUser != null and currentUser.id == issue.author.id}"
+                        <div th:if="${currentUser != null and currentUser.id == issue.author.id}">
+                            <a
                             th:href="@{/g/{g}/t/{t}/issues/{i}/edit(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
                             class="btn btn--outline btn--sm">Рэдагаваць</a>
+                        </div>
                         <form th:if="${currentUser != null and (currentUser.id == issue.author.id or isMember)}"
                             th:action="@{/g/{g}/t/{t}/issues/{i}(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
                             method="post" style="display:inline;">
