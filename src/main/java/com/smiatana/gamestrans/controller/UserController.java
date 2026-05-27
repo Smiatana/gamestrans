@@ -2,8 +2,10 @@ package com.smiatana.gamestrans.controller;
 
 import com.smiatana.gamestrans.service.UserService;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,6 +69,13 @@ public class UserController {
                 .filter(g -> g.getDeletedAt() == null)
                 .distinct().toList();
         model.addAttribute("games", games);
+
+        Map<UUID, Boolean> hasNonDraftMap = new HashMap<>();
+        for (Game game : games) {
+            boolean hasNonDraft = translationRepository.hasNonDraftTranslation(game.getId());
+            hasNonDraftMap.put(game.getId(), hasNonDraft);
+        }
+        model.addAttribute("hasNonDraftMap", hasNonDraftMap);
 
         List<Game> deletedGames = List.of();
         if (isOwner) {

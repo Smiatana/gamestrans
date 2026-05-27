@@ -70,15 +70,9 @@
             <!-- ── TAB: GAMES ── -->
             <div class="tab-content" id="content-games">
                 <div class="games-grid" th:unless="${#lists.isEmpty(games)}">
-                    <a th:each="game : ${games}"
-                       th:href="@{/g/{id}(id=${game.title})}"
-                       class="game-card">
-                        <img th:if="${game.coverUrl}" th:src="${game.coverUrl}" class="game-card__cover">
-                        <div th:unless="${game.coverUrl}" class="game-card__cover game-card__cover--empty"></div>
-                        <div class="game-card__body">
-                            <h2 th:text="${game.title}"></h2>
-                        </div>
-                    </a>
+                    <div th:each="game : ${games}">
+                        <div th:replace="~{fragments/game-card :: full(${game}, ${hasNonDraftMap})}"></div>
+                    </div>
                 </div>
                 <p th:if="${#lists.isEmpty(games)}" class="text-muted">Гульняў пакуль няма</p>
 

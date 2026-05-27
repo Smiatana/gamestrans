@@ -207,6 +207,8 @@ public class GameController {
         req.setGameTitle(game.getTitle());
         req.setGameDescription(game.getDescription());
         req.setDeveloper(game.getDeveloper());
+        req.setReleaseYear(game.getReleaseYear() != null ? game.getReleaseYear().getValue() : null);
+        req.setGenres(game.getGenres().stream().map(g -> g.getName()).toList());
 
         model.addAttribute("game", game);
         model.addAttribute("addGameRequest", req);

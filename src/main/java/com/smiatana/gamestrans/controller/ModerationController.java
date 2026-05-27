@@ -263,6 +263,16 @@ public class ModerationController {
         return "moderation/content-issues";
     }
 
+    @PostMapping("/content/issues/{id}/delete")
+    public String deleteIssue(@PathVariable UUID id) {
+        User currentUser = authService.getCurrentUser();
+        if (!isMod(currentUser))
+            return "redirect:/";
+        issueRepository.deleteById(id);
+        auditLogService.log(currentUser, "ISSUE_DELETE", "issue", id, "Праблема выдалена мадэратарам");
+        return "redirect:/mod/content/issues";
+    }
+
     @PostMapping("/content/games/{id}/hide")
     public String hideGame(@PathVariable UUID id) {
         User currentUser = authService.getCurrentUser();

@@ -47,46 +47,104 @@
 
         <div class="issue-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
             <div th:each="issue : ${issues}" class="card issue-item">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <div>
-                        <span class="badge"
-                            th:classappend="${issue.status == 'solved'} ? 'badge--success' : 'badge--draft'"
-                            th:text="${issue.status == 'solved'} ? 'Вырашана' : 'Не вырашана'"></span>
-                        <strong style="margin-left: 0.75rem;" th:text="${issue.title}"></strong>
-                    </div>
-                    <div class="btn-group" style="justify-content: flex-end;">
-                        <form th:if="${isMember}"
-                            th:action="@{/g/{g}/t/{t}/issues/{i}/status(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
-                            method="post" style="display:inline;">
-                            <input type="hidden" name="_method" value="PATCH">
-                            <input type="hidden" name="status"
-                                th:value="${issue.status == 'solved'} ? 'unsolved' : 'solved'">
-                            <button type="submit" class="btn btn--outline btn--sm"
-                                th:text="${issue.status == 'solved'} ? 'Адкрыць' : 'Вырашыць'"></button>
-                        </form>
-                        <div th:if="${currentUser != null and currentUser.id == issue.author.id}">
-                            <a
-                            th:href="@{/g/{g}/t/{t}/issues/{i}/edit(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
-                            class="btn btn--outline btn--sm">Рэдагаваць</a>
+                <div th:if="${editIssueId != null and issue.id == editIssueId}">
+                                        <form th:action="@{/g/{g}/t/{t}/issues/{i}(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                                                    th:object="${editIssueRequest}"
+                                                    method="post">
+                                                <input type="hidden" name="_method" value="PATCH">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" th:field="*{title}" class="form-input">
+                            <span class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
                         </div>
-                        <form th:if="${currentUser != null and (currentUser.id == issue.author.id or isMember)}"
-                            th:action="@{/g/{g}/t/{t}/issues/{i}(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
-                            method="post" style="display:inline;">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
-                        </form>
-                    </div>
+                        <div class="form-group">
+                            <label>Апісанне</label>
+                            <textarea th:field="*{description}" class="form-input" rows="4"></textarea>
+                            <span class="form-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Назва рэліза (неабавязкова)</label>
+                            <input type="text" th:field="*{releaseTitle}" class="form-input">
+                        </div>
+                        <div class="btn-group" style="margin-top: 1rem;">
+                            <button type="submit" class="btn btn--primary btn--sm">Захаваць</button>
+                            <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}"
+                               class="btn btn--outline btn--sm">Адмяніць</a>
+                        </div>
+                    </form>
                 </div>
-                <p class="rich-content" th:text="${issue.description}"></p>
-                <p class="text-muted text-sm" th:if="${issue.releaseTitle != null}">
-                    Рэліз: <span th:text="${issue.releaseTitle}"></span>
-                </p>
-                <p class="text-muted text-sm">
-                    <a th:href="@{/u/{u}(u=${issue.author.username})}" th:text="${issue.author.username}"></a>
-                    · <span th:text="${#temporals.format(issue.createdAt, 'dd.MM.yyyy')}"></span>
-                </p>
+                <div th:unless="${editIssueId != null and issue.id == editIssueId}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <div>
+                            <span class="badge"
+                                th:classappend="${issue.status == 'solved'} ? 'badge--success' : 'badge--draft'"
+                                th:text="${issue.status == 'solved'} ? 'Вырашана' : 'Не вырашана'"></span>
+                            <strong style="margin-left: 0.75rem;" th:text="${issue.title}"></strong>
+                        </div>
+                        <div class="btn-group" style="justify-content: flex-end;">
+                            <form th:if="${isMember}"
+                                th:action="@{/g/{g}/t/{t}/issues/{i}/status(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                                method="post" style="display:inline;">
+                                <input type="hidden" name="_method" value="PATCH">
+                                <input type="hidden" name="status"
+                                    th:value="${issue.status == 'solved'} ? 'unsolved' : 'solved'">
+                                <button type="submit" class="btn btn--outline btn--sm"
+                                    th:text="${issue.status == 'solved'} ? 'Адкрыць' : 'Вырашыць'"></button>
+                            </form>
+                            <div th:if="${currentUser != null and currentUser.id == issue.author.id}">
+                                <a th:href="@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title},edit=${issue.id})}"
+                                   class="btn btn--outline btn--sm issue-edit-btn"
+                                   th:attr="data-issue-id=${issue.id}, data-title=${issue.title}, data-description=${issue.description}, data-release-title=${issue.releaseTitle}">
+                                    Рэдагаваць
+                                </a>
+                            </div>
+                            <form th:if="${currentUser != null and (currentUser.id == issue.author.id or isMember)}"
+                                th:action="@{/g/{g}/t/{t}/issues/{i}(g=${translation.game.title},t=${translation.title},i=${issue.id})}"
+                                method="post" style="display:inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn--danger btn--sm">Выдаліць</button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="rich-content" th:text="${issue.description}"></p>
+                    <p class="text-muted text-sm" th:if="${issue.releaseTitle != null}">
+                        Рэліз: <span th:text="${issue.releaseTitle}"></span>
+                    </p>
+                    <p class="text-muted text-sm">
+                        <a th:href="@{/u/{u}(u=${issue.author.username})}" th:text="${issue.author.username}"></a>
+                        · <span th:text="${#temporals.format(issue.createdAt, 'dd.MM.yyyy')}"></span>
+                    </p>
+                </div>
             </div>
         </div>
+
+    <div id="issueEditModal" class="modal" th:attr="data-issues-base-url=@{/g/{g}/t/{t}/issues(g=${translation.game.title},t=${translation.title})}, data-edit-issue-id=${editIssueId}">
+        <div class="modal__backdrop" onclick="closeIssueEditModal()"></div>
+        <div class="modal__box">
+            <h2>Рэдагаваць праблему</h2>
+            <form id="issueEditForm" method="post">
+                <input type="hidden" name="_method" value="PATCH">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-group">
+                    <label for="issueEditTitle">Назва</label>
+                    <input type="text" id="issueEditTitle" name="title" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="issueEditDescription">Апісанне</label>
+                    <textarea id="issueEditDescription" name="description" class="form-input" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="issueEditReleaseTitle">Назва рэліза (неабавязкова)</label>
+                    <input type="text" id="issueEditReleaseTitle" name="releaseTitle" class="form-input">
+                </div>
+                <div class="btn-group" style="margin-top: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn--outline btn--sm" onclick="closeIssueEditModal()">Адмяніць</button>
+                    <button type="submit" class="btn btn--primary btn--sm">Захаваць</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         function toggleForm() {
@@ -111,6 +169,73 @@
                 localStorage.setItem('issueFormExpanded', 'false');
             }
         }
+
+        function openIssueEditModal(issueData) {
+            const modal = document.getElementById('issueEditModal');
+            const form = document.getElementById('issueEditForm');
+            const issueId = issueData.issueId;
+            const baseUrl = modal.dataset.issuesBaseUrl;
+            if (!baseUrl || !issueId) {
+                return;
+            }
+
+            form.action = `${baseUrl}/${encodeURIComponent(issueId)}`;
+            document.getElementById('issueEditTitle').value = issueData.title || '';
+            document.getElementById('issueEditDescription').value = issueData.description || '';
+            document.getElementById('issueEditReleaseTitle').value = issueData.releaseTitle || '';
+            // Ensure CSRF token is present in the modal form (for AJAX-less submission)
+            try {
+                const csrfMeta = document.querySelector('meta[name="_csrf"]');
+                const csrfToken = csrfMeta ? csrfMeta.content : null;
+                if (csrfToken) {
+                    let tokenInput = form.querySelector('input[name="_csrf"]');
+                    if (!tokenInput) {
+                        tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_csrf';
+                        form.appendChild(tokenInput);
+                    }
+                    tokenInput.value = csrfToken;
+                }
+            } catch (e) {
+                // noop
+            }
+            modal.classList.add('active');
+        }
+
+        function closeIssueEditModal() {
+            const modal = document.getElementById('issueEditModal');
+            modal.classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.issue-edit-btn').forEach(btn => {
+                btn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openIssueEditModal({
+                        issueId: btn.dataset.issueId,
+                        title: btn.dataset.title,
+                        description: btn.dataset.description,
+                        releaseTitle: btn.dataset.releaseTitle
+                    });
+                });
+            });
+
+            const modal = document.getElementById('issueEditModal');
+            if (!modal) return;
+            const initialEditIssueId = modal.dataset.editIssueId;
+            if (initialEditIssueId) {
+                const initialButton = document.querySelector(`.issue-edit-btn[data-issue-id="${initialEditIssueId}"]`);
+                if (initialButton) {
+                    openIssueEditModal({
+                        issueId: initialButton.dataset.issueId,
+                        title: initialButton.dataset.title,
+                        description: initialButton.dataset.description,
+                        releaseTitle: initialButton.dataset.releaseTitle
+                    });
+                }
+            }
+        });
 
         (function () {
             const form = document.getElementById('collapsibleForm');
