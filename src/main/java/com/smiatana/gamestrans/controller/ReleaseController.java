@@ -62,22 +62,40 @@ public class ReleaseController {
         public String createReleaseGlobalPage(@Valid @ModelAttribute CreateReleaseRequest createReleaseRequest,
                         BindingResult binding, Model model) throws IOException {
                 User currentUser = authService.getCurrentUser();
+                if (createReleaseRequest.getTranslationId() != null) {
+                        Translation translation = translationRepository.findById(createReleaseRequest.getTranslationId())
+                                        .orElse(null);
+                        if (translation != null
+                                        && releaseRepository.existsByTranslationIdAndTitleIgnoreCase(
+                                                        translation.getId(), createReleaseRequest.getTitle())) {
+                                binding.rejectValue("title", "duplicate", "Назва рэлізу ўжо існуе ў гэтым перакладзе");
+                        }
+                }
                 if (binding.hasErrors()) {
                         List<TranslationMember> members = translationMemberRepository
                                         .findByUserEmail(currentUser.getEmail());
                         model.addAttribute("translations",
                                         members.stream().map(TranslationMember::getTranslation).toList());
-                        return "/releases/new";
+                        return "releases/new";
                 }
                 Translation translation = translationRepository.findById(createReleaseRequest.getTranslationId())
                                 .orElseThrow();
-                var release = releaseService.create(createReleaseRequest, currentUser, translation);
-                String uriGameTitle = uriService.uri(translation.getGame().getTitle());
-                String uriTransTitle = uriService.uri(translation.getTitle());
-                String uriReleaseTitle = uriService.uri(release.getTitle());
+                try {
+                        var release = releaseService.create(createReleaseRequest, currentUser, translation);
+                        String uriGameTitle = uriService.uri(translation.getGame().getTitle());
+                        String uriTransTitle = uriService.uri(translation.getTitle());
+                        String uriReleaseTitle = uriService.uri(release.getTitle());
 
-                return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/r/"
-                                + uriReleaseTitle;
+                        return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle + "/r/"
+                                        + uriReleaseTitle;
+                } catch (IllegalArgumentException e) {
+                        model.addAttribute("error", e.getMessage());
+                        List<TranslationMember> members = translationMemberRepository
+                                        .findByUserEmail(currentUser.getEmail());
+                        model.addAttribute("translations",
+                                        members.stream().map(TranslationMember::getTranslation).toList());
+                        return "releases/new";
+                }
         }
 
         @GetMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}")
@@ -160,8 +178,24 @@ public class ReleaseController {
                 Release release = releaseRepository.findByTranslationIdAndTitle(translation.getId(), releaseTitle)
                                 .orElseThrow();
 
-                releaseService.update(release.getId(), createReleaseRequest, currentUser);
-                return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + createReleaseRequest.getTitle();
+                if (!release.getTitle().equalsIgnoreCase(createReleaseRequest.getTitle())
+                                && releaseRepository.existsByTranslationIdAndTitleIgnoreCaseAndIdNot(
+                                                translation.getId(), createReleaseRequest.getTitle(), release.getId())) {
+                        model.addAttribute("release", release);
+                        model.addAttribute("createReleaseRequest", createReleaseRequest);
+                        model.addAttribute("error", "Назва рэлізу ўжо існуе ў гэтым перакладзе");
+                        return "releases/edit";
+                }
+
+                try {
+                        releaseService.update(release.getId(), createReleaseRequest, currentUser);
+                        return "redirect:/g/" + gameTitle + "/t/" + transTitle + "/r/" + createReleaseRequest.getTitle();
+                } catch (IllegalArgumentException e) {
+                        model.addAttribute("release", release);
+                        model.addAttribute("createReleaseRequest", createReleaseRequest);
+                        model.addAttribute("error", e.getMessage());
+                        return "releases/edit";
+                }
         }
 
         @DeleteMapping("/g/{gameTitle}/t/{transTitle}/r/{releaseTitle}/delete")

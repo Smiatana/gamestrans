@@ -75,14 +75,23 @@ public class TranslationController {
             BindingResult binding,
             Model model) throws java.io.IOException {
         User currentUser = authService.getCurrentUser();
-        if (binding.hasErrors())
+        if (gameRepository.existsByTitleIgnoreCase(createTranslationRequest.getGameTitle())) {
+            binding.rejectValue("gameTitle", "duplicate", "Гульня з такой назвай ужо існуе");
+        }
+        if (binding.hasErrors()) {
             return "translations/new";
-        var translation = translationService.create(createTranslationRequest, currentUser);
+        }
+        try {
+            var translation = translationService.create(createTranslationRequest, currentUser);
 
-        String uriGameTitle = uriService.uri(translation.getGame().getTitle());
-        String uriTransTitle = uriService.uri(translation.getTitle());
-        return "redirect:/g/" + uriGameTitle + "/t/"
-                + uriTransTitle;
+            String uriGameTitle = uriService.uri(translation.getGame().getTitle());
+            String uriTransTitle = uriService.uri(translation.getTitle());
+            return "redirect:/g/" + uriGameTitle + "/t/"
+                    + uriTransTitle;
+        } catch (IllegalArgumentException e) {
+            binding.rejectValue("gameTitle", "duplicate", e.getMessage());
+            return "translations/new";
+        }
     }
 
     @GetMapping("/g/{gameTitle}/t/add")
@@ -98,15 +107,28 @@ public class TranslationController {
             BindingResult binding,
             Model model) throws java.io.IOException {
         User currentUser = authService.getCurrentUser();
+        Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
+        if (translationRepository.existsByGameIdAndTitleIgnoreCase(game.getId(), addTranslationRequest.getTitle())) {
+            binding.rejectValue("title", "duplicate", "Назва перакладу ўжо існуе ў гэтай гульні");
+        }
         if (binding.hasErrors())
+        {
+            model.addAttribute("game", game);
             return "translations/add";
+        }
 
-        var translation = translationService.add(addTranslationRequest, currentUser, gameTitle);
+        try {
+            var translation = translationService.add(addTranslationRequest, currentUser, gameTitle);
 
-        String uriGameTitle = uriService.uri(translation.getGame().getTitle());
-        String uriTransTitle = uriService.uri(translation.getTitle());
-        return "redirect:/g/" + uriGameTitle + "/t/"
-                + uriTransTitle;
+            String uriGameTitle = uriService.uri(translation.getGame().getTitle());
+            String uriTransTitle = uriService.uri(translation.getTitle());
+            return "redirect:/g/" + uriGameTitle + "/t/"
+                    + uriTransTitle;
+        } catch (IllegalArgumentException e) {
+            binding.rejectValue("title", "duplicate", e.getMessage());
+            model.addAttribute("game", game);
+            return "translations/add";
+        }
     }
 
     @GetMapping("/g/{gameTitle}/t/{transTitle}")
@@ -232,19 +254,38 @@ public class TranslationController {
             @Valid @ModelAttribute AddTranslationRequest addTranslationRequest,
             BindingResult binding,
             Model model) throws java.io.IOException {
-        if (binding.hasErrors())
-            return "translations/edit";
         User currentUser = authService.getCurrentUser();
         Translation translation = translationRepository.findByGameTitleAndTitle(gameTitle, transTitle).orElseThrow();
+        if (!translation.getTitle().equalsIgnoreCase(addTranslationRequest.getTitle())
+                && translationRepository.existsByGameIdAndTitleIgnoreCaseAndIdNot(
+                        translation.getGame().getId(), addTranslationRequest.getTitle(), translation.getId())) {
+            binding.rejectValue("title", "duplicate", "Назва перакладу ўжо існуе ў гэтай гульні");
+        }
         boolean isOwner = translationMemberRepository
                 .existsByTranslationIdAndUserEmailAndRole(translation.getId(), currentUser.getEmail(), "owner");
-        if (!isOwner && !isStaff(currentUser)) {
-            return "redirect:/g/" + gameTitle + "/t/" + transTitle;
-        }
-        translationService.update(translation.getId(), addTranslationRequest);
-
         String uriGameTitle = uriService.uri(gameTitle);
         String uriTransTitle = uriService.uri(addTranslationRequest.getTitle());
+        if (binding.hasErrors()) {
+            model.addAttribute("translation", translation);
+            model.addAttribute("isOwner", isOwner);
+            model.addAttribute("members", translationMemberRepository.findByTranslationId(translation.getId()));
+            return "translations/edit";
+        }
+        if (!isOwner && !isStaff(currentUser)) {
+            return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
+        }
+        try {
+            translationService.update(translation.getId(), addTranslationRequest);
+        } catch (IllegalArgumentException e) {
+            binding.rejectValue("title", "duplicate", e.getMessage());
+            model.addAttribute("translation", translation);
+            model.addAttribute("isOwner", isOwner);
+            model.addAttribute("members", translationMemberRepository.findByTranslationId(translation.getId()));
+            return "translations/edit";
+        }
+
+        uriTransTitle = uriService.uri(addTranslationRequest.getTitle());
+        
         return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
     }
 
@@ -257,7 +298,7 @@ public class TranslationController {
         String uriGameTitle = uriService.uri(gameTitle);
         String uriTransTitle = uriService.uri(transTitle);
         if (!isOwner)
-            return "redirect:/g/" + uriGameTitle + "/" + uriTransTitle;
+            return "redirect:/g/" + uriGameTitle + "/t/" + uriTransTitle;
 
         translationService.delete(translation.getId());
         auditLogService.log(currentUser, "TRANSLATION_DELETE", "translation", translation.getId(),

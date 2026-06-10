@@ -47,6 +47,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute RegisterRequest registerRequest, BindingResult binding, Model model) {
+        if (userRepository.existsByEmailIgnoreCase(registerRequest.getEmail())) {
+            binding.rejectValue("email", "duplicate", "Email ужо заняты");
+        }
+        if (userRepository.existsByUsernameIgnoreCase(registerRequest.getUsername())) {
+            binding.rejectValue("username", "duplicate", "Імя карыстальніка ўжо занятае");
+        }
         if (binding.hasErrors())
             return "auth/register";
         try {
@@ -54,7 +60,13 @@ public class AuthController {
             auditLogService.log(created, "USER_REGISTER", "user", created.getId(), "Карыстальнік зарэгістраваны: " + created.getUsername());
             return "redirect:/confirm?email=" + registerRequest.getEmail();
         } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("email")) {
+                binding.rejectValue("email", "duplicate", e.getMessage());
+            } else if (e.getMessage() != null && e.getMessage().toLowerCase().contains("імя")) {
+                binding.rejectValue("username", "duplicate", e.getMessage());
+            } else {
+                model.addAttribute("error", e.getMessage());
+            }
             return "auth/register";
         }
     }

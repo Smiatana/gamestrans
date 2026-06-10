@@ -13,6 +13,7 @@ public class CreateTranslationRequest {
     @NotBlank
     private String gameTitle;
     @NotBlank
+    @Size(max = 255)
     private String title;
     private String gameDescription;
     private MultipartFile gameCover;

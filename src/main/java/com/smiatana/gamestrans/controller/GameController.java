@@ -18,6 +18,7 @@ import com.smiatana.gamestrans.entity.Translation;
 import com.smiatana.gamestrans.entity.TranslationMember;
 import com.smiatana.gamestrans.entity.User;
 import com.smiatana.gamestrans.repository.GenreRepository;
+import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.RatingRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationMemberRepository;
@@ -46,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class GameController {
     private final GameService gameService;
     private final GenreRepository genreRepository;
+    private final GameRepository gameRepository;
     private final TranslationRepository translationRepository;
     private final TranslationMemberRepository translationMemberRepository;
     private final ReleaseRepository releaseRepository;
@@ -222,12 +224,16 @@ public class GameController {
             BindingResult binding,
             Model model) throws java.io.IOException {
         User currentUser = authService.getCurrentUser();
+        Game game = gameService.findByTitle(gameTitle);
+        if (!game.getTitle().equalsIgnoreCase(addGameRequest.getGameTitle())
+                && gameRepository.existsByTitleIgnoreCase(addGameRequest.getGameTitle())) {
+            binding.rejectValue("gameTitle", "duplicate", "Назва гульні ўжо занятая");
+        }
         if (binding.hasErrors()) {
             model.addAttribute("allGenres", genreRepository.findAllByOrderByNameAsc());
-            model.addAttribute("game", gameService.findByTitle(gameTitle));
+            model.addAttribute("game", game);
             return "games/edit";
         }
-        Game game = gameService.findByTitle(gameTitle);
         List<Translation> translations = translationRepository.findByGameTitle(gameTitle);
         List<UUID> translationIds = translations.stream().map(Translation::getId).toList();
         boolean isOwnerOfAny = translationIds.stream()
@@ -235,8 +241,15 @@ public class GameController {
                         .existsByTranslationIdAndUserEmailAndRole(id, currentUser.getEmail(), "owner"));
         if (!isOwnerOfAny)
             return "redirect:/g/" + gameTitle;
-        gameService.update(game.getId(), addGameRequest);
-        return "redirect:/g/" + uriService.uri(addGameRequest.getGameTitle());
+        try {
+            gameService.update(game.getId(), addGameRequest);
+            return "redirect:/g/" + uriService.uri(addGameRequest.getGameTitle());
+        } catch (IllegalArgumentException e) {
+            binding.rejectValue("gameTitle", "duplicate", e.getMessage());
+            model.addAttribute("allGenres", genreRepository.findAllByOrderByNameAsc());
+            model.addAttribute("game", game);
+            return "games/edit";
+        }
     }
 
     @DeleteMapping("/g/{gameTitle}/delete")

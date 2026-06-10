@@ -15,6 +15,10 @@ public interface ReleaseRepository extends JpaRepository<Release, UUID> {
 
     Optional<Release> findByTranslationIdAndTitle(UUID translationId, String releaseTitle);
 
+    boolean existsByTranslationIdAndTitleIgnoreCase(UUID translationId, String title);
+
+    boolean existsByTranslationIdAndTitleIgnoreCaseAndIdNot(UUID translationId, String title, UUID id);
+
     List<Release> findTop5ByTranslationIdOrderByCreatedAtDesc(UUID translationId);
     List<Release> findTop5ByTranslationIdAndStatusOrderByCreatedAtDesc(UUID translationId, String status);
     Optional<Release> findTop1ByTranslationIdAndStatusOrderByCreatedAtDesc(UUID translationId, String status);

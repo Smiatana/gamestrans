@@ -15,6 +15,10 @@ import com.smiatana.gamestrans.entity.Game;
 public interface GameRepository extends JpaRepository<Game, UUID> {
     boolean existsByTitle(String title);
 
+    boolean existsByTitleIgnoreCase(String title);
+
+    boolean existsByTitleIgnoreCaseAndIdNot(String title, UUID id);
+
     Optional<Game> findByTitle(String title);
 
     @Query("""

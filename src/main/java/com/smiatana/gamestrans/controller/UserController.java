@@ -162,6 +162,11 @@ public class UserController {
         
         if (currentUser == null || !user.getEmail().equals(currentUser.getEmail()))
             return "redirect:/u/" + username;
+
+        if (!user.getUsername().equalsIgnoreCase(editProfileRequest.getUsername())
+                && userRepository.existsByUsernameIgnoreCase(editProfileRequest.getUsername())) {
+            binding.rejectValue("username", "duplicate", "Імя карыстальніка ўжо занятае");
+        }
         
         if (binding.hasErrors()) {
             model.addAttribute("user", user);
@@ -170,10 +175,18 @@ public class UserController {
             return "users/edit";
         }
 
-        userService.update(user.getId(), editProfileRequest);
-        auditLogService.log(currentUser, "USER_UPDATE", "user", user.getId(),
-            "Профіль абноўлены: " + user.getUsername());
-        return "redirect:/u/" + uriService.uri(editProfileRequest.getUsername());
+        try {
+            userService.update(user.getId(), editProfileRequest);
+            auditLogService.log(currentUser, "USER_UPDATE", "user", user.getId(),
+                "Профіль абноўлены: " + user.getUsername());
+            return "redirect:/u/" + uriService.uri(editProfileRequest.getUsername());
+        } catch (IllegalArgumentException e) {
+            binding.rejectValue("username", "duplicate", e.getMessage());
+            model.addAttribute("user", user);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
+            return "users/edit";
+        }
     }
 
     @PatchMapping("/u/{username}/changepassword")

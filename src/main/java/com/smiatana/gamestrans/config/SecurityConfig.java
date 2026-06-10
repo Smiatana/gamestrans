@@ -37,6 +37,15 @@ public class SecurityConfig {
         private final OAuthSuccessHandler oauthSuccessHandler;
         private final BannedUserFilter bannedUserFilter;
 
+        private String uniqueUsername(String baseUsername) {
+                String username = baseUsername;
+                int index = 1;
+                while (userRepository.existsByUsernameIgnoreCase(username)) {
+                        username = baseUsername + index++;
+                }
+                return username;
+        }
+
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
@@ -140,7 +149,7 @@ public class SecurityConfig {
                                         .orElseGet(() -> {
                                                 User u = new User();
                                                 u.setEmail(email);
-                                                u.setUsername(email.split("@")[0]);
+                                                u.setUsername(uniqueUsername(email.split("@")[0]));
                                                 u.setStatus("active");
                                                 u.setRole("user");
                                                 return userRepository.save(u);

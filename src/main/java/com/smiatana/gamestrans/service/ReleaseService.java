@@ -33,6 +33,9 @@ public class ReleaseService {
                 && (req.getReleaseLink() == null || req.getReleaseLink().isBlank())) {
             throw new IllegalArgumentException("Рэліз не можа быць пустым");
         }
+        if (releaseRepository.existsByTranslationIdAndTitleIgnoreCase(translation.getId(), req.getTitle())) {
+            throw new IllegalArgumentException("У гэтым перакладзе рэліз з такой назвай ужо існуе");
+        }
 
         String fileUrl;
         if (req.getReleaseFile() != null && !req.getReleaseFile().isEmpty()) {
@@ -72,6 +75,10 @@ public class ReleaseService {
         }
 
         Release release = releaseRepository.findById(releaseId).orElseThrow();
+        if (!release.getTitle().equalsIgnoreCase(req.getTitle())
+                && releaseRepository.existsByTranslationIdAndTitleIgnoreCaseAndIdNot(release.getTranslation().getId(), req.getTitle(), releaseId)) {
+            throw new IllegalArgumentException("У гэтым перакладзе рэліз з такой назвай ужо існуе");
+        }
         release.setTitle(req.getTitle());
         release.setFileUrl(fileUrl);
         release.setDescription(req.getDescription());

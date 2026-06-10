@@ -13,6 +13,10 @@ import com.smiatana.gamestrans.entity.Translation;
 public interface TranslationRepository extends JpaRepository<Translation, UUID> {
     List<Translation> findByGameId(UUID gameId);
 
+    boolean existsByGameIdAndTitleIgnoreCase(UUID gameId, String title);
+
+    boolean existsByGameIdAndTitleIgnoreCaseAndIdNot(UUID gameId, String title, UUID id);
+
     List<Translation> findByGameTitle(String gameTitle);
 
     Optional<Translation> findByGameTitleAndTitle(String gameTitle, String translationTitle);

@@ -55,7 +55,11 @@
             <ul class="member-list">
                 <li th:each="member : ${members}" class="member-item">
                     <a th:href="@{/u/{u}(u=${member.user.username})}" th:text="${member.user.username}"></a>
-                    <span class="badge" th:text="${member.role}"></span>
+                    <span class="badge" th:switch="${member.role}">
+                        <span th:case="'owner'">Уладальнік</span>
+                        <span th:case="'member'">Удзельнік</span>
+                        <span th:case="*" th:text="${member.role}"></span>
+                    </span>
                     <form th:if="${member.role != 'owner'}"
                         th:action="@{/g/{g}/{t}/members/kick/{u}(g=${translation.game.title}, t=${translation.title}, u=${member.user.username})}"
                         method="post" style="display:inline;">

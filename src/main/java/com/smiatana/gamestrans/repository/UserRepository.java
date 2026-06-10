@@ -13,9 +13,15 @@ import com.smiatana.gamestrans.entity.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
+    boolean existsByEmailIgnoreCase(String email);
+
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
+
+    boolean existsByUsernameIgnoreCase(String username);
+
+    boolean existsByUsernameIgnoreCaseAndIdNot(String username, UUID id);
 
     Optional<User> findByUsername(String username);
 

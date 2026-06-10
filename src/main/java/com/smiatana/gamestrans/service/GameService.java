@@ -46,6 +46,10 @@ public class GameService {
     @Transactional
     public Game update(UUID id, AddGameRequest req) throws java.io.IOException {
         Game game = findById(id);
+        if (!game.getTitle().equalsIgnoreCase(req.getGameTitle())
+                && gameRepository.existsByTitleIgnoreCase(req.getGameTitle())) {
+            throw new IllegalArgumentException("Назва гульні ўжо занятая");
+        }
         game.setTitle(req.getGameTitle());
         if (req.getGameCover() != null && !req.getGameCover().isEmpty())
             game.setCoverUrl(fileStorageService.store(req.getGameCover(), "covers"));
@@ -90,26 +94,28 @@ public class GameService {
     }
 
     public Page<Game> findVisible(String email, String search, List<UUID> genreIds, Pageable pageable) {
-        boolean hasSearch = search != null && !search.isBlank();
-        boolean hasGenres = genreIds != null && !genreIds.isEmpty();
+        String normalizedSearch = search != null ? search.trim() : "";
+        boolean hasSearch = !normalizedSearch.isBlank();
+        List<UUID> normalizedGenreIds = genreIds != null ? genreIds : List.of();
+        boolean hasGenres = !normalizedGenreIds.isEmpty();
 
         if (email != null) {
             if (hasSearch && hasGenres)
-                return gameRepository.findVisibleBySearchAndGenres(email, search.trim(), genreIds,
-                        (long) genreIds.size(), pageable);
+                return gameRepository.findVisibleBySearchAndGenres(email, normalizedSearch, normalizedGenreIds,
+                        (long) normalizedGenreIds.size(), pageable);
             if (hasSearch)
-                return gameRepository.findVisibleBySearch(email, search.trim(), pageable);
+                return gameRepository.findVisibleBySearch(email, normalizedSearch, pageable);
             if (hasGenres)
-                return gameRepository.findVisibleByGenres(email, genreIds, (long) genreIds.size(), pageable);
+                return gameRepository.findVisibleByGenres(email, normalizedGenreIds, (long) normalizedGenreIds.size(), pageable);
             return gameRepository.findVisibleGames(email, pageable);
         } else {
             if (hasSearch && hasGenres)
-                return gameRepository.findPublicBySearchAndGenres(search.trim(), genreIds, (long) genreIds.size(),
+                return gameRepository.findPublicBySearchAndGenres(normalizedSearch, normalizedGenreIds, (long) normalizedGenreIds.size(),
                         pageable);
             if (hasSearch)
-                return gameRepository.findPublicBySearch(search.trim(), pageable);
+                return gameRepository.findPublicBySearch(normalizedSearch, pageable);
             if (hasGenres)
-                return gameRepository.findPublicByGenres(genreIds, (long) genreIds.size(), pageable);
+                return gameRepository.findPublicByGenres(normalizedGenreIds, (long) normalizedGenreIds.size(), pageable);
             return gameRepository.findPublicGames(pageable);
         }
     }

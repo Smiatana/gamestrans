@@ -12,6 +12,7 @@ public class IssueRequest {
     @Size(max = 200)
     private String title;
 
+    @NotBlank
     @Size(max = 5000)
     private String description;
 

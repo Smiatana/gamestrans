@@ -43,6 +43,10 @@ public class TranslationService {
 
     @Transactional
     public Translation create(CreateTranslationRequest req, User currentUser) throws java.io.IOException {
+        if (gameRepository.existsByTitleIgnoreCase(req.getGameTitle())) {
+            throw new IllegalArgumentException("Гульня з такой назвай ужо існуе");
+        }
+
         Game game = new Game();
         game.setTitle(req.getGameTitle());
         game.setDescription(req.getGameDescription());
@@ -78,6 +82,9 @@ public class TranslationService {
     @Transactional
     public Translation add(AddTranslationRequest req, User currentUser, String gameTitle) throws java.io.IOException {
         Game game = gameRepository.findByTitle(gameTitle).orElseThrow();
+        if (translationRepository.existsByGameIdAndTitleIgnoreCase(game.getId(), req.getTitle())) {
+            throw new IllegalArgumentException("У гэтай гульні пераклад з такой назвай ужо існуе");
+        }
 
         Translation translation = new Translation();
         translation.setTitle(req.getTitle());
@@ -107,6 +114,10 @@ public class TranslationService {
 
     public Translation update(UUID id, AddTranslationRequest req) throws java.io.IOException {
         Translation translation = findById(id);
+        if (!translation.getTitle().equalsIgnoreCase(req.getTitle())
+                && translationRepository.existsByGameIdAndTitleIgnoreCaseAndIdNot(translation.getGame().getId(), req.getTitle(), id)) {
+            throw new IllegalArgumentException("У гэтай гульні пераклад з такой назвай ужо існуе");
+        }
         translation.setTitle(req.getTitle());
         translation.setDescription(req.getDescription());
 

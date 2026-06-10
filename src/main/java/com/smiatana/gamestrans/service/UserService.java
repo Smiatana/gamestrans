@@ -31,9 +31,9 @@ public class UserService {
     
 
     public User register(RegisterRequest req) {
-        if (userRepository.existsByEmail(req.getEmail()))
+        if (userRepository.existsByEmailIgnoreCase(req.getEmail()))
             throw new IllegalArgumentException("Email заняты");
-        if (userRepository.existsByUsername(req.getUsername()))
+        if (userRepository.existsByUsernameIgnoreCase(req.getUsername()))
             throw new IllegalArgumentException("Імя занятае");
 
         User user = new User();
@@ -55,6 +55,10 @@ public class UserService {
 
     public User update(UUID id, EditProfileRequest req) throws IOException {
         User user = userRepository.findById(id).orElseThrow();
+        if (!user.getUsername().equalsIgnoreCase(req.getUsername())
+                && userRepository.existsByUsernameIgnoreCase(req.getUsername())) {
+            throw new IllegalArgumentException("Імя карыстальніка ўжо занятае");
+        }
         user.setUsername(req.getUsername());
         if (req.getAvatarCropped() != null && !req.getAvatarCropped().isEmpty()) {
             String url = fileStorageService.storeBase64(req.getAvatarCropped(), "avatars");

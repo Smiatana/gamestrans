@@ -20,6 +20,15 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
 
+    private String uniqueUsername(String baseUsername) {
+        String username = baseUsername;
+        int i = 1;
+        while (userRepository.existsByUsernameIgnoreCase(username)) {
+            username = baseUsername + i++;
+        }
+        return username;
+    }
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
             HttpServletResponse response,
@@ -30,6 +39,10 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String email = oauthUser.getAttribute("email");
         String avatar = oauthUser.getAttribute("picture");
 
+        if (email == null) {
+            throw new IllegalStateException("OAuth login failed: email is null");
+        }
+
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             if (userRepository.existsByEmail(email)) {
@@ -37,13 +50,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
             } else {
                 user = new User();
                 user.setEmail(email);
-                String baseUsername = email.split("@")[0];
-                String username = baseUsername;
-                int i = 1;
-                while (userRepository.existsByUsername(username)) {
-                    username = baseUsername + i++;
-                }
-                user.setUsername(username);
+                user.setUsername(uniqueUsername(email.split("@")[0]));
                 user.setAvatarUrl(avatar);
                 user.setRole("user");
                 user.setStatus("active");
