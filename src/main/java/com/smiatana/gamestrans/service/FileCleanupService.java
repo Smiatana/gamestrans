@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import com.smiatana.gamestrans.repository.GameRepository;
 import com.smiatana.gamestrans.repository.ReleaseRepository;
 import com.smiatana.gamestrans.repository.TranslationRepository;
 import com.smiatana.gamestrans.repository.UploadedFileRepository;
+import com.smiatana.gamestrans.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +26,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class FileCleanupService {
+    private static final Pattern LOCAL_UPLOAD_URL = Pattern.compile("(?:src|href)\\s*=\\s*['\"]([^'\"]+)['\"]");
+
     private final UploadedFileRepository uploadedFileRepository;
     private final TranslationRepository translationRepository;
     private final ReleaseRepository releaseRepository;
     private final GameRepository gameRepository;
+    private final UserRepository userRepository;
 
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
@@ -36,6 +42,13 @@ public class FileCleanupService {
 
         Set<String> inUse = new HashSet<>();
 
+        userRepository.findAll().forEach(u -> {
+            if (u.getAvatarUrl() != null) {
+                inUse.add(u.getAvatarUrl());
+            }
+            if (u.getBio() != null)
+                extractUrls(u.getBio(), inUse);
+        });
         translationRepository.findAll().forEach(t -> {
             if (t.getDescription() != null)
                 extractUrls(t.getDescription(), inUse);
@@ -53,6 +66,9 @@ public class FileCleanupService {
             if (g.getCoverUrl() != null) {
                 inUse.add(g.getCoverUrl());
             }
+            if (g.getBackgroundUrl() != null) {
+                inUse.add(g.getBackgroundUrl());
+            }
         });
 
         for (String path : allPaths) {
@@ -64,13 +80,12 @@ public class FileCleanupService {
     }
 
     private void extractUrls(String html, Set<String> urls) {
-        int i = 0;
-        while ((i = html.indexOf("src=\"/uploads/", i)) != -1) {
-            int start = i + 5;
-            int end = html.indexOf("\"", start);
-            if (end != -1)
-                urls.add(html.substring(start, end));
-            i = end;
+        Matcher matcher = LOCAL_UPLOAD_URL.matcher(html);
+        while (matcher.find()) {
+            String url = matcher.group(1);
+            if (url != null && url.startsWith("/uploads/")) {
+                urls.add(url);
+            }
         }
     }
 
